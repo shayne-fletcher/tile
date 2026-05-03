@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Affine.html"><span class="hs-identifier">Tile.Affine</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier">AffineRankSpace</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Tile.Affine.html#rowMajor"><span class="hs-identifier">rowMajor</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>    </span><span class="annot"><a href="Tile.Affine.html#rankOf"><span class="hs-identifier">rankOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><a href="Tile.Affine.html#pointOf"><span class="hs-identifier">pointOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Tile.Affine.html#spaceExtent"><span class="hs-identifier">spaceExtent</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Layout.html"><span class="hs-identifier">Tile.Layout</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Layout.html#Point"><span class="hs-identifier">Point</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Shape.html"><span class="hs-identifier">Tile.Shape</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier">Shape</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="AffineRankSpace"><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-var">AffineRankSpace</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AffineRankSpace"><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-var">AffineRankSpace</span></a></span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="offset"><span class="annot"><span class="annottext">AffineRankSpace -&gt; Int
+</span><a href="Tile.Affine.html#offset"><span class="hs-identifier hs-var hs-var">offset</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>    </span><span id="sizes"><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var hs-var">sizes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span id="strides"><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><a href="Tile.Affine.html#strides"><span class="hs-identifier hs-var hs-var">strides</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679049335"><span id="local-6989586621679049344"><span id="local-6989586621679049348"><span class="annot"><span class="annottext">Int -&gt; AffineRankSpace -&gt; ShowS
+[AffineRankSpace] -&gt; ShowS
+AffineRankSpace -&gt; String
+(Int -&gt; AffineRankSpace -&gt; ShowS)
+-&gt; (AffineRankSpace -&gt; String)
+-&gt; ([AffineRankSpace] -&gt; ShowS)
+-&gt; Show AffineRankSpace
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AffineRankSpace -&gt; ShowS
+showsPrec :: Int -&gt; AffineRankSpace -&gt; ShowS
+$cshow :: AffineRankSpace -&gt; String
+show :: AffineRankSpace -&gt; String
+$cshowList :: [AffineRankSpace] -&gt; ShowS
+showList :: [AffineRankSpace] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049353"><span id="local-6989586621679049360"><span class="annot"><span class="annottext">AffineRankSpace -&gt; AffineRankSpace -&gt; Bool
+(AffineRankSpace -&gt; AffineRankSpace -&gt; Bool)
+-&gt; (AffineRankSpace -&gt; AffineRankSpace -&gt; Bool)
+-&gt; Eq AffineRankSpace
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: AffineRankSpace -&gt; AffineRankSpace -&gt; Bool
+== :: AffineRankSpace -&gt; AffineRankSpace -&gt; Bool
+$c/= :: AffineRankSpace -&gt; AffineRankSpace -&gt; Bool
+/= :: AffineRankSpace -&gt; AffineRankSpace -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Tile.Affine.html#rowMajor"><span class="hs-identifier hs-type">rowMajor</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span>
+</span><span id="line-21"></span><span id="rowMajor"><span class="annot"><span class="annottext">rowMajor :: [Int] -&gt; AffineRankSpace
+</span><a href="Tile.Affine.html#rowMajor"><span class="hs-identifier hs-var hs-var">rowMajor</span></a></span></span><span> </span><span id="local-6989586621679049364"><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049364"><span class="hs-identifier hs-var">shape</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-22"></span><span>  </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span>
+</span><span id="line-23"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">offset :: Int
+</span><a href="Tile.Affine.html#offset"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>      </span><span class="annot"><span class="annottext">sizes :: [Int]
+</span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049364"><span class="hs-identifier hs-var">shape</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>      </span><span class="annot"><span class="annottext">strides :: [Int]
+</span><a href="Tile.Affine.html#strides"><span class="hs-identifier hs-var">strides</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [Int]
+forall a. HasCallStack =&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">tail</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; Int) -&gt; Int -&gt; [Int] -&gt; [Int]
+forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">scanr</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(*)</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049364"><span class="hs-identifier hs-var">shape</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-special">}</span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="annot"><a href="Tile.Affine.html#rankOf"><span class="hs-identifier hs-type">rankOf</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Layout.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-29"></span><span id="rankOf"><span class="annot"><span class="annottext">rankOf :: AffineRankSpace -&gt; [Int] -&gt; Int
+</span><a href="Tile.Affine.html#rankOf"><span class="hs-identifier hs-var hs-var">rankOf</span></a></span></span><span> </span><span id="local-6989586621679049368"><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049368"><span class="hs-identifier hs-var">space</span></a></span></span><span> </span><span id="local-6989586621679049369"><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049369"><span class="hs-identifier hs-var">coord</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Int
+</span><a href="Tile.Affine.html#offset"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049368"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int
+forall a. Num a =&gt; [a] -&gt; a
+forall (t :: * -&gt; *) a. (Foldable t, Num a) =&gt; t a -&gt; a
+</span><span class="hs-identifier hs-var">sum</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; Int) -&gt; [Int] -&gt; [Int] -&gt; [Int]
+forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+</span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(*)</span></span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049369"><span class="hs-identifier hs-var">coord</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><a href="Tile.Affine.html#strides"><span class="hs-identifier hs-var">strides</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049368"><span class="hs-identifier hs-var">space</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Tile.Affine.html#pointOf"><span class="hs-identifier hs-type">pointOf</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Layout.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span>
+</span><span id="line-33"></span><span id="pointOf"><span class="annot"><span class="annottext">pointOf :: AffineRankSpace -&gt; Int -&gt; [Int]
+</span><a href="Tile.Affine.html#pointOf"><span class="hs-identifier hs-var hs-var">pointOf</span></a></span></span><span> </span><span id="local-6989586621679049373"><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049373"><span class="hs-identifier hs-var">space</span></a></span></span><span> </span><span id="local-6989586621679049374"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049374"><span class="hs-identifier hs-var">rank</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>  </span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; Int) -&gt; [Int] -&gt; [Int] -&gt; [Int]
+forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+</span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679049375"><span class="hs-identifier hs-var">coordinate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><a href="Tile.Affine.html#strides"><span class="hs-identifier hs-var">strides</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049373"><span class="hs-identifier hs-var">space</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049373"><span class="hs-identifier hs-var">space</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-36"></span><span>    </span><span id="local-6989586621679049376"><span class="annot"><span class="annottext">relativeRank :: Int
+</span><a href="#local-6989586621679049376"><span class="hs-identifier hs-var hs-var">relativeRank</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049374"><span class="hs-identifier hs-var">rank</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Int
+</span><a href="Tile.Affine.html#offset"><span class="hs-identifier hs-var">offset</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049373"><span class="hs-identifier hs-var">space</span></a></span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span>    </span><span id="local-6989586621679049375"><span class="annot"><span class="annottext">coordinate :: Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679049375"><span class="hs-identifier hs-var hs-var">coordinate</span></a></span></span><span> </span><span id="local-6989586621679049377"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049377"><span class="hs-identifier hs-var">stride</span></a></span></span><span> </span><span id="local-6989586621679049378"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049378"><span class="hs-identifier hs-var">size</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-39"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049376"><span class="hs-identifier hs-var">relativeRank</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Integral a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049377"><span class="hs-identifier hs-var">stride</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Integral a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`mod`</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049378"><span class="hs-identifier hs-var">size</span></a></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Tile.Affine.html#spaceExtent"><span class="hs-identifier hs-type">spaceExtent</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-42"></span><span id="spaceExtent"><span class="annot"><span class="annottext">spaceExtent :: AffineRankSpace -&gt; Int
+</span><a href="Tile.Affine.html#spaceExtent"><span class="hs-identifier hs-var hs-var">spaceExtent</span></a></span></span><span> </span><span id="local-6989586621679049381"><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049381"><span class="hs-identifier hs-var">space</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">[Int] -&gt; Int
+forall a. Num a =&gt; [a] -&gt; a
+forall (t :: * -&gt; *) a. (Foldable t, Num a) =&gt; t a -&gt; a
+</span><span class="hs-identifier hs-var">product</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
+</span><a href="#local-6989586621679049381"><span class="hs-identifier hs-var">space</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span></pre></body></html>

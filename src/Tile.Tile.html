@@ -15,7 +15,7 @@
 </span><span id="line-14"></span><span>    </span><span id="shape"><span class="annot"><span class="annottext">Tile -&gt; Shape
 </span><a href="Tile.Tile.html#shape"><span class="hs-identifier hs-var hs-var">shape</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span>
 </span><span id="line-15"></span><span>  </span><span class="hs-special">}</span><span>
-</span><span id="line-16"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679048988"><span id="local-6989586621679048997"><span id="local-6989586621679049001"><span class="annot"><span class="annottext">Int -&gt; Tile -&gt; ShowS
+</span><span id="line-16"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679049421"><span id="local-6989586621679049430"><span id="local-6989586621679049434"><span class="annot"><span class="annottext">Int -&gt; Tile -&gt; ShowS
 [Tile] -&gt; ShowS
 Tile -&gt; String
 (Int -&gt; Tile -&gt; ShowS)
@@ -28,7 +28,7 @@ $cshow :: Tile -&gt; String
 show :: Tile -&gt; String
 $cshowList :: [Tile] -&gt; ShowS
 showList :: [Tile] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049007"><span id="local-6989586621679049014"><span class="annot"><span class="annottext">Tile -&gt; Tile -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049440"><span id="local-6989586621679049447"><span class="annot"><span class="annottext">Tile -&gt; Tile -&gt; Bool
 (Tile -&gt; Tile -&gt; Bool) -&gt; (Tile -&gt; Tile -&gt; Bool) -&gt; Eq Tile
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c== :: Tile -&gt; Tile -&gt; Bool
@@ -47,42 +47,42 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span id="line-20"></span><span>
 </span><span id="line-21"></span><span class="annot"><a href="Tile.Tile.html#subTile"><span class="hs-identifier hs-type">subTile</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span>
 </span><span id="line-22"></span><span id="subTile"><span class="annot"><span class="annottext">subTile :: Tile -&gt; Int -&gt; Shape -&gt; Tile
-</span><a href="Tile.Tile.html#subTile"><span class="hs-identifier hs-var hs-var">subTile</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Range.html#Range"><span class="hs-identifier hs-type">Range</span></a></span><span> </span><span id="local-6989586621679049022"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679049022"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="Tile.Tile.html#subTile"><span class="hs-identifier hs-var hs-var">subTile</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Range.html#Range"><span class="hs-identifier hs-type">Range</span></a></span><span> </span><span id="local-6989586621679049455"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049455"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Shape
-</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679049023"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679049023"><span class="hs-identifier hs-var">offset</span></a></span></span><span> </span><span id="local-6989586621679049024"><span class="annot"><span class="annottext">Shape
-</span><a href="#local-6989586621679049024"><span class="hs-identifier hs-var">dims</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679049456"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049456"><span class="hs-identifier hs-var">offset</span></a></span></span><span> </span><span id="local-6989586621679049457"><span class="annot"><span class="annottext">Shape
+</span><a href="#local-6989586621679049457"><span class="hs-identifier hs-var">dims</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-23"></span><span>  </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span>
 </span><span id="line-24"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">range :: Range
 </span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Range
 </span><a href="Tile.Range.html#Range"><span class="hs-identifier hs-var">Range</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679049022"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679049455"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679049023"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Shape -&gt; Int
+</span><a href="#local-6989586621679049456"><span class="hs-identifier hs-var">offset</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Shape -&gt; Int
 forall a. Num a =&gt; [a] -&gt; a
 forall (t :: * -&gt; *) a. (Foldable t, Num a) =&gt; t a -&gt; a
 </span><span class="hs-identifier hs-var">product</span></span><span> </span><span class="annot"><span class="annottext">Shape
-</span><a href="#local-6989586621679049024"><span class="hs-identifier hs-var">dims</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><a href="#local-6989586621679049457"><span class="hs-identifier hs-var">dims</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
 </span><span id="line-25"></span><span>      </span><span class="annot"><span class="annottext">shape :: Shape
 </span><a href="Tile.Tile.html#shape"><span class="hs-identifier hs-var">shape</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Shape
-</span><a href="#local-6989586621679049024"><span class="hs-identifier hs-var">dims</span></a></span><span>
+</span><a href="#local-6989586621679049457"><span class="hs-identifier hs-var">dims</span></a></span><span>
 </span><span id="line-26"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-27"></span><span>
 </span><span id="line-28"></span><span class="annot"><a href="Tile.Tile.html#rootTile"><span class="hs-identifier hs-type">rootTile</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span>
 </span><span id="line-29"></span><span id="rootTile"><span class="annot"><span class="annottext">rootTile :: Shape -&gt; Tile
-</span><a href="Tile.Tile.html#rootTile"><span class="hs-identifier hs-var hs-var">rootTile</span></a></span></span><span> </span><span id="local-6989586621679049027"><span class="annot"><span class="annottext">Shape
-</span><a href="#local-6989586621679049027"><span class="hs-identifier hs-var">shp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tile.Tile.html#rootTile"><span class="hs-identifier hs-var hs-var">rootTile</span></a></span></span><span> </span><span id="local-6989586621679049460"><span class="annot"><span class="annottext">Shape
+</span><a href="#local-6989586621679049460"><span class="hs-identifier hs-var">shp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-30"></span><span>  </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span>
 </span><span id="line-31"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">range :: Range
 </span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Range
 </span><a href="Tile.Range.html#Range"><span class="hs-identifier hs-var">Range</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Shape -&gt; Int
 </span><a href="Tile.Shape.html#size"><span class="hs-identifier hs-var">size</span></a></span><span> </span><span class="annot"><span class="annottext">Shape
-</span><a href="#local-6989586621679049027"><span class="hs-identifier hs-var">shp</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><a href="#local-6989586621679049460"><span class="hs-identifier hs-var">shp</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
 </span><span id="line-32"></span><span>      </span><span class="annot"><span class="annottext">shape :: Shape
 </span><a href="Tile.Tile.html#shape"><span class="hs-identifier hs-var">shape</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Shape
-</span><a href="#local-6989586621679049027"><span class="hs-identifier hs-var">shp</span></a></span><span>
+</span><a href="#local-6989586621679049460"><span class="hs-identifier hs-var">shp</span></a></span><span>
 </span><span id="line-33"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-34"></span></pre></body></html>
