@@ -35,6 +35,7 @@ library
       Tile.Layout
       Tile.Neighborhood
       Tile.Geometry
+      Tile.Affine
 
     -- other-modules:
     -- other-extensions:

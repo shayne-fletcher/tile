@@ -8,9 +8,11 @@ module Tile
     module Tile.Layout,
     module Tile.Neighborhood,
     module Tile.Geometry,
+    module Tile.Affine,
   )
 where
 
+import Tile.Affine
 import Tile.Execution
 import Tile.Geometry
 import Tile.Layout

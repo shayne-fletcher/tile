@@ -14,7 +14,8 @@ tests =
     [ rangeTests,
       layoutTests,
       neighborTests,
-      scheduleTests
+      scheduleTests,
+      affineTests
     ]
 
 rangeTests :: TestTree
@@ -76,4 +77,46 @@ scheduleTests =
                 Step "D" "E",
                 Step "D" "F"
               ]
+    ]
+
+affineTests :: TestTree
+affineTests =
+  testGroup
+    "affine"
+    [ testCase "rowMajor 2x3 fields" $ do
+        let space = rowMajor [2, 3]
+        offset space @?= 0
+        sizes space @?= [2, 3]
+        strides space @?= [3, 1]
+        spaceExtent space @?= 6,
+      testCase "rankOf rowMajor 2x3" $ do
+        let space = rowMajor [2, 3]
+        rankOf space [0, 0] @?= 0
+        rankOf space [0, 1] @?= 1
+        rankOf space [0, 2] @?= 2
+        rankOf space [1, 0] @?= 3
+        rankOf space [1, 1] @?= 4
+        rankOf space [1, 2] @?= 5,
+      testCase "pointOf rowMajor 2x3" $ do
+        let space = rowMajor [2, 3]
+        pointOf space 0 @?= [0, 0]
+        pointOf space 1 @?= [0, 1]
+        pointOf space 2 @?= [0, 2]
+        pointOf space 3 @?= [1, 0]
+        pointOf space 4 @?= [1, 1]
+        pointOf space 5 @?= [1, 2],
+      testCase "rowMajor 2x2x2 roundtrip points" $ do
+        let space = rowMajor [2, 2, 2]
+            points =
+              [ [0, 0, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [0, 1, 1],
+                [1, 0, 0],
+                [1, 0, 1],
+                [1, 1, 0],
+                [1, 1, 1]
+              ]
+
+        [pointOf space (rankOf space p) | p <- points] @?= points
     ]
