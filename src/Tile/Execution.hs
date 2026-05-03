@@ -1,19 +1,19 @@
 module Tile.Execution
-  ( adjacencyList
-  , runBroadcast
-  , runReduce
-  ) where
-
-import Tile.Schedule
-import Data.Map.Strict qualified as Map
-import Data.Set qualified as Set
+  ( adjacencyList,
+    runBroadcast,
+    runReduce,
+  )
+where
 
 import Control.Concurrent
 import Control.Monad
+import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
+import Tile.Schedule
 
-adjacencyList :: Ord a => Schedule a -> Map.Map a [a]
+adjacencyList :: (Ord a) => Schedule a -> Map.Map a [a]
 adjacencyList =
-  foldr (\Step { from = p, to = c } m -> Map.insertWith (++) p [c] m) Map.empty
+  foldr (\Step {from = p, to = c} m -> Map.insertWith (++) p [c] m) Map.empty
 
 runBroadcast :: Schedule String -> String -> IO ()
 runBroadcast schedule root = do
@@ -43,19 +43,18 @@ runBroadcast schedule root = do
   writeChan (chanMap Map.! root) "hello"
   threadDelay 1000000
 
-incomingCounts :: Ord a => Schedule a -> Map.Map a Int
-
+incomingCounts :: (Ord a) => Schedule a -> Map.Map a Int
 incomingCounts =
   foldr
-    (\Step { to = c } m -> Map.insertWith (+) c 1 m)
+    (\Step {to = c} m -> Map.insertWith (+) c 1 m)
     Map.empty
 
-runReduce
-  :: Schedule String
-  -> [(String, Int)]
-  -> (Int -> Int -> Int)
-  -> String
-  -> IO ()
+runReduce ::
+  Schedule String ->
+  [(String, Int)] ->
+  (Int -> Int -> Int) ->
+  String ->
+  IO ()
 runReduce schedule initialValues combine root = do
   let graph = adjacencyList schedule
       incoming = incomingCounts schedule

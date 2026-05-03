@@ -1,17 +1,22 @@
 cabal-version:      3.0
 name:               tile
 version:            0.1.0.0
--- synopsis:
--- description:
+synopsis:           Structured collective communication
+description:        A small library for structuring collective communication as tilings, schedules, and executions over explicit rank-space topology.
 license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Shane Fletcher
 maintainer:         shayne@shaynefletcher.org
+tested-with:        GHC == 9.14.1
 -- copyright:
 category:           System
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
+
+source-repository head
+    type:     git
+    location: https://github.com/shayne-fletcher/tile.git
 
 common warnings
     ghc-options: -Wall
@@ -35,7 +40,7 @@ library
     -- other-extensions:
 
     build-depends:    base ^>=4.22.0.0
-                    , containers
+                    , containers >=0.8 && <0.9
     hs-source-dirs:   src
     default-language: GHC2024
 

@@ -1,10 +1,11 @@
 module Tile.Schedule
-  ( Step(..)
-  , Schedule
-  , Scheduler(..)
-  , DFSScheduler(..)
-  , BFSScheduler(..)
-  ) where
+  ( Step (..),
+    Schedule,
+    Scheduler (..),
+    DFSScheduler (..),
+    BFSScheduler (..),
+  )
+where
 
 import Tile.Range
 import Tile.Shape
@@ -12,14 +13,15 @@ import Tile.Tile
 import Tile.Tiling
 
 data Step a = Step
-  { from :: a
-  , to :: a
-  } deriving (Show, Eq, Ord)
+  { from :: a,
+    to :: a
+  }
+  deriving (Show, Eq, Ord)
 
 type Schedule a = [Step a]
 
 class Scheduler s where
-  buildSchedule :: Tiling t => s -> t -> [a] -> Shape -> Schedule a
+  buildSchedule :: (Tiling t) => s -> t -> [a] -> Shape -> Schedule a
 
 data DFSScheduler = DFSScheduler
   deriving (Show, Eq)
@@ -33,12 +35,12 @@ instance Scheduler DFSScheduler where
             childTiles = children tiling tile
             steps =
               [ Step
-                { from = parent
-                , to = members !! start (range child)
-                }
+                  { from = parent,
+                    to = members !! start (range child)
+                  }
               | child <- childTiles
               ]
-        in steps ++ concatMap go childTiles
+         in steps ++ concatMap go childTiles
 
 data BFSScheduler = BFSScheduler
   deriving (Show, Eq)
@@ -52,10 +54,10 @@ instance Scheduler BFSScheduler where
         let childTiles = concatMap (children tiling) tiles
             steps =
               [ Step
-                { from = members !! start (range parent)
-                , to  = members !! start (range child)
-                }
-              | parent <- tiles
-              , child <- children tiling parent
+                  { from = members !! start (range parent),
+                    to = members !! start (range child)
+                  }
+              | parent <- tiles,
+                child <- children tiling parent
               ]
-        in steps ++ go childTiles
+         in steps ++ go childTiles

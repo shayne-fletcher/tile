@@ -1,8 +1,8 @@
 module Tile.Shape
-(
-  Shape
-  , size
-) where
+  ( Shape,
+    size,
+  )
+where
 
 type Shape = [Int]
 
