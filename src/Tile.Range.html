@@ -10,7 +10,7 @@
 </span><span id="line-9"></span><span>    </span><span id="extent"><span class="annot"><span class="annottext">Range -&gt; Int
 </span><a href="Tile.Range.html#extent"><span class="hs-identifier hs-var hs-var">extent</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-10"></span><span>  </span><span class="hs-special">}</span><span>
-</span><span id="line-11"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679048643"><span id="local-6989586621679048650"><span id="local-6989586621679048654"><span class="annot"><span class="annottext">Int -&gt; Range -&gt; ShowS
+</span><span id="line-11"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679048705"><span id="local-6989586621679048712"><span id="local-6989586621679048716"><span class="annot"><span class="annottext">Int -&gt; Range -&gt; ShowS
 [Range] -&gt; ShowS
 Range -&gt; String
 (Int -&gt; Range -&gt; ShowS)
@@ -23,14 +23,14 @@ $cshow :: Range -&gt; String
 show :: Range -&gt; String
 $cshowList :: [Range] -&gt; ShowS
 showList :: [Range] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679048659"><span id="local-6989586621679048664"><span class="annot"><span class="annottext">Range -&gt; Range -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679048721"><span id="local-6989586621679048726"><span class="annot"><span class="annottext">Range -&gt; Range -&gt; Bool
 (Range -&gt; Range -&gt; Bool) -&gt; (Range -&gt; Range -&gt; Bool) -&gt; Eq Range
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c== :: Range -&gt; Range -&gt; Bool
 == :: Range -&gt; Range -&gt; Bool
 $c/= :: Range -&gt; Range -&gt; Bool
 /= :: Range -&gt; Range -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679048671"><span id="local-6989586621679048675"><span id="local-6989586621679048679"><span id="local-6989586621679048683"><span id="local-6989586621679048686"><span id="local-6989586621679048689"><span id="local-6989586621679048692"><span class="annot"><span class="annottext">Eq Range
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679048733"><span id="local-6989586621679048737"><span id="local-6989586621679048741"><span id="local-6989586621679048745"><span id="local-6989586621679048748"><span id="local-6989586621679048751"><span id="local-6989586621679048754"><span class="annot"><span class="annottext">Eq Range
 Eq Range =&gt;
 (Range -&gt; Range -&gt; Ordering)
 -&gt; (Range -&gt; Range -&gt; Bool)
@@ -71,12 +71,12 @@ min :: Range -&gt; Range -&gt; Range
 </span><span id="line-12"></span><span>
 </span><span id="line-13"></span><span class="annot"><a href="Tile.Range.html#end"><span class="hs-identifier hs-type">end</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Range.html#Range"><span class="hs-identifier hs-type">Range</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-14"></span><span id="end"><span class="annot"><span class="annottext">end :: Range -&gt; Int
-</span><a href="Tile.Range.html#end"><span class="hs-identifier hs-var hs-var">end</span></a></span></span><span> </span><span id="local-6989586621679048699"><span class="annot"><span class="annottext">Range
-</span><a href="#local-6989586621679048699"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#end"><span class="hs-identifier hs-var hs-var">end</span></a></span></span><span> </span><span id="local-6989586621679048761"><span class="annot"><span class="annottext">Range
+</span><a href="#local-6989586621679048761"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
 </span><a href="Tile.Range.html#start"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">Range
-</span><a href="#local-6989586621679048699"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679048761"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
 </span><a href="Tile.Range.html#extent"><span class="hs-identifier hs-var">extent</span></a></span><span> </span><span class="annot"><span class="annottext">Range
-</span><a href="#local-6989586621679048699"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><a href="#local-6989586621679048761"><span class="hs-identifier hs-var">r</span></a></span><span>
 </span><span id="line-15"></span></pre></body></html>
