@@ -14,6 +14,7 @@ tests =
     [ rangeTests
     , layoutTests
     , neighborTests
+    , scheduleTests
     ]
 
 rangeTests :: TestTree
@@ -56,4 +57,24 @@ neighborTests =
 
     , testCase "neighbors center-ish rank 3 in 2x2x2" $
         neighbors RowMajor [2,2,2] 3 @?= [7,1,2]
+    ]
+
+scheduleTests :: TestTree
+scheduleTests =
+  testGroup "schedule"
+    [ testCase "2x2 schedule" $
+        buildSchedule DFSScheduler BlockPartitioning ["A","B","C","D"] [2,2]
+          @?= [ Step "A" "C"
+              , Step "A" "B"
+              , Step "C" "D"
+              ]
+
+    , testCase "2x3 schedule" $
+        buildSchedule DFSScheduler BlockPartitioning ["A","B","C","D","E","F"] [2,3]
+          @?= [ Step "A" "D"
+              , Step "A" "B"
+              , Step "A" "C"
+              , Step "D" "E"
+              , Step "D" "F"
+              ]
     ]
