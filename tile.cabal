@@ -26,6 +26,7 @@ library
       Tile.Tiling
       Tile.Schedule
       Tile.Execution
+      Tile.Layout
     -- other-modules:
     -- other-extensions:
     build-depends:    base ^>=4.22.0.0
@@ -51,4 +52,5 @@ test-suite tile-test
     main-is:          Main.hs
     build-depends:
         base ^>=4.22.0.0,
-        tile
+        tile,
+        HUnit >= 1.6 && < 1.7

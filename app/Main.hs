@@ -1,7 +1,6 @@
 module Main where
 
 import Tile
-import Tile.Execution
 
 reverseStep :: Step a -> Step a
 reverseStep Step { from = p, to = c} =
@@ -16,7 +15,6 @@ main = do
       shape   = [2,2]
 
       tiling   = BlockPartitioning
-      -- scheduler = DFSScheduler
       scheduler = BFSScheduler
 
       broadcast = buildSchedule scheduler tiling members shape
