@@ -7,6 +7,7 @@ module Tile
  , module Tile.Execution
  , module Tile.Layout
  , module Tile.Neighborhood
+ , module Tile.Geometry
 ) where
 
 import Tile.Shape
@@ -17,3 +18,4 @@ import Tile.Schedule
 import Tile.Execution
 import Tile.Layout
 import Tile.Neighborhood
+import Tile.Geometry
