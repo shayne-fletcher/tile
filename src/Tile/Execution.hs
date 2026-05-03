@@ -1,7 +1,7 @@
 module Tile.Execution
   ( adjacencyList
-  , runChanExecution
-  , runChanExecutionFromMany
+  , runBroadcast
+  , runReduce
   ) where
 
 import Tile.Schedule
@@ -15,8 +15,8 @@ adjacencyList :: Ord a => Schedule a -> Map.Map a [a]
 adjacencyList =
   foldr (\Step { from = p, to = c } m -> Map.insertWith (++) p [c] m) Map.empty
 
-runChanExecution :: Schedule String -> String -> IO ()
-runChanExecution schedule root = do
+runBroadcast :: Schedule String -> String -> IO ()
+runBroadcast schedule root = do
   let graph = adjacencyList schedule
       members =
         Set.toList $
@@ -43,30 +43,53 @@ runChanExecution schedule root = do
   writeChan (chanMap Map.! root) "hello"
   threadDelay 1000000
 
-runChanExecutionFromMany :: Schedule String -> [(String, String)] -> IO ()
-runChanExecutionFromMany schedule initialMessages = do
+incomingCounts :: Ord a => Schedule a -> Map.Map a Int
+
+incomingCounts =
+  foldr
+    (\Step { to = c } m -> Map.insertWith (+) c 1 m)
+    Map.empty
+
+runReduce
+  :: Schedule String
+  -> [(String, Int)]
+  -> (Int -> Int -> Int)
+  -> String
+  -> IO ()
+runReduce schedule initialValues combine root = do
   let graph = adjacencyList schedule
+      incoming = incomingCounts schedule
       members =
-        Set.toList $ Set.fromList (Map.keys graph ++ concat (Map.elems graph) ++ map fst initialMessages)
+        Set.toList $
+          Set.fromList $
+            Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
 
   chanPairs <- forM members $ \m -> do
     ch <- newChan
     pure (m, ch)
 
   let chanMap = Map.fromList chanPairs
+      valueMap = Map.fromList initialValues
 
   forM_ members $ \m -> do
     let inbox = chanMap Map.! m
         children = Map.findWithDefault [] m graph
         childChans = [(c, chanMap Map.! c) | c <- children]
-    _ <- forkIO $ forever $ do
-      msg <- readChan inbox
-      forM_ childChans $ \(childName, childInbox) -> do
-        putStrLn $ m ++ " forwarding to: " ++ childName
-        writeChan childInbox msg
+        expected = Map.findWithDefault 0 m incoming
+        localValue = valueMap Map.! m
+
+    _ <- forkIO $ do
+      received <- replicateM expected (readChan inbox)
+      let total = foldl combine localValue received
+      if m == root
+        then putStrLn $ m ++ " reduced result: " ++ show total
+        else forM_ childChans $ \(childName, childInbox) -> do
+          putStrLn $ m ++ " sending reduced value " ++ show total ++ " to " ++ childName
+          writeChan childInbox total
     pure ()
 
-  forM_ initialMessages $ \(member, msg) ->
-    writeChan (chanMap Map.! member) msg
+  forM_ members $ \m ->
+    when (Map.findWithDefault 0 m incoming == 0) $
+      writeChan (chanMap Map.! m) (valueMap Map.! m)
 
   threadDelay 1000000

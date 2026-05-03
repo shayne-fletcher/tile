@@ -27,11 +27,15 @@ main = do
   print reduce
 
   putStrLn "\nrunning broadcast from A:"
-  runChanExecution broadcast "A"
+  runBroadcast broadcast "A"
 
-  putStrLn "\nrunning reduce from leaves B and D:"
-  runChanExecutionFromMany
+  putStrLn "\nrunning reduce:"
+  runReduce
     reduce
-    [ ("B", "reply from B")
-    , ("D", "reply from D")
+    [ ("A", 1)
+    , ("B", 2)
+    , ("C", 3)
+    , ("D", 4)
     ]
+    (+)
+    "A"
