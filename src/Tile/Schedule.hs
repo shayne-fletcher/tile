@@ -4,6 +4,8 @@ module Tile.Schedule
     Scheduler (..),
     DFSScheduler (..),
     BFSScheduler (..),
+    reverseStep,
+    reverseSchedule,
   )
 where
 
@@ -61,3 +63,10 @@ instance Scheduler BFSScheduler where
                 child <- children tiling parent
               ]
          in steps ++ go childTiles
+
+reverseStep :: Step a -> Step a
+reverseStep Step {from = p, to = c} =
+  Step {from = c, to = p}
+
+reverseSchedule :: Schedule a -> Schedule a
+reverseSchedule = map reverseStep
