@@ -1,6 +1,7 @@
 module Tile.Execution
   ( adjacencyList
   , runChanExecution
+  , runChanExecutionFromMany
   ) where
 
 import Tile.Schedule
@@ -40,4 +41,32 @@ runChanExecution schedule root = do
     pure ()
 
   writeChan (chanMap Map.! root) "hello"
+  threadDelay 1000000
+
+runChanExecutionFromMany :: Schedule String -> [(String, String)] -> IO ()
+runChanExecutionFromMany schedule initialMessages = do
+  let graph = adjacencyList schedule
+      members =
+        Set.toList $ Set.fromList (Map.keys graph ++ concat (Map.elems graph) ++ map fst initialMessages)
+
+  chanPairs <- forM members $ \m -> do
+    ch <- newChan
+    pure (m, ch)
+
+  let chanMap = Map.fromList chanPairs
+
+  forM_ members $ \m -> do
+    let inbox = chanMap Map.! m
+        children = Map.findWithDefault [] m graph
+        childChans = [(c, chanMap Map.! c) | c <- children]
+    _ <- forkIO $ forever $ do
+      msg <- readChan inbox
+      forM_ childChans $ \(childName, childInbox) -> do
+        putStrLn $ m ++ " forwarding to: " ++ childName
+        writeChan childInbox msg
+    pure ()
+
+  forM_ initialMessages $ \(member, msg) ->
+    writeChan (chanMap Map.! member) msg
+
   threadDelay 1000000

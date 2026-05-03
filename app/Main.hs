@@ -26,5 +26,12 @@ main = do
   putStrLn "\nreduce schedule:"
   print reduce
 
-  putStrLn "\nrunning broadcast from  A:"
+  putStrLn "\nrunning broadcast from A:"
   runChanExecution broadcast "A"
+
+  putStrLn "\nrunning reduce from leaves B and D:"
+  runChanExecutionFromMany
+    reduce
+    [ ("B", "reply from B")
+    , ("D", "reply from D")
+    ]
