@@ -27,6 +27,7 @@ library
       Tile.Schedule
       Tile.Execution
       Tile.Layout
+      Tile.Neighborhood
     -- other-modules:
     -- other-extensions:
     build-depends:    base ^>=4.22.0.0
@@ -53,4 +54,5 @@ test-suite tile-test
     build-depends:
         base ^>=4.22.0.0,
         tile,
-        HUnit >= 1.6 && < 1.7
+        tasty >=1.4,
+        tasty-hunit >=0.10
