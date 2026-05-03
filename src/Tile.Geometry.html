@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Geometry.html"><span class="hs-identifier">Tile.Geometry</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier">tileRanks</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier">tilePoints</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Layout.html"><span class="hs-identifier">Tile.Layout</span></a></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Range.html"><span class="hs-identifier">Tile.Range</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Tile.html"><span class="hs-identifier">Tile.Tile</span></a></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="annot"><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-type">tileRanks</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span>
+</span><span id="line-12"></span><span id="tileRanks"><span class="annot"><span class="annottext">tileRanks :: Tile -&gt; [Int]
+</span><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-var hs-var">tileRanks</span></a></span></span><span> </span><span id="local-6989586621679048992"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679048992"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679048993"><span class="annot"><span class="annottext">r :: Range
+</span><a href="#local-6989586621679048993"><span class="hs-identifier hs-var hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Range
+</span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679048992"><span class="hs-identifier hs-var">tile</span></a></span><span>
+</span><span id="line-14"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#start"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="annot"><span class="annottext">Range
+</span><a href="#local-6989586621679048993"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#end"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="annot"><span class="annottext">Range
+</span><a href="#local-6989586621679048993"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">]</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span id="local-6989586621679048981"><span class="annot"><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier hs-type">tilePoints</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Layout.html#Layout"><span class="hs-identifier hs-type">Layout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679048981"><span class="hs-identifier hs-type">l</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679048981"><span class="hs-identifier hs-type">l</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Layout.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span class="hs-special">]</span></span><span>
+</span><span id="line-17"></span><span id="tilePoints"><span class="annot"><span class="annottext">tilePoints :: forall l. Layout l =&gt; l -&gt; [Int] -&gt; Tile -&gt; [[Int]]
+</span><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier hs-var hs-var">tilePoints</span></a></span></span><span> </span><span id="local-6989586621679049000"><span class="annot"><span class="annottext">l
+</span><a href="#local-6989586621679049000"><span class="hs-identifier hs-var">layout</span></a></span></span><span> </span><span id="local-6989586621679049001"><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049001"><span class="hs-identifier hs-var">fullShape</span></a></span></span><span> </span><span id="local-6989586621679049002"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049002"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">[</span><span class="annot"><span class="annottext">l -&gt; [Int] -&gt; Int -&gt; [Int]
+forall l. Layout l =&gt; l -&gt; [Int] -&gt; Int -&gt; [Int]
+</span><a href="Tile.Layout.html#pointOfRank"><span class="hs-identifier hs-var">pointOfRank</span></a></span><span> </span><span class="annot"><span class="annottext">l
+</span><a href="#local-6989586621679049000"><span class="hs-identifier hs-var">layout</span></a></span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><a href="#local-6989586621679049001"><span class="hs-identifier hs-var">fullShape</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049004"><span class="hs-identifier hs-var">rank</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679049004"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679049004"><span class="hs-identifier hs-var">rank</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; [Int]
+</span><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-var">tileRanks</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049002"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-19"></span></pre></body></html>

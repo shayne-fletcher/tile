@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Schedule.html"><span class="hs-identifier">Tile.Schedule</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Step"><span class="hs-identifier">Step</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Tile.Schedule.html#Schedule"><span class="hs-identifier">Schedule</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>    </span><span class="annot"><a href="Tile.Schedule.html#Scheduler"><span class="hs-identifier">Scheduler</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><a href="Tile.Schedule.html#DFSScheduler"><span class="hs-identifier">DFSScheduler</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Tile.Schedule.html#BFSScheduler"><span class="hs-identifier">BFSScheduler</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Range.html"><span class="hs-identifier">Tile.Range</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Shape.html"><span class="hs-identifier">Tile.Shape</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Tile.html"><span class="hs-identifier">Tile.Tile</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Tiling.html"><span class="hs-identifier">Tile.Tiling</span></a></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">data</span><span> </span><span id="Step"><span class="annot"><a href="Tile.Schedule.html#Step"><span class="hs-identifier hs-var">Step</span></a></span></span><span> </span><span id="local-6989586621679049086"><span class="annot"><a href="#local-6989586621679049086"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Step"><span class="annot"><a href="Tile.Schedule.html#Step"><span class="hs-identifier hs-var">Step</span></a></span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="from"><span class="annot"><span class="annottext">forall a. Step a -&gt; a
+</span><a href="Tile.Schedule.html#from"><span class="hs-identifier hs-var hs-var">from</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679049086"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>    </span><span id="to"><span class="annot"><span class="annottext">forall a. Step a -&gt; a
+</span><a href="Tile.Schedule.html#to"><span class="hs-identifier hs-var hs-var">to</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679049086"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679049130"><span id="local-6989586621679049136"><span id="local-6989586621679049141"><span class="annot"><span class="annottext">Int -&gt; Step a -&gt; ShowS
+[Step a] -&gt; ShowS
+Step a -&gt; String
+(Int -&gt; Step a -&gt; ShowS)
+-&gt; (Step a -&gt; String) -&gt; ([Step a] -&gt; ShowS) -&gt; Show (Step a)
+forall a. Show a =&gt; Int -&gt; Step a -&gt; ShowS
+forall a. Show a =&gt; [Step a] -&gt; ShowS
+forall a. Show a =&gt; Step a -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall a. Show a =&gt; Int -&gt; Step a -&gt; ShowS
+showsPrec :: Int -&gt; Step a -&gt; ShowS
+$cshow :: forall a. Show a =&gt; Step a -&gt; String
+show :: Step a -&gt; String
+$cshowList :: forall a. Show a =&gt; [Step a] -&gt; ShowS
+showList :: [Step a] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049148"><span id="local-6989586621679049152"><span class="annot"><span class="annottext">Step a -&gt; Step a -&gt; Bool
+(Step a -&gt; Step a -&gt; Bool)
+-&gt; (Step a -&gt; Step a -&gt; Bool) -&gt; Eq (Step a)
+forall a. Eq a =&gt; Step a -&gt; Step a -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: forall a. Eq a =&gt; Step a -&gt; Step a -&gt; Bool
+== :: Step a -&gt; Step a -&gt; Bool
+$c/= :: forall a. Eq a =&gt; Step a -&gt; Step a -&gt; Bool
+/= :: Step a -&gt; Step a -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049162"><span id="local-6989586621679049166"><span id="local-6989586621679049170"><span id="local-6989586621679049175"><span id="local-6989586621679049179"><span id="local-6989586621679049183"><span id="local-6989586621679049187"><span class="annot"><span class="annottext">Eq (Step a)
+Eq (Step a) =&gt;
+(Step a -&gt; Step a -&gt; Ordering)
+-&gt; (Step a -&gt; Step a -&gt; Bool)
+-&gt; (Step a -&gt; Step a -&gt; Bool)
+-&gt; (Step a -&gt; Step a -&gt; Bool)
+-&gt; (Step a -&gt; Step a -&gt; Bool)
+-&gt; (Step a -&gt; Step a -&gt; Step a)
+-&gt; (Step a -&gt; Step a -&gt; Step a)
+-&gt; Ord (Step a)
+Step a -&gt; Step a -&gt; Bool
+Step a -&gt; Step a -&gt; Ordering
+Step a -&gt; Step a -&gt; Step a
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+forall a. Ord a =&gt; Eq (Step a)
+forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Bool
+forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Ordering
+forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Step a
+$ccompare :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Ordering
+compare :: Step a -&gt; Step a -&gt; Ordering
+$c&lt; :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Bool
+&lt; :: Step a -&gt; Step a -&gt; Bool
+$c&lt;= :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Bool
+&lt;= :: Step a -&gt; Step a -&gt; Bool
+$c&gt; :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Bool
+&gt; :: Step a -&gt; Step a -&gt; Bool
+$c&gt;= :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Bool
+&gt;= :: Step a -&gt; Step a -&gt; Bool
+$cmax :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Step a
+max :: Step a -&gt; Step a -&gt; Step a
+$cmin :: forall a. Ord a =&gt; Step a -&gt; Step a -&gt; Step a
+min :: Step a -&gt; Step a -&gt; Step a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">type</span><span> </span><span id="Schedule"><span class="annot"><a href="Tile.Schedule.html#Schedule"><span class="hs-identifier hs-var">Schedule</span></a></span></span><span> </span><span id="local-6989586621679049197"><span class="annot"><a href="#local-6989586621679049197"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Schedule.html#Step"><span class="hs-identifier hs-type">Step</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679049197"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">class</span><span> </span><span id="Scheduler"><span class="annot"><a href="Tile.Schedule.html#Scheduler"><span class="hs-identifier hs-var">Scheduler</span></a></span></span><span> </span><span id="local-6989586621679049107"><span class="annot"><a href="#local-6989586621679049107"><span class="hs-identifier hs-type">s</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span>  </span><span id="buildSchedule"><span class="annot"><a href="Tile.Schedule.html#buildSchedule"><span class="hs-identifier hs-type">buildSchedule</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span id="local-6989586621679049101"><span id="local-6989586621679049103"><span class="hs-special">(</span><span class="annot"><a href="Tile.Tiling.html#Tiling"><span class="hs-identifier hs-type">Tiling</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679049101"><span class="hs-identifier hs-type">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679049107"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679049101"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679049103"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Schedule"><span class="hs-identifier hs-type">Schedule</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679049103"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">data</span><span> </span><span id="DFSScheduler"><span class="annot"><a href="Tile.Schedule.html#DFSScheduler"><span class="hs-identifier hs-var">DFSScheduler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="DFSScheduler"><span class="annot"><a href="Tile.Schedule.html#DFSScheduler"><span class="hs-identifier hs-var">DFSScheduler</span></a></span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679049201"><span id="local-6989586621679049203"><span id="local-6989586621679049207"><span class="annot"><span class="annottext">Int -&gt; DFSScheduler -&gt; ShowS
+[DFSScheduler] -&gt; ShowS
+DFSScheduler -&gt; String
+(Int -&gt; DFSScheduler -&gt; ShowS)
+-&gt; (DFSScheduler -&gt; String)
+-&gt; ([DFSScheduler] -&gt; ShowS)
+-&gt; Show DFSScheduler
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; DFSScheduler -&gt; ShowS
+showsPrec :: Int -&gt; DFSScheduler -&gt; ShowS
+$cshow :: DFSScheduler -&gt; String
+show :: DFSScheduler -&gt; String
+$cshowList :: [DFSScheduler] -&gt; ShowS
+showList :: [DFSScheduler] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049210"><span id="local-6989586621679049212"><span class="annot"><span class="annottext">DFSScheduler -&gt; DFSScheduler -&gt; Bool
+(DFSScheduler -&gt; DFSScheduler -&gt; Bool)
+-&gt; (DFSScheduler -&gt; DFSScheduler -&gt; Bool) -&gt; Eq DFSScheduler
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: DFSScheduler -&gt; DFSScheduler -&gt; Bool
+== :: DFSScheduler -&gt; DFSScheduler -&gt; Bool
+$c/= :: DFSScheduler -&gt; DFSScheduler -&gt; Bool
+/= :: DFSScheduler -&gt; DFSScheduler -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Scheduler"><span class="hs-identifier hs-type">Scheduler</span></a></span><span> </span><span class="annot"><a href="Tile.Schedule.html#DFSScheduler"><span class="hs-identifier hs-type">DFSScheduler</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621679049227"><span class="annot"><span class="annottext">buildSchedule :: forall t a.
+Tiling t =&gt;
+DFSScheduler -&gt; t -&gt; [a] -&gt; Shape -&gt; Schedule a
+</span><a href="Tile.Schedule.html#buildSchedule"><span class="hs-identifier hs-var hs-var hs-var">buildSchedule</span></a></span></span><span> </span><span class="annot"><span class="annottext">DFSScheduler
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679049228"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679049228"><span class="hs-identifier hs-var">tiling</span></a></span></span><span> </span><span id="local-6989586621679049229"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679049229"><span class="hs-identifier hs-var">members</span></a></span></span><span> </span><span id="local-6989586621679049230"><span class="annot"><span class="annottext">Shape
+</span><a href="#local-6989586621679049230"><span class="hs-identifier hs-var">shp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">Tile -&gt; [Step a]
+</span><a href="#local-6989586621679049231"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Shape -&gt; Tile
+</span><a href="Tile.Tile.html#rootTile"><span class="hs-identifier hs-var">rootTile</span></a></span><span> </span><span class="annot"><span class="annottext">Shape
+</span><a href="#local-6989586621679049230"><span class="hs-identifier hs-var">shp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-33"></span><span>      </span><span id="local-6989586621679049231"><span class="annot"><span class="annottext">go :: Tile -&gt; [Step a]
+</span><a href="#local-6989586621679049231"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679049233"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049233"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679049234"><span class="annot"><span class="annottext">parent :: a
+</span><a href="#local-6989586621679049234"><span class="hs-identifier hs-var hs-var">parent</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679049229"><span class="hs-identifier hs-var">members</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Int -&gt; a
+forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#start"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; Range
+</span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049233"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>            </span><span id="local-6989586621679049238"><span class="annot"><span class="annottext">childTiles :: [Tile]
+</span><a href="#local-6989586621679049238"><span class="hs-identifier hs-var hs-var">childTiles</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; Tile -&gt; [Tile]
+forall t. Tiling t =&gt; t -&gt; Tile -&gt; [Tile]
+</span><a href="Tile.Tiling.html#children"><span class="hs-identifier hs-var">children</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679049228"><span class="hs-identifier hs-var">tiling</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049233"><span class="hs-identifier hs-var">tile</span></a></span><span>
+</span><span id="line-36"></span><span>            </span><span id="local-6989586621679049240"><span class="annot"><span class="annottext">steps :: [Step a]
+</span><a href="#local-6989586621679049240"><span class="hs-identifier hs-var hs-var">steps</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-37"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Step"><span class="hs-identifier hs-type">Step</span></a></span><span>
+</span><span id="line-38"></span><span>                  </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">from :: a
+</span><a href="Tile.Schedule.html#from"><span class="hs-identifier hs-var">from</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679049234"><span class="hs-identifier hs-var">parent</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-39"></span><span>                    </span><span class="annot"><span class="annottext">to :: a
+</span><a href="Tile.Schedule.html#to"><span class="hs-identifier hs-var">to</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679049229"><span class="hs-identifier hs-var">members</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Int -&gt; a
+forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#start"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; Range
+</span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049241"><span class="hs-identifier hs-var">child</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>                  </span><span class="hs-special">}</span><span>
+</span><span id="line-41"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679049241"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049241"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Tile]
+</span><a href="#local-6989586621679049238"><span class="hs-identifier hs-var">childTiles</span></a></span><span>
+</span><span id="line-42"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-43"></span><span>         </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[Step a]
+</span><a href="#local-6989586621679049240"><span class="hs-identifier hs-var">steps</span></a></span><span> </span><span class="annot"><span class="annottext">[Step a] -&gt; [Step a] -&gt; [Step a]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">(Tile -&gt; [Step a]) -&gt; [Tile] -&gt; [Step a]
+forall (t :: * -&gt; *) a b. Foldable t =&gt; (a -&gt; [b]) -&gt; t a -&gt; [b]
+</span><span class="hs-identifier hs-var">concatMap</span></span><span> </span><span class="annot"><span class="annottext">Tile -&gt; [Step a]
+</span><a href="#local-6989586621679049231"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[Tile]
+</span><a href="#local-6989586621679049238"><span class="hs-identifier hs-var">childTiles</span></a></span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">data</span><span> </span><span id="BFSScheduler"><span class="annot"><a href="Tile.Schedule.html#BFSScheduler"><span class="hs-identifier hs-var">BFSScheduler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="BFSScheduler"><span class="annot"><a href="Tile.Schedule.html#BFSScheduler"><span class="hs-identifier hs-var">BFSScheduler</span></a></span></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679049245"><span id="local-6989586621679049247"><span id="local-6989586621679049251"><span class="annot"><span class="annottext">Int -&gt; BFSScheduler -&gt; ShowS
+[BFSScheduler] -&gt; ShowS
+BFSScheduler -&gt; String
+(Int -&gt; BFSScheduler -&gt; ShowS)
+-&gt; (BFSScheduler -&gt; String)
+-&gt; ([BFSScheduler] -&gt; ShowS)
+-&gt; Show BFSScheduler
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; BFSScheduler -&gt; ShowS
+showsPrec :: Int -&gt; BFSScheduler -&gt; ShowS
+$cshow :: BFSScheduler -&gt; String
+show :: BFSScheduler -&gt; String
+$cshowList :: [BFSScheduler] -&gt; ShowS
+showList :: [BFSScheduler] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679049254"><span id="local-6989586621679049256"><span class="annot"><span class="annottext">BFSScheduler -&gt; BFSScheduler -&gt; Bool
+(BFSScheduler -&gt; BFSScheduler -&gt; Bool)
+-&gt; (BFSScheduler -&gt; BFSScheduler -&gt; Bool) -&gt; Eq BFSScheduler
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: BFSScheduler -&gt; BFSScheduler -&gt; Bool
+== :: BFSScheduler -&gt; BFSScheduler -&gt; Bool
+$c/= :: BFSScheduler -&gt; BFSScheduler -&gt; Bool
+/= :: BFSScheduler -&gt; BFSScheduler -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Scheduler"><span class="hs-identifier hs-type">Scheduler</span></a></span><span> </span><span class="annot"><a href="Tile.Schedule.html#BFSScheduler"><span class="hs-identifier hs-type">BFSScheduler</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621679049269"><span class="annot"><span class="annottext">buildSchedule :: forall t a.
+Tiling t =&gt;
+BFSScheduler -&gt; t -&gt; [a] -&gt; Shape -&gt; Schedule a
+</span><a href="Tile.Schedule.html#buildSchedule"><span class="hs-identifier hs-var hs-var hs-var">buildSchedule</span></a></span></span><span> </span><span class="annot"><span class="annottext">BFSScheduler
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679049270"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679049270"><span class="hs-identifier hs-var">tiling</span></a></span></span><span> </span><span id="local-6989586621679049271"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679049271"><span class="hs-identifier hs-var">members</span></a></span></span><span> </span><span id="local-6989586621679049272"><span class="annot"><span class="annottext">Shape
+</span><a href="#local-6989586621679049272"><span class="hs-identifier hs-var">shp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="annottext">[Tile] -&gt; [Step a]
+</span><a href="#local-6989586621679049273"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Shape -&gt; Tile
+</span><a href="Tile.Tile.html#rootTile"><span class="hs-identifier hs-var">rootTile</span></a></span><span> </span><span class="annot"><span class="annottext">Shape
+</span><a href="#local-6989586621679049272"><span class="hs-identifier hs-var">shp</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-51"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-52"></span><span>      </span><span id="local-6989586621679049273"><span class="annot"><span class="annottext">go :: [Tile] -&gt; [Step a]
+</span><a href="#local-6989586621679049273"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><a href="#local-6989586621679049273"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679049274"><span class="annot"><span class="annottext">[Tile]
+</span><a href="#local-6989586621679049274"><span class="hs-identifier hs-var">tiles</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-54"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679049275"><span class="annot"><span class="annottext">childTiles :: [Tile]
+</span><a href="#local-6989586621679049275"><span class="hs-identifier hs-var hs-var">childTiles</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Tile -&gt; [Tile]) -&gt; [Tile] -&gt; [Tile]
+forall (t :: * -&gt; *) a b. Foldable t =&gt; (a -&gt; [b]) -&gt; t a -&gt; [b]
+</span><span class="hs-identifier hs-var">concatMap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t -&gt; Tile -&gt; [Tile]
+forall t. Tiling t =&gt; t -&gt; Tile -&gt; [Tile]
+</span><a href="Tile.Tiling.html#children"><span class="hs-identifier hs-var">children</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679049270"><span class="hs-identifier hs-var">tiling</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Tile]
+</span><a href="#local-6989586621679049274"><span class="hs-identifier hs-var">tiles</span></a></span><span>
+</span><span id="line-55"></span><span>            </span><span id="local-6989586621679049276"><span class="annot"><span class="annottext">steps :: [Step a]
+</span><a href="#local-6989586621679049276"><span class="hs-identifier hs-var hs-var">steps</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-56"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Step"><span class="hs-identifier hs-type">Step</span></a></span><span>
+</span><span id="line-57"></span><span>                  </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">from :: a
+</span><a href="Tile.Schedule.html#from"><span class="hs-identifier hs-var">from</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679049271"><span class="hs-identifier hs-var">members</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Int -&gt; a
+forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#start"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; Range
+</span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049277"><span class="hs-identifier hs-var">parent</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-58"></span><span>                    </span><span class="annot"><span class="annottext">to :: a
+</span><a href="Tile.Schedule.html#to"><span class="hs-identifier hs-var">to</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679049271"><span class="hs-identifier hs-var">members</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Int -&gt; a
+forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
+</span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Range -&gt; Int
+</span><a href="Tile.Range.html#start"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; Range
+</span><a href="Tile.Tile.html#range"><span class="hs-identifier hs-var">range</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049278"><span class="hs-identifier hs-var">child</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span>                  </span><span class="hs-special">}</span><span>
+</span><span id="line-60"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679049277"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049277"><span class="hs-identifier hs-var">parent</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Tile]
+</span><a href="#local-6989586621679049274"><span class="hs-identifier hs-var">tiles</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-61"></span><span>                </span><span id="local-6989586621679049278"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049278"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">t -&gt; Tile -&gt; [Tile]
+forall t. Tiling t =&gt; t -&gt; Tile -&gt; [Tile]
+</span><a href="Tile.Tiling.html#children"><span class="hs-identifier hs-var">children</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679049270"><span class="hs-identifier hs-var">tiling</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679049277"><span class="hs-identifier hs-var">parent</span></a></span><span>
+</span><span id="line-62"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-63"></span><span>         </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[Step a]
+</span><a href="#local-6989586621679049276"><span class="hs-identifier hs-var">steps</span></a></span><span> </span><span class="annot"><span class="annottext">[Step a] -&gt; [Step a] -&gt; [Step a]
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[Tile] -&gt; [Step a]
+</span><a href="#local-6989586621679049273"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[Tile]
+</span><a href="#local-6989586621679049275"><span class="hs-identifier hs-var">childTiles</span></a></span><span>
+</span><span id="line-64"></span></pre></body></html>
