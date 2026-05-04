@@ -9,7 +9,6 @@ module Tile.Schedule
   )
 where
 
-import Tile.Range
 import Tile.Shape
 import Tile.Tile
 import Tile.Tiling
@@ -33,12 +32,12 @@ instance Scheduler DFSScheduler where
     go (rootTile shp)
     where
       go tile =
-        let parent = members !! start (range tile)
+        let parent = members !! root tile
             childTiles = children tiling tile
             steps =
               [ Step
                   { from = parent,
-                    to = members !! start (range child)
+                    to = members !! root child
                   }
               | child <- childTiles
               ]
@@ -56,8 +55,8 @@ instance Scheduler BFSScheduler where
         let childTiles = concatMap (children tiling) tiles
             steps =
               [ Step
-                  { from = members !! start (range parent),
-                    to = members !! start (range child)
+                  { from = members !! root parent,
+                    to = members !! root child
                   }
               | parent <- tiles,
                 child <- children tiling parent

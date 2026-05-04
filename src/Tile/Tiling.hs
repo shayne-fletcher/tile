@@ -7,6 +7,7 @@ module Tile.Tiling
 where
 
 import Tile.Affine
+import Tile.Region
 import Tile.Range
 import Tile.Tile
 
@@ -17,9 +18,9 @@ data BlockPartitioning = BlockPartitioning
   deriving (Show, Eq)
 
 instance Tiling BlockPartitioning where
-  children _ tile =
-    let Range _ blockLen = range tile
-     in go (sizes (space tile)) blockLen 0
+  children _ tile = case region tile of
+    Contiguous (Range _ blockLen) ->
+      go (sizes (space tile)) blockLen 0
     where
       go [] _ _ = []
       go (n : ns) blockLen offset0

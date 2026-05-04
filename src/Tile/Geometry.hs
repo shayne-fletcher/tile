@@ -5,13 +5,11 @@ module Tile.Geometry
 where
 
 import Tile.Layout
-import Tile.Range
+import Tile.Region
 import Tile.Tile
 
 tileRanks :: Tile -> [Int]
-tileRanks tile =
-  let r = range tile
-   in [start r .. end r - 1]
+tileRanks tile = regionRanks (region tile)
 
 tilePoints :: (Layout l) => l -> [Int] -> Tile -> [Point]
 tilePoints layout fullShape tile =

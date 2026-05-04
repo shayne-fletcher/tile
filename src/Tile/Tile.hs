@@ -9,26 +9,27 @@ where
 import Tile.Range
 import Tile.Shape
 import Tile.Affine
+import Tile.Region
 
 data Tile = Tile
-  { range :: Range,
+  { region :: Region,
     space :: AffineRankSpace
   }
   deriving (Show, Eq)
 
 root :: Tile -> Int
-root = start . range
+root = regionOrigin . region
 
 rootTile :: Shape -> Tile
 rootTile shp =
   Tile
-    { range = Range 0 (size shp),
+    { region = contiguous (Range 0 (size shp)),
       space = rowMajor shp
     }
 
 subTile :: Tile -> Int -> Shape -> Tile
-subTile (Tile (Range s _) _) offset dims =
+subTile parent offset dims =
   Tile
-    { range = Range (s + offset) (product dims),
+    { region = contiguous (Range (root parent + offset) (product dims)),
       space = rowMajor dims
     }
