@@ -32,10 +32,10 @@ library
       Tile.Tiling
       Tile.Schedule
       Tile.Execution
-      Tile.Layout
       Tile.Neighborhood
       Tile.Geometry
       Tile.Affine
+      Tile.Region
 
     -- other-modules:
     -- other-extensions:

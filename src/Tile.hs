@@ -5,7 +5,6 @@ module Tile
     module Tile.Tiling,
     module Tile.Schedule,
     module Tile.Execution,
-    module Tile.Layout,
     module Tile.Neighborhood,
     module Tile.Geometry,
     module Tile.Affine,
@@ -16,7 +15,6 @@ where
 import Tile.Affine
 import Tile.Execution
 import Tile.Geometry
-import Tile.Layout
 import Tile.Neighborhood
 import Tile.Range
 import Tile.Schedule

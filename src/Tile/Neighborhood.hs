@@ -3,14 +3,14 @@ module Tile.Neighborhood
   )
 where
 
-import Tile.Layout
+import Tile.Affine
 import Tile.Shape
 
-neighbors :: (Layout l) => l -> Shape -> Int -> [Int]
-neighbors layout shape rank =
-  let point = pointOfRank layout shape rank
-   in [ rankOfPoint layout shape p'
-      | p' <- neighborPoints shape point
+neighbors :: AffineRankSpace -> Int -> [Int]
+neighbors rankSpace rank =
+  let point = pointOf rankSpace rank
+   in [ rankOf rankSpace p'
+      | p' <- neighborPoints (sizes rankSpace) point
       ]
 
 neighborPoints :: Shape -> Point -> [Point]

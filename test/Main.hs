@@ -35,11 +35,12 @@ layoutTests =
   testGroup
     "layout"
     [ testCase "row-major pointOfRank 2x2x2" $
-        pointOfRank RowMajor [2, 2, 2] 6 @?= [1, 1, 0],
+        pointOf (rowMajor [2, 2, 2]) 6 @?= [1, 1, 0],
       testCase "row-major rankOfPoint 2x2x2" $
-        rankOfPoint RowMajor [2, 2, 2] [1, 1, 0] @?= 6,
+        rankOf (rowMajor [2, 2, 2]) [1, 1, 0] @?= 6,
       testCase "row-major roundtrip ranks" $
-        [ rankOfPoint RowMajor shape (pointOfRank RowMajor shape r)
+        let space = rowMajor shape
+        in [ rankOf space (pointOf space r)
         | r <- [0 .. size shape - 1]
         ]
           @?= [0 .. size shape - 1]
@@ -52,11 +53,11 @@ neighborTests =
   testGroup
     "neighbors"
     [ testCase "neighbors rank 0 in 2x2" $
-        neighbors RowMajor [2, 2] 0 @?= [2, 1],
+        neighbors (rowMajor [2, 2]) 0 @?= [2, 1],
       testCase "neighbors rank 3 in 2x2" $
-        neighbors RowMajor [2, 2] 3 @?= [1, 2],
+        neighbors (rowMajor [2, 2]) 3 @?= [1, 2],
       testCase "neighbors center-ish rank 3 in 2x2x2" $
-        neighbors RowMajor [2, 2, 2] 3 @?= [7, 1, 2]
+        neighbors (rowMajor [2, 2, 2]) 3 @?= [7, 1, 2]
     ]
 
 scheduleTests :: TestTree

@@ -1,5 +1,6 @@
 module Tile.Affine
   ( AffineRankSpace (..),
+    Point,
     rowMajor,
     rankOf,
     pointOf,
@@ -7,7 +8,6 @@ module Tile.Affine
   )
 where
 
-import Tile.Layout (Point)
 import Tile.Shape (Shape)
 
 data AffineRankSpace = AffineRankSpace
@@ -16,6 +16,8 @@ data AffineRankSpace = AffineRankSpace
     strides :: [Int]
   }
   deriving (Show, Eq)
+
+type Point = [Int]
 
 rowMajor :: Shape -> AffineRankSpace
 rowMajor shape =
