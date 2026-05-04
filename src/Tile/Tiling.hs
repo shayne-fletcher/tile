@@ -6,6 +6,7 @@ module Tile.Tiling
   )
 where
 
+import Tile.Affine
 import Tile.Range
 import Tile.Tile
 
@@ -18,7 +19,7 @@ data BlockPartitioning = BlockPartitioning
 instance Tiling BlockPartitioning where
   children _ tile =
     let Range _ blockLen = range tile
-     in go (shape tile) blockLen 0
+     in go (sizes (space tile)) blockLen 0
     where
       go [] _ _ = []
       go (n : ns) blockLen offset0

@@ -8,26 +8,27 @@ where
 
 import Tile.Range
 import Tile.Shape
+import Tile.Affine
 
 data Tile = Tile
   { range :: Range,
-    shape :: Shape
+    space :: AffineRankSpace
   }
   deriving (Show, Eq)
 
 root :: Tile -> Int
 root = start . range
 
-subTile :: Tile -> Int -> Shape -> Tile
-subTile (Tile (Range s _) _) offset dims =
-  Tile
-    { range = Range (s + offset) (product dims),
-      shape = dims
-    }
-
 rootTile :: Shape -> Tile
 rootTile shp =
   Tile
     { range = Range 0 (size shp),
-      shape = shp
+      space = rowMajor shp
+    }
+
+subTile :: Tile -> Int -> Shape -> Tile
+subTile (Tile (Range s _) _) offset dims =
+  Tile
+    { range = Range (s + offset) (product dims),
+      space = rowMajor dims
     }
