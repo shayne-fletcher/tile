@@ -118,6 +118,5 @@ affineTests =
                 [1, 1, 0],
                 [1, 1, 1]
               ]
-
         [pointOf space (rankOf space p) | p <- points] @?= points
     ]
