@@ -10,18 +10,16 @@
 Shape → Tile → Tiling → Schedule → Execution
 ```
 
-Shape defines a rank space.
+**Shape** defines the dimensions of a rank space.
 
-Tile is a region within that space.
+**Tile** denotes part of a rank space, characterized by a *layout* (how its ranks are organized as N-D — sizes, strides, offset) and a *coverage* (which ranks in the root rank space the tile owns). The global extent is the root tile.
 
-Tiling defines a decomposition of regions.
+**Tiling** is a strategy for decomposing a tile into child tiles. Different strategies implement the same interface, separating the decomposition algorithm from the tile structure.
 
-Schedule is a directed communication plan.
+**Schedule** is a directed communication plan derived from a tiling — the sequence of edges along which messages flow.
 
-Execution interprets that plan.
+**Execution** interprets a schedule, dispatching messages along the planned edges.
 
-The library is not tied to a particular algorithm. It provides a substrate for expressing families of communication patterns as combinations of tilings and schedulers over a common representation.
+The library is not tied to a particular representation, tiling strategy, or scheduler. It provides a substrate for expressing families of communication patterns as combinations of these orthogonal pieces over a common representation.
 
-Communication structure is constructed as a pure object and interpreted separately.
-
-The topology is explicit. It can be inspected, transformed, and reused independently of execution.
+Communication structure is constructed as a pure value and interpreted separately. The topology is explicit — it can be inspected, transformed, and reused independently of execution.
