@@ -11,24 +11,11 @@ tests :: TestTree
 tests =
   testGroup
     "tile"
-    [ rangeTests,
-      layoutTests,
+    [ layoutTests,
       neighborTests,
       selectTests,
       scheduleTests,
       affineTests
-    ]
-
-rangeTests :: TestTree
-rangeTests =
-  testGroup
-    "range"
-    [ testCase "end is exclusive" $
-        end (Range 3 4) @?= 7,
-      testCase "range fields" $ do
-        let r = Range 3 4
-        start r @?= 3
-        extent r @?= 4
     ]
 
 layoutTests :: TestTree
@@ -122,6 +109,11 @@ affineTests =
         let space = rowMajor [2, 3]
         rankOfMaybe space [1] @?= Nothing
         rankOfMaybe space [1, 2, 3] @?= Nothing,
+      testCase "rankOfMaybe rejects out-of-bounds coordinates" $ do
+        let space = rowMajor [2, 3]
+        rankOfMaybe space [-1, 0] @?= Nothing
+        rankOfMaybe space [2, 0] @?= Nothing
+        rankOfMaybe space [0, 3] @?= Nothing,
       testCase "pointOf rowMajor 2x3" $ do
         let space = rowMajor [2, 3]
         pointOf space 0 @?= [0, 0]
@@ -130,6 +122,10 @@ affineTests =
         pointOf space 3 @?= [1, 0]
         pointOf space 4 @?= [1, 1]
         pointOf space 5 @?= [1, 2],
+      testCase "pointOfMaybe rejects ranks outside the affine space" $ do
+        let space = rowMajor [2, 3]
+        pointOfMaybe space (-1) @?= Nothing
+        pointOfMaybe space 6 @?= Nothing,
       testCase "rowMajor 2x2x2 roundtrip points" $ do
         let space = rowMajor [2, 2, 2]
             points =

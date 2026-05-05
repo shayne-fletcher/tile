@@ -1,6 +1,5 @@
 module Tile
   ( module Tile.Shape,
-    module Tile.Range,
     module Tile.Tile,
     module Tile.Tiling,
     module Tile.Schedule,
@@ -15,7 +14,6 @@ import Tile.Affine
 import Tile.Execution
 import Tile.Geometry
 import Tile.Neighborhood
-import Tile.Range
 import Tile.Schedule
 import Tile.Shape
 import Tile.Tile

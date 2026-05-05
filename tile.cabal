@@ -27,7 +27,6 @@ library
     exposed-modules:
       Tile
       Tile.Shape
-      Tile.Range
       Tile.Tile
       Tile.Tiling
       Tile.Schedule

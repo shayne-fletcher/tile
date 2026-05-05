@@ -5,6 +5,7 @@ module Tile.Affine
     rankOf,
     rankOfMaybe,
     pointOf,
+    pointOfMaybe,
     spaceExtent,
     select,
     fixDim,
@@ -40,13 +41,23 @@ rankOf space coord =
 
 rankOfMaybe :: AffineRankSpace -> Point -> Maybe Int
 rankOfMaybe space coord
-  | length coord == length (strides space) =
+  | length coord == length (strides space) && and (zipWith inBounds coord (sizes space)) =
       Just (offset space + sum (zipWith (*) coord (strides space)))
   | otherwise = Nothing
+  where
+    inBounds coordinate size = coordinate >= 0 && coordinate < size
 
 pointOf :: AffineRankSpace -> Int -> Point
 pointOf space rank =
-  zipWith coordinate (strides space) (sizes space)
+  case pointOfMaybe space rank of
+    Just point -> point
+    Nothing -> error "pointOf: rank outside affine rank space"
+
+pointOfMaybe :: AffineRankSpace -> Int -> Maybe Point
+pointOfMaybe space rank
+  | rank `elem` ranks space =
+      Just (zipWith coordinate (strides space) (sizes space))
+  | otherwise = Nothing
   where
     relativeRank = rank - offset space
 

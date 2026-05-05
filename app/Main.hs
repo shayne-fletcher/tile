@@ -14,8 +14,8 @@ main = do
       reduce = reverseSchedule broadcast
 
       full = rootTile shape
-      Just row0 = Tile <$> fixDim (space full) 0 0
-      Just col0 = Tile <$> fixDim (space full) 1 0
+      row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
+      col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
 
       row0Broadcast = buildScheduleFrom scheduler tiling members row0
       col0Broadcast = buildScheduleFrom scheduler tiling members col0
@@ -53,3 +53,7 @@ main = do
     ]
     (+)
     "A"
+
+expectTile :: String -> Maybe Tile -> Tile
+expectTile _ (Just tile) = tile
+expectTile label Nothing = error ("expected " ++ label)
