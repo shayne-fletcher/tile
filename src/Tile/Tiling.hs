@@ -27,13 +27,13 @@ instance Tiling BlockPartitioning where
         | otherwise =
             let siblings =
                   [ child
-                  | i <- [1 .. n - 1]
-                  , Just child <- [fixTileDim t dim i]
+                  | i <- [1 .. n - 1],
+                    Just child <- [fixTileDim t dim i]
                   ]
                 anchor =
                   case fixTileDim t dim 0 of
                     Just child -> child
-                    Nothing -> error "impossible"
+                    Nothing -> t
              in siblings ++ go anchor (dim + 1)
         where
           n = sizes (space t) !! dim

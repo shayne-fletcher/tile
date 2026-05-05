@@ -5,9 +5,8 @@ module Tile.Tile
   )
 where
 
-import Tile.Range
-import Tile.Shape
 import Tile.Affine
+import Tile.Shape
 
 data Tile = Tile
   { space :: AffineRankSpace

@@ -41,10 +41,10 @@ layoutTests =
         rankOf (rowMajor [2, 2, 2]) [1, 1, 0] @?= 6,
       testCase "row-major roundtrip ranks" $
         let space = rowMajor shape
-        in [ rankOf space (pointOf space r)
-        | r <- [0 .. size shape - 1]
-        ]
-          @?= [0 .. size shape - 1]
+         in [ rankOf space (pointOf space r)
+            | r <- [0 .. size shape - 1]
+            ]
+              @?= [0 .. size shape - 1]
     ]
   where
     shape = [2, 2, 2]
@@ -78,7 +78,26 @@ scheduleTests =
                 Step "A" "C",
                 Step "D" "E",
                 Step "D" "F"
-              ]
+              ],
+      testCase "schedule from row tile" $ do
+        let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
+            full = rootTile [2, 4]
+        case Tile <$> fixDim (space full) 0 0 of
+          Nothing -> assertFailure "expected row tile"
+          Just row0 ->
+            buildScheduleFrom BFSScheduler BlockPartitioning members row0
+              @?= [ Step "A" "B",
+                    Step "A" "C",
+                    Step "A" "D"
+                  ],
+      testCase "schedule from column tile" $ do
+        let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
+            full = rootTile [2, 4]
+        case Tile <$> fixDim (space full) 1 0 of
+          Nothing -> assertFailure "expected column tile"
+          Just col0 ->
+            buildScheduleFrom BFSScheduler BlockPartitioning members col0
+              @?= [Step "A" "E"]
     ]
 
 affineTests :: TestTree
@@ -99,6 +118,10 @@ affineTests =
         rankOf space [1, 0] @?= 3
         rankOf space [1, 1] @?= 4
         rankOf space [1, 2] @?= 5,
+      testCase "rankOfMaybe rejects coordinate dimension mismatch" $ do
+        let space = rowMajor [2, 3]
+        rankOfMaybe space [1] @?= Nothing
+        rankOfMaybe space [1, 2, 3] @?= Nothing,
       testCase "pointOf rowMajor 2x3" $ do
         let space = rowMajor [2, 3]
         pointOf space 0 @?= [0, 0]
@@ -190,30 +213,44 @@ selectTests =
                 sizes = [2, 2],
                 strides = [4, 2]
               },
+      testCase "ranks on every other column" $
+        ranks <$> select (rowMajor [2, 4]) 1 0 4 2
+          @?= Just [0, 2, 4, 6],
+      testCase "select middle columns" $
+        ranks <$> select (rowMajor [2, 4]) 1 1 3 1
+          @?= Just [1, 2, 5, 6],
       testCase "select rejects empty range" $
         select (rowMajor [2, 2]) 1 1 1 1 @?= Nothing,
-
+      testCase "select rejects negative dimension" $
+        select (rowMajor [2, 2]) (-1) 0 1 1 @?= Nothing,
+      testCase "select rejects out-of-bounds dimension" $
+        select (rowMajor [2, 2]) 2 0 1 1 @?= Nothing,
+      testCase "select rejects zero step" $
+        select (rowMajor [2, 2]) 1 0 1 0 @?= Nothing,
+      testCase "select rejects negative begin" $
+        select (rowMajor [2, 2]) 1 (-1) 1 1 @?= Nothing,
+      testCase "select rejects end beyond extent" $
+        select (rowMajor [2, 2]) 1 0 3 1 @?= Nothing,
       testCase "fixDim intuition on [[0,1],[2,3]]" $ do
         let full = rowMajor [2, 2]
         ranks <$> fixDim full 0 0 @?= Just [0, 1]
         ranks <$> fixDim full 0 1 @?= Just [2, 3]
         ranks <$> fixDim full 1 0 @?= Just [0, 2]
         ranks <$> fixDim full 1 1 @?= Just [1, 3],
-
-       testCase "fixDim keeps the selected dimension as size 1" $ do
-         let full = rowMajor [2, 2]
-         fixDim full 0 0
-           @?= Just
-             AffineRankSpace
-               { offset = 0,
-                 sizes = [1, 2],
-                 strides = [2, 1]
-               }
-         fixDim full 1 0
-           @?= Just
-             AffineRankSpace
-               { offset = 0,
-                 sizes = [2, 1],
-                 strides = [2, 1]
-               }
+      testCase "fixDim keeps the selected dimension as size 1" $ do
+        let full = rowMajor [2, 2]
+        fixDim full 0 0
+          @?= Just
+            AffineRankSpace
+              { offset = 0,
+                sizes = [1, 2],
+                strides = [2, 1]
+              }
+        fixDim full 1 0
+          @?= Just
+            AffineRankSpace
+              { offset = 0,
+                sizes = [2, 1],
+                strides = [2, 1]
+              }
     ]

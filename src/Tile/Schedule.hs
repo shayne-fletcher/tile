@@ -22,11 +22,11 @@ data Step a = Step
 type Schedule a = [Step a]
 
 class Scheduler s where
-    buildScheduleFrom :: (Tiling t) => s -> t -> [a] -> Tile -> Schedule a
+  buildScheduleFrom :: (Tiling t) => s -> t -> [a] -> Tile -> Schedule a
 
-    buildSchedule :: (Tiling t) => s -> t -> [a] -> Shape -> Schedule a
-    buildSchedule scheduler tiling members shp =
-      buildScheduleFrom scheduler tiling members (rootTile shp)
+  buildSchedule :: (Tiling t) => s -> t -> [a] -> Shape -> Schedule a
+  buildSchedule scheduler tiling members shp =
+    buildScheduleFrom scheduler tiling members (rootTile shp)
 
 data DFSScheduler = DFSScheduler
   deriving (Show, Eq)

@@ -3,16 +3,16 @@ module Tile.Affine
     Point,
     rowMajor,
     rankOf,
+    rankOfMaybe,
     pointOf,
     spaceExtent,
     select,
     fixDim,
-    ranks
+    ranks,
   )
 where
 
 import Control.Monad (guard)
-
 import Tile.Shape (Shape)
 
 data AffineRankSpace = AffineRankSpace
@@ -29,12 +29,20 @@ rowMajor shape =
   AffineRankSpace
     { offset = 0,
       sizes = shape,
-      strides = tail (scanr (*) 1 shape)
+      strides = drop 1 (scanr (*) 1 shape)
     }
 
 rankOf :: AffineRankSpace -> Point -> Int
 rankOf space coord =
-  offset space + sum (zipWith (*) coord (strides space))
+  case rankOfMaybe space coord of
+    Just rank -> rank
+    Nothing -> error "rankOf: coordinate dimension mismatch"
+
+rankOfMaybe :: AffineRankSpace -> Point -> Maybe Int
+rankOfMaybe space coord
+  | length coord == length (strides space) =
+      Just (offset space + sum (zipWith (*) coord (strides space)))
+  | otherwise = Nothing
 
 pointOf :: AffineRankSpace -> Int -> Point
 pointOf space rank =
@@ -87,6 +95,6 @@ ranks space = map (rankOf space) (points (sizes space))
     points [] = [[]]
     points (n : ns) =
       [ i : rest
-      | i <- [0 .. n - 1]
-      , rest <- points ns
+      | i <- [0 .. n - 1],
+        rest <- points ns
       ]
