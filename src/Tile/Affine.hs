@@ -5,8 +5,12 @@ module Tile.Affine
     rankOf,
     pointOf,
     spaceExtent,
+    select,
+    fixDim
   )
 where
+
+import Control.Monad (guard)
 
 import Tile.Shape (Shape)
 
@@ -43,3 +47,35 @@ pointOf space rank =
 spaceExtent :: AffineRankSpace -> Int
 spaceExtent space =
   product (sizes space)
+
+select :: AffineRankSpace -> Int -> Int -> Int -> Int -> Maybe AffineRankSpace
+select space dim begin end step = do
+  let shp = sizes space
+      sts = strides space
+
+  guard (dim >= 0)
+  guard (dim < length shp)
+  guard (step > 0)
+
+  let extent = shp !! dim
+
+  guard (begin >= 0)
+  guard (begin < extent)
+  guard (end > begin)
+  guard (end <= extent)
+
+  let newOffset = offset space + begin * (sts !! dim)
+      newSize = (end - begin + step - 1) `div` step
+
+  pure
+    AffineRankSpace
+      { offset = newOffset,
+        sizes = replace dim newSize shp,
+        strides = replace dim (sts !! dim * step) sts
+      }
+  where
+    replace :: Int -> a -> [a] -> [a]
+    replace i x xs = take i xs ++ [x] ++ drop (i + 1) xs
+
+fixDim :: AffineRankSpace -> Int -> Int -> Maybe AffineRankSpace
+fixDim space dim i = select space dim i (i + 1) 1

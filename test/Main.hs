@@ -14,6 +14,7 @@ tests =
     [ rangeTests,
       layoutTests,
       neighborTests,
+      selectTests,
       scheduleTests,
       affineTests
     ]
@@ -120,3 +121,100 @@ affineTests =
               ]
         [pointOf space (rankOf space p) | p <- points] @?= points
     ]
+
+  {-
+    - selection changes the extent of a dimension
+    - it does not remove that dimension from the shape
+    ```
+    X =
+    [
+      [ A B ],
+      [ C D ],
+    ]
+    select X 0 0 1 1 = [ [A, B] ] (1 x 2)
+    select X 0 1 2 1 = [ [C, D] ] (1 x 2)
+
+    select X 1 0 1 1 = [ [A], [C] ] (2 x 1)
+    select X 1 1 2 1 = [ [B], [D] ] (2 x 1)
+    ```
+    so a 2 x 2 stays 2-dim after select
+      - row selection gives 1 x 2
+      - col selection gives 2 x 1
+
+    ```
+    Y =
+    [
+      [a, b, c, d],
+      [e, f, g, h],
+    ]
+    select Y 1 1 3 1 =
+    [
+      [b, c],
+      [f, g]
+    ]
+    ```
+  -}
+  selectTests :: TestTree
+  selectTests =
+    testGroup
+      "select"
+      [ testCase "select row 0 keeps singleton dim" $
+          select (rowMajor [2, 2]) 0 0 1 1
+            @?= Just
+              AffineRankSpace
+                { offset = 0,
+                  sizes = [1, 2],
+                  strides = [2, 1]
+                },
+        testCase "select row 1 keeps singleton dim" $
+          select (rowMajor [2, 2]) 0 1 2 1
+            @?= Just
+              AffineRankSpace
+                { offset = 2,
+                  sizes = [1, 2],
+                  strides = [2, 1]
+                },
+        testCase "select column 0 keeps singleton dim" $
+          select (rowMajor [2, 2]) 1 0 1 1
+            @?= Just
+              AffineRankSpace
+                { offset = 0,
+                  sizes = [2, 1],
+                  strides = [2, 1]
+                },
+        testCase "select every other column" $
+          select (rowMajor [2, 4]) 1 0 4 2
+            @?= Just
+              AffineRankSpace
+                { offset = 0,
+                  sizes = [2, 2],
+                  strides = [4, 2]
+                },
+        testCase "select rejects empty range" $
+          select (rowMajor [2, 2]) 1 1 1 1 @?= Nothing,
+        testCase "fixDim intuition on [[0,1],[2,3]]" $ do
+          let full = rootTile [2, 2]
+
+          tileRanks <$> fixDim full 0 0 @?= Just [0, 1]
+          tileRanks <$> fixDim full 0 1 @?= Just [2, 3]
+          tileRanks <$> fixDim full 1 0 @?= Just [0, 2]
+          tileRanks <$> fixDim full 1 1 @?= Just [1, 3],
+        testCase "fixDim keeps the selected dimension as size 1" $ do
+          let full = rootTile [2, 2]
+
+          view <$> fixDim full 0 0
+            @?= Just
+              AffineRankSpace
+                { offset = 0,
+                  sizes = [1, 2],
+                  strides = [2, 1]
+                }
+
+          view <$> fixDim full 1 0
+            @?= Just
+              AffineRankSpace
+                { offset = 0,
+                  sizes = [2, 1],
+                  strides = [2, 1]
+                }
+      ]
