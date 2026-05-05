@@ -9,7 +9,7 @@ import Tile.Region
 import Tile.Tile
 
 tileRanks :: Tile -> [Int]
-tileRanks tile = regionRanks (region tile)
+tileRanks = ranks . space
 
 tilePoints :: AffineRankSpace -> Tile -> [Point]
 tilePoints rootSpace tile = map (pointOf rootSpace) (tileRanks tile)

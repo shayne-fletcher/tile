@@ -6,7 +6,8 @@ module Tile.Affine
     pointOf,
     spaceExtent,
     select,
-    fixDim
+    fixDim,
+    ranks
   )
 where
 
@@ -79,3 +80,13 @@ select space dim begin end step = do
 
 fixDim :: AffineRankSpace -> Int -> Int -> Maybe AffineRankSpace
 fixDim space dim i = select space dim i (i + 1) 1
+
+ranks :: AffineRankSpace -> [Int]
+ranks space = map (rankOf space) (points (sizes space))
+  where
+    points [] = [[]]
+    points (n : ns) =
+      [ i : rest
+      | i <- [0 .. n - 1]
+      , rest <- points ns
+      ]
