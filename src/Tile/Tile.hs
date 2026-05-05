@@ -1,7 +1,6 @@
 module Tile.Tile
   ( Tile (..),
     root,
-    subTile,
     rootTile,
   )
 where
@@ -9,27 +8,14 @@ where
 import Tile.Range
 import Tile.Shape
 import Tile.Affine
-import Tile.Region
 
 data Tile = Tile
-  { region :: Region,
-    space :: AffineRankSpace
+  { space :: AffineRankSpace
   }
   deriving (Show, Eq)
 
 root :: Tile -> Int
-root = regionOrigin . region
+root = offset . space
 
 rootTile :: Shape -> Tile
-rootTile shp =
-  Tile
-    { region = contiguous (Range 0 (size shp)),
-      space = rowMajor shp
-    }
-
-subTile :: Tile -> Int -> Shape -> Tile
-subTile parent offset dims =
-  Tile
-    { region = contiguous (Range (root parent + offset) (product dims)),
-      space = rowMajor dims
-    }
+rootTile shp = Tile . rowMajor $ shp

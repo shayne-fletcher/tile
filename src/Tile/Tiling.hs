@@ -7,8 +7,6 @@ module Tile.Tiling
 where
 
 import Tile.Affine
-import Tile.Region
-import Tile.Range
 import Tile.Tile
 
 class Tiling t where
@@ -17,18 +15,25 @@ class Tiling t where
 data BlockPartitioning = BlockPartitioning
   deriving (Show, Eq)
 
+fixTileDim :: Tile -> Int -> Int -> Maybe Tile
+fixTileDim tile dim i = Tile <$> fixDim (space tile) dim i
+
 instance Tiling BlockPartitioning where
-  children _ tile = case region tile of
-    Contiguous (Range _ blockLen) ->
-      go (sizes (space tile)) blockLen 0
+  children _ tile = go tile 0
     where
-      go [] _ _ = []
-      go (n : ns) blockLen offset0
-        | n <= 1 || blockLen <= 1 = go ns blockLen offset0
+      go t dim
+        | dim >= length (sizes (space t)) = []
+        | n <= 1 = go t (dim + 1)
         | otherwise =
-            let childLen = blockLen `div` n
-                children =
-                  [ subTile tile (offset0 + i * childLen) ns
+            let siblings =
+                  [ child
                   | i <- [1 .. n - 1]
+                  , Just child <- [fixTileDim t dim i]
                   ]
-             in children ++ go ns childLen offset0
+                anchor =
+                  case fixTileDim t dim 0 of
+                    Just child -> child
+                    Nothing -> error "impossible"
+             in siblings ++ go anchor (dim + 1)
+        where
+          n = sizes (space t) !! dim

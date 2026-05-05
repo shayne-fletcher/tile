@@ -35,7 +35,6 @@ library
       Tile.Neighborhood
       Tile.Geometry
       Tile.Affine
-      Tile.Region
 
     -- other-modules:
     -- other-extensions:

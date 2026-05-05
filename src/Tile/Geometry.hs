@@ -5,7 +5,6 @@ module Tile.Geometry
 where
 
 import Tile.Affine
-import Tile.Region
 import Tile.Tile
 
 tileRanks :: Tile -> [Int]

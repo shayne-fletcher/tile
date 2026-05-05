@@ -8,7 +8,6 @@ module Tile
     module Tile.Neighborhood,
     module Tile.Geometry,
     module Tile.Affine,
-    module Tile.Region,
   )
 where
 
@@ -21,4 +20,3 @@ import Tile.Schedule
 import Tile.Shape
 import Tile.Tile
 import Tile.Tiling
-import Tile.Region
