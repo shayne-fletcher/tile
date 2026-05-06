@@ -4,6 +4,7 @@ module Tile.Schedule
     Scheduler (..),
     DFSScheduler (..),
     BFSScheduler (..),
+    stepFor,
     reverseStep,
     reverseSchedule,
   )
@@ -21,6 +22,18 @@ data Step a = Step
 
 type Schedule a = [Step a]
 
+memberAt :: [a] -> Tile -> a
+memberAt members  =(members !!) . root
+
+stepFor :: [a] -> Tile -> Tile -> Maybe (Step a)
+stepFor members parent child
+  | root parent == root child = Nothing
+  | otherwise =
+      Just
+        Step { from = memberAt members parent,
+               to = memberAt members child
+             }
+
 class Scheduler s where
   buildScheduleFrom :: (Tiling t) => s -> t -> [a] -> Tile -> Schedule a
 
@@ -36,14 +49,11 @@ instance Scheduler DFSScheduler where
     go
     where
       go tile =
-        let parent = members !! root tile
-            childTiles = children tiling tile
+        let childTiles = children tiling tile
             steps =
-              [ Step
-                  { from = parent,
-                    to = members !! root child
-                  }
+              [ step
               | child <- childTiles
+              , Just step <- [stepFor members tile child]
               ]
          in steps ++ concatMap go childTiles
 
@@ -54,18 +64,16 @@ instance Scheduler BFSScheduler where
   buildScheduleFrom _ tiling members start =
     go [start]
     where
-      go [] = []
-      go tiles =
-        let steps =
-              [ Step
-                  { from = members !! root parent,
-                    to = members !! root child
-                  }
-              | parent <- tiles,
-                child <- children tiling parent
-              ]
-            childTiles = concatMap (children tiling) tiles
-         in steps ++ go childTiles
+        go [] = []
+        go tiles =
+          let childTiles = concatMap (children tiling) tiles
+              steps =
+                [ step
+                | parent <- tiles
+                , child <- children tiling parent
+                , Just step <- [stepFor members parent child]
+                ]
+           in steps ++ go childTiles
 
 reverseStep :: Step a -> Step a
 reverseStep Step {from = p, to = c} =

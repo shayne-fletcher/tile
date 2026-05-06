@@ -14,6 +14,7 @@ tests =
     [ layoutTests,
       neighborTests,
       selectTests,
+      tilingTests,
       scheduleTests,
       affineTests
     ]
@@ -46,6 +47,42 @@ neighborTests =
         neighbors (rowMajor [2, 2]) 3 @?= [1, 2],
       testCase "neighbors center-ish rank 3 in 2x2x2" $
         neighbors (rowMajor [2, 2, 2]) 3 @?= [7, 1, 2]
+    ]
+
+
+tilingTests :: TestTree
+tilingTests =
+  testGroup
+    "tiling"
+    [ testCase "childNodes on 2x2 exposes sibling and anchor" $ do
+        let full = rootTile [2, 2]
+            nodes = childNodes BlockPartitioning full
+        map relation nodes
+          @?= [ Sibling (Split 0 1),
+                Anchor (Split 0 0)
+              ]
+        map (tileRanks . tile) nodes
+          @?= [ [2, 3],
+                [0, 1]
+              ],
+      testCase "children on 2x2 keeps communication projection" $
+        let full = rootTile [2, 2]
+         in map tileRanks (children BlockPartitioning full)
+              @?= [[2, 3], [1]],
+      testCase "childNodes on top row exposes column split" $ do
+        let full = rootTile [2, 2]
+        case Tile <$> fixDim (space full) 0 0 of
+          Nothing -> assertFailure "expected row tile"
+          Just row0 -> do
+            let nodes = childNodes BlockPartitioning row0
+            map relation nodes
+              @?= [ Sibling (Split 1 1),
+                    Anchor (Split 1 0)
+                  ]
+            map (tileRanks . tile) nodes
+              @?= [ [1],
+                    [0]
+                  ]
     ]
 
 scheduleTests :: TestTree
@@ -84,7 +121,30 @@ scheduleTests =
           Nothing -> assertFailure "expected column tile"
           Just col0 ->
             buildScheduleFrom BFSScheduler BlockPartitioning members col0
-              @?= [Step "A" "E"]
+              @?= [Step "A" "E"],
+      testCase "stepFor takes roots and ignores anchor self-edge" $ do
+        let members = ["A", "B", "C", "D"]
+            full = rootTile [2, 2]
+        case childNodes BlockPartitioning full of
+          [siblingNode, anchorNode] -> do
+            relation siblingNode @?= Sibling (Split 0 1)
+            relation anchorNode @?= Anchor (Split 0 0)
+            stepFor members full (tile siblingNode)
+              @?= Just (Step "A" "C")
+            stepFor members full (tile anchorNode)
+              @?= Nothing
+          nodes ->
+            assertFailure ("unexpected childNodes: " ++ show nodes),
+      testCase "2x4 BFS schedule" $
+        buildSchedule BFSScheduler BlockPartitioning ["A", "B", "C", "D", "E", "F", "G", "H"] [2, 4]
+          @?= [ Step "A" "E",
+                Step "A" "B",
+                Step "A" "C",
+                Step "A" "D",
+                Step "E" "F",
+                Step "E" "G",
+                Step "E" "H"
+              ]
     ]
 
 affineTests :: TestTree
