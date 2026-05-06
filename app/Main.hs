@@ -20,6 +20,15 @@ main = do
       row0Broadcast = buildScheduleFrom scheduler tiling members row0
       col0Broadcast = buildScheduleFrom scheduler tiling members col0
 
+  putStrLn "decomposition tree:"
+  putStr (renderDecompositionTree members (decompositionTree tiling full))
+
+  putStrLn "\nhop tree:"
+  putStr (renderHopTree members (hopTree tiling full))
+
+  putStrLn "\nsend tree:"
+  putStr (renderSendTree members (sendTree tiling full))
+
   putStrLn "row 0 ranks:"
   print (tileRanks row0)
   putStrLn "row 0 broadcast schedule:"

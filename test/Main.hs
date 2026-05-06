@@ -49,7 +49,6 @@ neighborTests =
         neighbors (rowMajor [2, 2, 2]) 3 @?= [7, 1, 2]
     ]
 
-
 tilingTests :: TestTree
 tilingTests =
   testGroup
