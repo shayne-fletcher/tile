@@ -23,16 +23,17 @@ data Step a = Step
 type Schedule a = [Step a]
 
 memberAt :: [a] -> Tile -> a
-memberAt members  =(members !!) . root
+memberAt members = (members !!) . root
 
 stepFor :: [a] -> Tile -> Tile -> Maybe (Step a)
 stepFor members parent child
   | root parent == root child = Nothing
   | otherwise =
       Just
-        Step { from = memberAt members parent,
-               to = memberAt members child
-             }
+        Step
+          { from = memberAt members parent,
+            to = memberAt members child
+          }
 
 class Scheduler s where
   buildScheduleFrom :: (Tiling t) => s -> t -> [a] -> Tile -> Schedule a
@@ -52,8 +53,8 @@ instance Scheduler DFSScheduler where
         let childTiles = children tiling tile
             steps =
               [ step
-              | child <- childTiles
-              , Just step <- [stepFor members tile child]
+              | child <- childTiles,
+                Just step <- [stepFor members tile child]
               ]
          in steps ++ concatMap go childTiles
 
@@ -64,16 +65,16 @@ instance Scheduler BFSScheduler where
   buildScheduleFrom _ tiling members start =
     go [start]
     where
-        go [] = []
-        go tiles =
-          let childTiles = concatMap (children tiling) tiles
-              steps =
-                [ step
-                | parent <- tiles
-                , child <- children tiling parent
-                , Just step <- [stepFor members parent child]
-                ]
-           in steps ++ go childTiles
+      go [] = []
+      go tiles =
+        let childTiles = concatMap (children tiling) tiles
+            steps =
+              [ step
+              | parent <- tiles,
+                child <- children tiling parent,
+                Just step <- [stepFor members parent child]
+              ]
+         in steps ++ go childTiles
 
 reverseStep :: Step a -> Step a
 reverseStep Step {from = p, to = c} =

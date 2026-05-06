@@ -45,8 +45,8 @@ childNodes _ tile = go tile 0
       | otherwise =
           let siblings =
                 [ TileNode child (Sibling (Split d i))
-                | i <- [1 .. n - 1]
-                , Just child <- [fixTileDim t d i]
+                | i <- [1 .. n - 1],
+                  Just child <- [fixTileDim t d i]
                 ]
               anchors =
                 [ TileNode child (Anchor (Split d 0))
