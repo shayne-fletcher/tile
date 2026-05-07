@@ -2,6 +2,10 @@ module Tile.Tree
   ( DecompositionTree (..),
     HopTree (..),
     SendTree (..),
+    RoutedTree (..),
+    scheduleTree,
+    routedTree,
+    renderRoutedTree,
     decompositionTree,
     hopTree,
     sendTree,
@@ -11,10 +15,13 @@ module Tile.Tree
   )
 where
 
+import Data.Map.Strict qualified as Map
 import Data.List (sortOn)
+
 import Tile.Geometry
 import Tile.Tile
 import Tile.Tiling
+import Tile.Schedule
 
 data DecompositionTree = DecompositionTree
   { decompositionNode :: TileNode,
@@ -31,6 +38,12 @@ data HopTree = HopTree
 data SendTree = SendTree
   { sendTile :: Tile,
     sendSubtrees :: [SendTree]
+  }
+  deriving (Show, Eq)
+
+data RoutedTree a = RoutedTree
+  { routedMember :: a,
+    routedSubtrees :: [RoutedTree a]
   }
   deriving (Show, Eq)
 
@@ -70,6 +83,29 @@ fromHopTree (HopTree node kids) =
     { sendTile = tile node,
       sendSubtrees = map fromHopTree kids
     }
+
+scheduleTree :: Ord a => a -> Schedule a -> RoutedTree a
+scheduleTree ingress schedule =
+  go ingress
+  where
+    graph =
+      foldr
+        (\Step {from = p, to = c} m -> Map.insertWith (++) p [c] m)
+        Map.empty
+        schedule
+
+    go member =
+      RoutedTree
+        { routedMember = member,
+          routedSubtrees =
+            [ go child
+            | child <- Map.findWithDefault [] member graph
+            ]
+        }
+
+routedTree :: Ord a => RoutedSchedule a -> RoutedTree a
+routedTree RoutedSchedule {ingress = member, routedSteps = steps} =
+  scheduleTree member steps
 
 renderDecompositionTree :: [String] -> DecompositionTree -> String
 renderDecompositionTree members tree =
@@ -126,6 +162,27 @@ renderSendTree members tree =
     renderTree (SendTree tile kids) =
       renderMember members tile
         : renderChildren kids
+
+    renderChildren [] = []
+    renderChildren kids =
+      concat
+        [ renderBranch prefix child
+        | (prefix, child) <- branchPrefixes kids
+        ]
+
+    renderBranch prefix child =
+      case renderTree child of
+        [] -> []
+        first : rest ->
+          (prefix ++ first)
+            : [continuation prefix ++ line | line <- rest]
+
+renderRoutedTree :: RoutedTree String -> String
+renderRoutedTree tree =
+  unlines (renderTree tree)
+  where
+    renderTree (RoutedTree member kids) =
+      member : renderChildren kids
 
     renderChildren [] = []
     renderChildren kids =

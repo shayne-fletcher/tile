@@ -14,6 +14,12 @@ main = do
       reduce = reverseSchedule broadcast
 
       full = rootTile shape
+      occE = Occlusion (== "E")
+
+      repairedFull =
+        expectRouted "occluded full mesh" $
+          buildOccludedScheduleFrom scheduler occE tiling members full
+
       row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
       col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
       middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
@@ -42,6 +48,9 @@ main = do
   putStrLn "\nmiddle-columns send tree:"
   putStr (renderSendTree members (sendTree tiling middleColumns))
 
+  putStrLn "\nschedule tree:"
+  putStr (renderRoutedTree (scheduleTree "A" broadcast))
+
   putStrLn "row 0 ranks:"
   print (tileRanks row0)
   putStrLn "row 0 broadcast schedule:"
@@ -61,6 +70,15 @@ main = do
   putStrLn "\nrunning full-mesh broadcast from A:"
   runBroadcast broadcast "A"
 
+  putStrLn "\noccluded full-mesh broadcast (E failed):"
+  print repairedFull
+
+  putStrLn "\noccluded schedule tree:"
+  putStr (renderRoutedTree (routedTree repairedFull))
+
+  putStrLn "\nrunning occluded full-mesh broadcast:"
+  runBroadcast (routedSteps repairedFull) (ingress repairedFull)
+
   putStrLn "\nrunning full-mesh reduce:"
   runReduce
     reduce
@@ -79,3 +97,7 @@ main = do
 expectTile :: String -> Maybe Tile -> Tile
 expectTile _ (Just tile) = tile
 expectTile label Nothing = error ("expected " ++ label)
+
+expectRouted :: String -> Maybe (RoutedSchedule a) -> RoutedSchedule a
+expectRouted _ (Just routed) = routed
+expectRouted label Nothing = error ("expected " ++ label)
