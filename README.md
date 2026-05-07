@@ -4,22 +4,26 @@
      alt="Logo"
      style="display: block; margin: 0 auto; width: 32%; height: auto;">
 
-`tile` is a small library for structuring collective communication.
+`tile` is a small library for structuring collective communication over affine views of a rank space.
 
 ```text
-Shape → Tile → Tiling → Schedule → Execution
+Shape → AffineRankSpace → Tile → Tiling/Tree → Schedule → Execution
 ```
 
-**Shape** defines the dimensions of a rank space.
+**Shape** defines the dimensions of a root rank space.
 
-**Tile** denotes part of a rank space, characterized by a *layout* (how its ranks are organized as N-D — sizes, strides, offset) and a *coverage* (which ranks in the root rank space the tile owns). The global extent is the root tile.
+**AffineRankSpace** is the core representation of an N-D rank space: `offset`, `sizes`, and `strides`. `select` and `fixDim` produce affine subspaces, so slices of a mesh stay in the same representation.
 
-**Tiling** is a strategy for decomposing a tile into child tiles. Different strategies implement the same interface, separating the decomposition algorithm from the tile structure.
+**Tile** wraps an affine rank space. Its root is the tile's offset; its members are the ranks covered by that affine view.
 
-**Schedule** is a directed communication plan derived from a tiling — the sequence of edges along which messages flow.
+**Tiling** is a strategy for decomposing a tile into child tiles. `BlockPartitioning` exposes both the structural decomposition (`childNodes`, with `Anchor`/`Sibling` relations) and the communication projection (`nextHops`).
+
+**Tree** materializes those views as decomposition, hop, and send trees.
+
+**Schedule** is a directed communication plan derived from a tiling by taking roots along the communication tree.
 
 **Execution** interprets a schedule, dispatching messages along the planned edges.
 
-The library is not tied to a particular representation, tiling strategy, or scheduler. It provides a substrate for expressing families of communication patterns as combinations of these orthogonal pieces over a common representation.
+The library currently centers affine slicing and block partitioning. A full mesh and any row, column, or strided slice are all expressed as tiles, and the same scheduling machinery applies to each.
 
 Communication structure is constructed as a pure value and interpreted separately. The topology is explicit — it can be inspected, transformed, and reused independently of execution.
