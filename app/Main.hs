@@ -16,6 +16,7 @@ main = do
       full = rootTile shape
       row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
       col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
+      middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
 
       row0Broadcast = buildScheduleFrom scheduler tiling members row0
       col0Broadcast = buildScheduleFrom scheduler tiling members col0
@@ -28,6 +29,18 @@ main = do
 
   putStrLn "\nsend tree:"
   putStr (renderSendTree members (sendTree tiling full))
+
+  putStrLn "\nmiddle-columns tile ranks:"
+  print (tileRanks middleColumns)
+
+  putStrLn "middle-columns decomposition tree:"
+  putStr (renderDecompositionTree members (decompositionTree tiling middleColumns))
+
+  putStrLn "\nmiddle-columns hop tree:"
+  putStr (renderHopTree members (hopTree tiling middleColumns))
+
+  putStrLn "\nmiddle-columns send tree:"
+  putStr (renderSendTree members (sendTree tiling middleColumns))
 
   putStrLn "row 0 ranks:"
   print (tileRanks row0)
