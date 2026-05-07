@@ -15,13 +15,12 @@ module Tile.Tree
   )
 where
 
-import Data.Map.Strict qualified as Map
 import Data.List (sortOn)
-
+import Data.Map.Strict qualified as Map
 import Tile.Geometry
+import Tile.Schedule
 import Tile.Tile
 import Tile.Tiling
-import Tile.Schedule
 
 data DecompositionTree = DecompositionTree
   { decompositionNode :: TileNode,
@@ -84,7 +83,7 @@ fromHopTree (HopTree node kids) =
       sendSubtrees = map fromHopTree kids
     }
 
-scheduleTree :: Ord a => a -> Schedule a -> RoutedTree a
+scheduleTree :: (Ord a) => a -> Schedule a -> RoutedTree a
 scheduleTree ingress schedule =
   go ingress
   where
@@ -103,7 +102,7 @@ scheduleTree ingress schedule =
             ]
         }
 
-routedTree :: Ord a => RoutedSchedule a -> RoutedTree a
+routedTree :: (Ord a) => RoutedSchedule a -> RoutedTree a
 routedTree RoutedSchedule {ingress = member, routedSteps = steps} =
   scheduleTree member steps
 

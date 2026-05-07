@@ -145,33 +145,33 @@ scheduleTests =
                 Step "E" "H"
               ],
       testCase "occluded DFS schedule reroots within subtree" $ do
-          let members = ["A", "B", "C", "D"]
-              occ = Occlusion (== "C")
-          buildOccludedScheduleFrom DFSScheduler occ BlockPartitioning members (rootTile [2, 2])
-            @?= Just
-              RoutedSchedule
-                { ingress = "A",
-                  routedSteps =
-                    [ Step "A" "D",
-                      Step "A" "B"
-                    ]
-                },
+        let members = ["A", "B", "C", "D"]
+            occ = Occlusion (== "C")
+        buildOccludedScheduleFrom DFSScheduler occ BlockPartitioning members (rootTile [2, 2])
+          @?= Just
+            RoutedSchedule
+              { ingress = "A",
+                routedSteps =
+                  [ Step "A" "D",
+                    Step "A" "B"
+                  ]
+              },
       testCase "occluded BFS schedule reroots bottom row" $ do
-          let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
-              occ = Occlusion (== "E")
-          buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [2, 4])
-            @?= Just
-              RoutedSchedule
-                { ingress = "A",
-                  routedSteps =
-                    [ Step "A" "F",
-                      Step "A" "B",
-                      Step "A" "C",
-                      Step "A" "D",
-                      Step "F" "G",
-                      Step "F" "H"
-                    ]
-                }
+        let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
+            occ = Occlusion (== "E")
+        buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [2, 4])
+          @?= Just
+            RoutedSchedule
+              { ingress = "A",
+                routedSteps =
+                  [ Step "A" "F",
+                    Step "A" "B",
+                    Step "A" "C",
+                    Step "A" "D",
+                    Step "F" "G",
+                    Step "F" "H"
+                  ]
+              }
     ]
 
 affineTests :: TestTree

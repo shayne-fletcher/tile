@@ -13,12 +13,11 @@ module Tile.Schedule
   )
 where
 
-import Data.List(find)
-
+import Data.List (find)
+import Tile.Geometry
 import Tile.Shape
 import Tile.Tile
 import Tile.Tiling
-import Tile.Geometry
 
 data Step a = Step
   { from :: a,
@@ -38,9 +37,9 @@ newtype Occlusion a = Occlusion
   { isOccluded :: a -> Bool
   }
 
-representative :: Eq a => Occlusion a -> [a] -> Tile -> Maybe a
+representative :: (Eq a) => Occlusion a -> [a] -> Tile -> Maybe a
 representative occ members tile =
-  find (not . isOccluded occ) [ members !! r | r <- tileRanks tile ]
+  find (not . isOccluded occ) [members !! r | r <- tileRanks tile]
 
 memberAt :: [a] -> Tile -> a
 memberAt members = (members !!) . root
@@ -55,7 +54,7 @@ stepFor members parent child
             to = memberAt members child
           }
 
-stepForOccluded :: Eq a => Occlusion a -> [a] -> Tile -> Tile -> Maybe (Step a)
+stepForOccluded :: (Eq a) => Occlusion a -> [a] -> Tile -> Tile -> Maybe (Step a)
 stepForOccluded occ members parent child =
   case (representative occ members parent, representative occ members child) of
     (Just fromMember, Just toMember)
@@ -101,8 +100,8 @@ instance Scheduler DFSScheduler where
     where
       liveChildren tile =
         [ child
-        | child <- children tiling tile
-        , case representative occ members child of
+        | child <- children tiling tile,
+          case representative occ members child of
             Just _ -> True
             Nothing -> False
         ]
@@ -111,8 +110,8 @@ instance Scheduler DFSScheduler where
         let childTiles = liveChildren tile
             steps =
               [ step
-              | child <- childTiles
-              , Just step <- [ stepForOccluded occ members tile child ]
+              | child <- childTiles,
+                Just step <- [stepForOccluded occ members tile child]
               ]
          in steps ++ concatMap go childTiles
 
@@ -144,8 +143,8 @@ instance Scheduler BFSScheduler where
     where
       liveChildren tile =
         [ child
-        | child <- children tiling tile
-        , case representative occ members child of
+        | child <- children tiling tile,
+          case representative occ members child of
             Just _ -> True
             Nothing -> False
         ]
@@ -159,12 +158,11 @@ instance Scheduler BFSScheduler where
             childTiles = concatMap snd frontier
             steps =
               [ step
-              | (parent, kids) <- frontier
-              , child <- kids
-              , Just step <- [ stepForOccluded occ members parent child ]
+              | (parent, kids) <- frontier,
+                child <- kids,
+                Just step <- [stepForOccluded occ members parent child]
               ]
-        in steps ++ go childTiles
-
+         in steps ++ go childTiles
 
 reverseStep :: Step a -> Step a
 reverseStep Step {from = p, to = c} =

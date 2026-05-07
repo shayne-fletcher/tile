@@ -39,7 +39,7 @@ main = do
   putStrLn "\nmiddle-columns tile ranks:"
   print (tileRanks middleColumns)
 
-  putStrLn "middle-columns decomposition tree:"
+  putStrLn "\nmiddle-columns decomposition tree:"
   putStr (renderDecompositionTree members (decompositionTree tiling middleColumns))
 
   putStrLn "\nmiddle-columns hop tree:"
@@ -51,7 +51,7 @@ main = do
   putStrLn "\nschedule tree:"
   putStr (renderRoutedTree (scheduleTree "A" broadcast))
 
-  putStrLn "row 0 ranks:"
+  putStrLn "\nrow 0 ranks:"
   print (tileRanks row0)
   putStrLn "row 0 broadcast schedule:"
   print row0Broadcast
