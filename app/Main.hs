@@ -5,6 +5,7 @@ import Tile
 main :: IO ()
 main = do
   let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
+      jaggedMembers = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
       shape = [2, 4]
 
       tiling = BlockPartitioning
@@ -15,10 +16,15 @@ main = do
 
       full = rootTile shape
       occE = Occlusion (== "E")
+      jaggedEnvelope = rootTile [3, 3]
+      jaggedOcclusion = Occlusion (`elem` ["F", "H", "I"])
 
       repairedFull =
         expectRouted "occluded full mesh" $
           buildOccludedScheduleFrom scheduler occE tiling members full
+      jaggedRoute =
+        expectRouted "jagged region" $
+          buildOccludedScheduleFrom scheduler jaggedOcclusion tiling jaggedMembers jaggedEnvelope
 
       row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
       col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
@@ -75,6 +81,15 @@ main = do
 
   putStrLn "\noccluded schedule tree:"
   putStr (renderRoutedTree (routedTree repairedFull))
+
+  putStrLn "\njagged region via occluded 3x3 envelope:"
+  putStrLn "  A B C"
+  putStrLn "  D E ."
+  putStrLn "  G . ."
+  print jaggedRoute
+
+  putStrLn "\njagged routed tree:"
+  putStr (renderRoutedTree (routedTree jaggedRoute))
 
   putStrLn "\nrunning occluded full-mesh broadcast:"
   runBroadcast (routedSteps repairedFull) (ingress repairedFull)

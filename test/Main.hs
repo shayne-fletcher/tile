@@ -1,5 +1,6 @@
 module Main (main) where
 
+import Data.List (sort)
 import Test.Tasty
 import Test.Tasty.HUnit
 import Tile
@@ -14,6 +15,7 @@ tests =
     [ layoutTests,
       neighborTests,
       selectTests,
+      inclusionTests,
       tilingTests,
       scheduleTests,
       affineTests
@@ -47,6 +49,47 @@ neighborTests =
         neighbors (rowMajor [2, 2]) 3 @?= [1, 2],
       testCase "neighbors center-ish rank 3 in 2x2x2" $
         neighbors (rowMajor [2, 2, 2]) 3 @?= [7, 1, 2]
+    ]
+
+inclusionTests :: TestTree
+inclusionTests =
+  testGroup
+    "inclusion"
+    [ testCase "selected tiles include only ranks from the parent tile" $ do
+        let full = rootTile [2, 4]
+            row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
+            col1 = expectTile "column 1" (Tile <$> fixDim (space full) 1 1)
+            middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
+        assertRanksIncludedIn full row0
+        assertRanksIncludedIn full col1
+        assertRanksIncludedIn full middleColumns,
+      testCase "structural child nodes include only ranks from the parent tile" $ do
+        let full = rootTile [2, 4]
+            middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
+        map (tileRanks . tile) (childNodes BlockPartitioning middleColumns)
+          @?= [[5, 6], [1, 2]]
+        mapM_ (assertRanksIncludedIn middleColumns . tile) (childNodes BlockPartitioning middleColumns),
+      testCase "communication children include only ranks from the parent tile" $ do
+        let full = rootTile [2, 4]
+            middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
+        map tileRanks (children BlockPartitioning middleColumns)
+          @?= [[5, 6], [2]]
+        mapM_ (assertRanksIncludedIn middleColumns) (children BlockPartitioning middleColumns),
+      testCase "occluded schedule over jagged region sends only to live members" $ do
+        let members = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+            occ = Occlusion (`elem` ["F", "H", "I"])
+        buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [3, 3])
+          @?= Just
+            RoutedSchedule
+              { ingress = "A",
+                routedSteps =
+                  [ Step "A" "D",
+                    Step "A" "G",
+                    Step "A" "B",
+                    Step "A" "C",
+                    Step "D" "E"
+                  ]
+              }
     ]
 
 tilingTests :: TestTree
@@ -337,3 +380,19 @@ selectTests =
                 strides = [2, 1]
               }
     ]
+
+assertRanksIncludedIn :: Tile -> Tile -> Assertion
+assertRanksIncludedIn parent child =
+  assertBool message (all (`elem` parentRanks) childRanks)
+  where
+    parentRanks = tileRanks parent
+    childRanks = tileRanks child
+    message =
+      "expected "
+        ++ show (sort childRanks)
+        ++ " to be included in "
+        ++ show (sort parentRanks)
+
+expectTile :: String -> Maybe Tile -> Tile
+expectTile _ (Just tile) = tile
+expectTile label Nothing = error ("expected " ++ label)
