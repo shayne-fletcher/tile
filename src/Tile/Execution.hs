@@ -1,6 +1,7 @@
 module Tile.Execution
   ( adjacencyList,
     runBroadcast,
+    runGather,
     runReduce,
   )
 where
@@ -90,5 +91,49 @@ runReduce schedule initialValues combine root = do
   forM_ members $ \m ->
     when (Map.findWithDefault 0 m incoming == 0) $
       writeChan (chanMap Map.! m) (valueMap Map.! m)
+
+  threadDelay 1000000
+
+runGather ::
+  (Show a) =>
+  Schedule String ->
+  [(String, a)] ->
+  String ->
+  IO ()
+runGather schedule initialValues root = do
+  let graph = adjacencyList schedule
+      incoming = incomingCounts schedule
+      members =
+        Set.toList $
+          Set.fromList $
+            Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
+
+  chanPairs <- forM members $ \m -> do
+    ch <- newChan
+    pure (m, ch)
+
+  let chanMap = Map.fromList chanPairs
+      valueMap = Map.fromList initialValues
+
+  forM_ members $ \m -> do
+    let inbox = chanMap Map.! m
+        children = Map.findWithDefault [] m graph
+        childChans = [(c, chanMap Map.! c) | c <- children]
+        expected = Map.findWithDefault 0 m incoming
+        localValue = [(m, valueMap Map.! m)]
+
+    _ <- forkIO $ do
+      received <- concat <$> replicateM expected (readChan inbox)
+      let gathered = localValue ++ received
+      if m == root
+        then putStrLn $ m ++ " gathered result: " ++ show gathered
+        else forM_ childChans $ \(childName, childInbox) -> do
+          putStrLn $ m ++ " sending gathered values " ++ show gathered ++ " to " ++ childName
+          writeChan childInbox gathered
+    pure ()
+
+  forM_ members $ \m ->
+    when (Map.findWithDefault 0 m incoming == 0) $
+      writeChan (chanMap Map.! m) [(m, valueMap Map.! m)]
 
   threadDelay 1000000

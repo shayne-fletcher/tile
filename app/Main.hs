@@ -12,7 +12,7 @@ main = do
       scheduler = BFSScheduler
 
       broadcast = buildSchedule scheduler tiling members shape
-      reduce = reverseSchedule broadcast
+      converge = reverseSchedule broadcast
 
       full = rootTile shape
       occE = Occlusion (== "E")
@@ -109,7 +109,7 @@ main = do
 
   putStrLn "\nrunning full-mesh reduce:"
   runReduce
-    reduce
+    converge
     [ ("A", 1),
       ("B", 2),
       ("C", 3),
@@ -120,6 +120,20 @@ main = do
       ("H", 8)
     ]
     (+)
+    "A"
+
+  putStrLn "\nrunning full-mesh gather:"
+  runGather
+    converge
+    [ ("A", "value-a"),
+      ("B", "value-b"),
+      ("C", "value-c"),
+      ("D", "value-d"),
+      ("E", "value-e"),
+      ("F", "value-f"),
+      ("G", "value-g"),
+      ("H", "value-h")
+    ]
     "A"
 
 expectTile :: String -> Maybe Tile -> Tile
