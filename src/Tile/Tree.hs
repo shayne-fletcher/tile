@@ -1,5 +1,8 @@
 module Tile.Tree
-  ( DecompositionTree (..),
+  ( Tree (..),
+    mapTree,
+    renderTreeWith,
+    DecompositionTree (..),
     HopTree (..),
     SendTree (..),
     RoutedTree (..),
@@ -22,38 +25,40 @@ import Tile.Schedule
 import Tile.Tile
 import Tile.Tiling
 
-data DecompositionTree = DecompositionTree
-  { decompositionNode :: TileNode,
-    decompositionSubtrees :: [DecompositionTree]
+data Tree a = Tree
+  { treeLabel :: a,
+    subtrees :: [Tree a]
   }
   deriving (Show, Eq)
 
-data HopTree = HopTree
-  { hopNode :: TileNode,
-    hopSubtrees :: [HopTree]
+newtype DecompositionTree = DecompositionTree
+  { getDecompositionTree :: Tree TileNode
   }
   deriving (Show, Eq)
 
-data SendTree = SendTree
-  { sendTile :: Tile,
-    sendSubtrees :: [SendTree]
+newtype HopTree = HopTree
+  { getHopTree :: Tree TileNode
   }
   deriving (Show, Eq)
 
-data RoutedTree a = RoutedTree
-  { routedMember :: a,
-    routedSubtrees :: [RoutedTree a]
+newtype SendTree = SendTree
+  { getSendTree :: Tree Tile
+  }
+  deriving (Show, Eq)
+
+newtype RoutedTree a = RoutedTree
+  { getRoutedTree :: Tree a
   }
   deriving (Show, Eq)
 
 decompositionTree :: BlockPartitioning -> Tile -> DecompositionTree
 decompositionTree tiling baseTile =
-  go (TileNode baseTile Root)
+  DecompositionTree (go (TileNode baseTile Root))
   where
     go node =
-      DecompositionTree
-        { decompositionNode = node,
-          decompositionSubtrees =
+      Tree
+        { treeLabel = node,
+          subtrees =
             [ go child
             | child <- childNodes tiling (tile node)
             ]
@@ -61,12 +66,12 @@ decompositionTree tiling baseTile =
 
 hopTree :: BlockPartitioning -> Tile -> HopTree
 hopTree tiling baseTile =
-  go (TileNode baseTile Root)
+  HopTree (go (TileNode baseTile Root))
   where
     go node =
-      HopTree
-        { hopNode = node,
-          hopSubtrees =
+      Tree
+        { treeLabel = node,
+          subtrees =
             [ go child
             | child <- nextHops tiling node
             ]
@@ -77,15 +82,12 @@ sendTree tiling baseTile =
   fromHopTree (hopTree tiling baseTile)
 
 fromHopTree :: HopTree -> SendTree
-fromHopTree (HopTree node kids) =
-  SendTree
-    { sendTile = tile node,
-      sendSubtrees = map fromHopTree kids
-    }
+fromHopTree (HopTree tree) =
+  SendTree (mapTree tile tree)
 
 scheduleTree :: (Ord a) => a -> Schedule a -> RoutedTree a
 scheduleTree ingress schedule =
-  go ingress
+  RoutedTree (go ingress)
   where
     graph =
       foldr
@@ -94,9 +96,9 @@ scheduleTree ingress schedule =
         schedule
 
     go member =
-      RoutedTree
-        { routedMember = member,
-          routedSubtrees =
+      Tree
+        { treeLabel = member,
+          subtrees =
             [ go child
             | child <- Map.findWithDefault [] member graph
             ]
@@ -107,12 +109,12 @@ routedTree RoutedSchedule {ingress = member, routedSteps = steps} =
   scheduleTree member steps
 
 renderDecompositionTree :: [String] -> DecompositionTree -> String
-renderDecompositionTree members tree =
+renderDecompositionTree members (DecompositionTree tree) =
   unlines (renderTree [] tree)
   where
     tileIds = zip (sortOn pathKey (decompositionPaths [] tree)) [0 ..]
 
-    renderTree path (DecompositionTree node kids) =
+    renderTree path (Tree node kids) =
       renderNumberedNode members (tileId tileIds path) node
         : renderChildren path kids
 
@@ -124,7 +126,7 @@ renderDecompositionTree members tree =
         ]
       where
         renderBranch prefix child =
-          case renderTree (path ++ relationPath (decompositionNode child)) child of
+          case renderTree (path ++ relationPath (treeLabel child)) child of
             [] -> []
             first : rest ->
               (prefix ++ first)
@@ -133,55 +135,30 @@ renderDecompositionTree members tree =
     pathKey path = (length path, path)
 
 renderHopTree :: [String] -> HopTree -> String
-renderHopTree members tree =
-  unlines (renderTree tree)
-  where
-    renderTree (HopTree node kids) =
-      renderTile members (tile node)
-        : renderChildren kids
-
-    renderChildren [] = []
-    renderChildren kids =
-      concat
-        [ renderBranch prefix child
-        | (prefix, child) <- branchPrefixes kids
-        ]
-
-    renderBranch prefix child =
-      case renderTree child of
-        [] -> []
-        first : rest ->
-          (prefix ++ first)
-            : [continuation prefix ++ line | line <- rest]
+renderHopTree members (HopTree tree) =
+  renderTreeWith (renderTile members . tile) tree
 
 renderSendTree :: [String] -> SendTree -> String
-renderSendTree members tree =
-  unlines (renderTree tree)
-  where
-    renderTree (SendTree tile kids) =
-      renderMember members tile
-        : renderChildren kids
-
-    renderChildren [] = []
-    renderChildren kids =
-      concat
-        [ renderBranch prefix child
-        | (prefix, child) <- branchPrefixes kids
-        ]
-
-    renderBranch prefix child =
-      case renderTree child of
-        [] -> []
-        first : rest ->
-          (prefix ++ first)
-            : [continuation prefix ++ line | line <- rest]
+renderSendTree members (SendTree tree) =
+  renderTreeWith (renderMember members) tree
 
 renderRoutedTree :: RoutedTree String -> String
-renderRoutedTree tree =
-  unlines (renderTree tree)
+renderRoutedTree (RoutedTree tree) =
+  renderTreeWith id tree
+
+mapTree :: (a -> b) -> Tree a -> Tree b
+mapTree f (Tree label kids) =
+  Tree
+    { treeLabel = f label,
+      subtrees = map (mapTree f) kids
+    }
+
+renderTreeWith :: (a -> String) -> Tree a -> String
+renderTreeWith renderLabel tree =
+  unlines (renderLines tree)
   where
-    renderTree (RoutedTree member kids) =
-      member : renderChildren kids
+    renderLines (Tree label kids) =
+      renderLabel label : renderChildren kids
 
     renderChildren [] = []
     renderChildren kids =
@@ -191,7 +168,7 @@ renderRoutedTree tree =
         ]
 
     renderBranch prefix child =
-      case renderTree child of
+      case renderLines child of
         [] -> []
         first : rest ->
           (prefix ++ first)
@@ -207,9 +184,9 @@ continuation "├─ " = "│  "
 continuation "└─ " = "   "
 continuation prefix = replicate (length prefix) ' '
 
-decompositionPaths :: [Split] -> DecompositionTree -> [[Split]]
-decompositionPaths path (DecompositionTree _ kids) =
-  path : concat [decompositionPaths (path ++ relationPath (decompositionNode child)) child | child <- kids]
+decompositionPaths :: [Split] -> Tree TileNode -> [[Split]]
+decompositionPaths path (Tree _ kids) =
+  path : concat [decompositionPaths (path ++ relationPath (treeLabel child)) child | child <- kids]
 
 relationPath :: TileNode -> [Split]
 relationPath node =
