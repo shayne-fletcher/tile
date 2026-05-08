@@ -80,6 +80,20 @@ main = do
   putStrLn "\nrunning full-mesh broadcast from A:"
   runBroadcast broadcast "A"
 
+  putStrLn "\nrunning full-mesh scatter from A:"
+  runScatter
+    broadcast
+    [ ("A", "payload-a"),
+      ("B", "payload-b"),
+      ("C", "payload-c"),
+      ("D", "payload-d"),
+      ("E", "payload-e"),
+      ("F", "payload-f"),
+      ("G", "payload-g"),
+      ("H", "payload-h")
+    ]
+    "A"
+
   putStrLn "\noccluded full-mesh broadcast (E failed):"
   print repairedFull
 

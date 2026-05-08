@@ -3,6 +3,7 @@ module Tile.Execution
     runBroadcast,
     runGather,
     runReduce,
+    runScatter,
   )
 where
 
@@ -137,3 +138,60 @@ runGather schedule initialValues root = do
       writeChan (chanMap Map.! m) [(m, valueMap Map.! m)]
 
   threadDelay 1000000
+
+runScatter ::
+  (Show a) =>
+  Schedule String ->
+  [(String, a)] ->
+  String ->
+  IO ()
+runScatter schedule initialValues root = do
+  let graph = adjacencyList schedule
+      incoming = incomingCounts schedule
+      members =
+        Set.toList $
+          Set.fromList $
+            Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
+      subtree = subtreeMembers graph
+
+  chanPairs <- forM members $ \m -> do
+    ch <- newChan
+    pure (m, ch)
+
+  let chanMap = Map.fromList chanPairs
+
+  forM_ members $ \m -> do
+    let inbox = chanMap Map.! m
+        children = Map.findWithDefault [] m graph
+        childChans = [(c, chanMap Map.! c) | c <- children]
+        expected
+          | m == root = 1
+          | otherwise = Map.findWithDefault 0 m incoming
+
+    _ <- forkIO $ do
+      payload <- concat <$> replicateM expected (readChan inbox)
+      case lookup m payload of
+        Just value -> putStrLn $ m ++ " received scatter value: " ++ show value
+        Nothing -> pure ()
+
+      forM_ childChans $ \(childName, childInbox) -> do
+        let childMembers = subtree childName
+            childPayload =
+              [ item
+              | item@(dest, _) <- payload,
+                dest `Set.member` childMembers
+              ]
+        putStrLn $ m ++ " scattering " ++ show childPayload ++ " to " ++ childName
+        writeChan childInbox childPayload
+    pure ()
+
+  writeChan (chanMap Map.! root) initialValues
+  threadDelay 1000000
+
+subtreeMembers :: Map.Map String [String] -> String -> Set.Set String
+subtreeMembers graph member =
+  Set.insert member $
+    Set.unions
+      [ subtreeMembers graph child
+      | child <- Map.findWithDefault [] member graph
+      ]
