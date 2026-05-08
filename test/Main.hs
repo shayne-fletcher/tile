@@ -89,6 +89,21 @@ inclusionTests =
                     Step "A" "C",
                     Step "D" "E"
                   ]
+              },
+      testCase "occluded schedule over lower-right jagged region shifts ingress" $ do
+        let members = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+            occ = Occlusion (`elem` ["A", "B", "D"])
+        buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [3, 3])
+          @?= Just
+            RoutedSchedule
+              { ingress = "C",
+                routedSteps =
+                  [ Step "C" "E",
+                    Step "C" "G",
+                    Step "E" "F",
+                    Step "G" "H",
+                    Step "G" "I"
+                  ]
               }
     ]
 

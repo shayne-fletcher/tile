@@ -18,6 +18,7 @@ main = do
       occE = Occlusion (== "E")
       jaggedEnvelope = rootTile [3, 3]
       jaggedOcclusion = Occlusion (`elem` ["F", "H", "I"])
+      lowerRightOcclusion = Occlusion (`elem` ["A", "B", "D"])
 
       repairedFull =
         expectRouted "occluded full mesh" $
@@ -25,6 +26,9 @@ main = do
       jaggedRoute =
         expectRouted "jagged region" $
           buildOccludedScheduleFrom scheduler jaggedOcclusion tiling jaggedMembers jaggedEnvelope
+      lowerRightRoute =
+        expectRouted "lower-right jagged region" $
+          buildOccludedScheduleFrom scheduler lowerRightOcclusion tiling jaggedMembers jaggedEnvelope
 
       row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
       col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
@@ -90,6 +94,15 @@ main = do
 
   putStrLn "\njagged routed tree:"
   putStr (renderRoutedTree (routedTree jaggedRoute))
+
+  putStrLn "\nlower-right jagged region via occluded 3x3 envelope:"
+  putStrLn "  . . C"
+  putStrLn "  . E F"
+  putStrLn "  G H I"
+  print lowerRightRoute
+
+  putStrLn "\nlower-right jagged routed tree:"
+  putStr (renderRoutedTree (routedTree lowerRightRoute))
 
   putStrLn "\nrunning occluded full-mesh broadcast:"
   runBroadcast (routedSteps repairedFull) (ingress repairedFull)

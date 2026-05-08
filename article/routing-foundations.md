@@ -331,6 +331,25 @@ When the failure is wider — the entire bottom row gone, a rack failure — `re
 ```
 The top row continues to receive. The schedule contracts to fit what is reachable.
 
+The same mechanism handles jagged regions: embed the participant set in its smallest affine bounding tile, mark the gaps as occluded, and representative selection does the rest — sparse participation and node failure are the same problem at this layer.
+
+For example, a lower-right triangular region in a 3×3 mesh:
+```text
+  . . C
+  . E F
+  G H I
+```
+The affine envelope is the full 3×3; A, B, and D are occluded. The geometric root of the envelope is A — but A is unavailable, so `representative` finds C instead. The send tree:
+```text
+C
+├─ E
+│  └─ F
+└─ G
+   ├─ H
+   └─ I
+```
+The ingress shifts to the first live member; the tree covers exactly the participating nodes.
+
 **Load balancing.** Representative selection is a policy seam. Occlusion picks the first live member; load balancing picks the least loaded one. The tile tree and schedule derivation are identical in both cases — only `representative` changes.
 
 This model repairs within the existing tile tree; routing around a dead subtree — finding a path through nodes outside the tile — requires reasoning beyond affine structure and is left as future work.
