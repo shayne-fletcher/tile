@@ -274,7 +274,7 @@ In the fault-free setting, the representative of a tile is simply its root — t
   newtype Occlusion a = Occlusion { isOccluded :: a -> Bool }
 ```
 
-Tiles do not fail — the geometry is unchanged. But a tile's representative may need to shift from its natural root to another live member within the tile:
+Occlusion does not change the tile or its decomposition. It changes only which live member represents each tile: if the natural root is live, it remains the representative; otherwise another live member in the tile is chosen.
 ```haskell
   representative :: Eq a => Occlusion a -> [a] -> Tile -> Maybe a
   representative occ members tile =
