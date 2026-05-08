@@ -18,6 +18,7 @@ tests =
       selectTests,
       theoremTests,
       inclusionTests,
+      treeTests,
       tilingTests,
       scheduleTests,
       affineTests
@@ -233,6 +234,61 @@ inclusionTests =
                   ]
               }
     ]
+
+treeTests :: TestTree
+treeTests =
+  testGroup
+    "tree"
+    [ testCase "mapTree maps every label and preserves shape" $
+        mapTree (+ 1) sampleTree
+          @?= Tree
+            { treeLabel = 1,
+              subtrees =
+                [ Tree
+                    { treeLabel = 2,
+                      subtrees = []
+                    },
+                  Tree
+                    { treeLabel = 3,
+                      subtrees =
+                        [ Tree
+                            { treeLabel = 4,
+                              subtrees = []
+                            }
+                        ]
+                    }
+                ]
+            },
+      testCase "renderTreeWith renders branch structure" $
+        renderTreeWith show sampleTree
+          @?= unlines
+            [ "0",
+              "├─ 1",
+              "└─ 2",
+              "   └─ 3"
+            ]
+    ]
+  where
+    sampleTree :: Tree Int
+    sampleTree =
+      Tree
+        { treeLabel = 0,
+          subtrees =
+            [ Tree
+                { treeLabel = 1,
+                  subtrees = []
+                },
+              Tree
+                { treeLabel = 2,
+                  subtrees =
+                    [ Tree
+                        { treeLabel = 3,
+                          subtrees = []
+                        }
+                    ]
+                }
+            ]
+        }
 
 tilingTests :: TestTree
 tilingTests =
