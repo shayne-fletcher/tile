@@ -351,5 +351,3 @@ C
 The ingress shifts to the first live member; the tree covers exactly the participating nodes.
 
 **Load balancing.** Representative selection is a policy seam. Occlusion picks the first live member; load balancing picks the least loaded one. The tile tree and schedule derivation are identical in both cases — only `representative` changes.
-
-This model repairs within the existing tile tree; routing around a dead subtree — finding a path through nodes outside the tile — requires reasoning beyond affine structure and is left as future work.
