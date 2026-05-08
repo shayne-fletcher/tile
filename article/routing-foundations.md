@@ -1,6 +1,6 @@
 # Structured Multicast via Affine Tiling
 
-A note on routing foundations for multicast implementation.
+A note on routing foundations for Monarch's cast actor multicast implementation.
 
 **Authors:** Marius Eriksen, Shayne Fletcher, Thomas Wang
 
