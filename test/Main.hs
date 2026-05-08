@@ -3,6 +3,7 @@ module Main (main) where
 import Data.List (sort)
 import Test.Tasty
 import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck
 import Tile
 
 main :: IO ()
@@ -15,6 +16,7 @@ tests =
     [ layoutTests,
       neighborTests,
       selectTests,
+      theoremTests,
       inclusionTests,
       tilingTests,
       scheduleTests,
@@ -50,6 +52,131 @@ neighborTests =
       testCase "neighbors center-ish rank 3 in 2x2x2" $
         neighbors (rowMajor [2, 2, 2]) 3 @?= [7, 1, 2]
     ]
+
+theoremTests :: TestTree
+theoremTests =
+  testGroup
+    "theorems"
+    [ testProperty "T1 affine rank/point roundtrip" propAffineRoundtrip,
+      testProperty "T2 ranks enumerate the affine space exactly once" propRanksEnumerateSpace,
+      testProperty "T3 affine slicing is closed and included in its parent" propAffineSliceIncluded,
+      testProperty "T4 structural and communication children are included in their parent" propChildrenIncluded,
+      testProperty "T5 fault-free schedules form a spanning send tree" propFaultFreeScheduleSpansTile,
+      testProperty "T6 occluded schedules deliver exactly to live members" propOccludedScheduleCoversLiveMembers
+    ]
+
+propAffineRoundtrip :: Property
+propAffineRoundtrip =
+  forAll genShape $ \shape ->
+    let rankSpace = rowMajor shape
+     in conjoin
+          [ rankOf rankSpace (pointOf rankSpace rank) === rank
+          | rank <- ranks rankSpace
+          ]
+
+propRanksEnumerateSpace :: Property
+propRanksEnumerateSpace =
+  forAll genShape $ \shape ->
+    let rankSpace = rowMajor shape
+        rankList = ranks rankSpace
+     in conjoin
+          [ length rankList === spaceExtent rankSpace,
+            sort rankList === [0 .. spaceExtent rankSpace - 1]
+          ]
+
+propAffineSliceIncluded :: Property
+propAffineSliceIncluded =
+  forAll genAffineSlice $ \(shape, dim, begin, end, step) ->
+    let parent = rowMajor shape
+     in case select parent dim begin end step of
+          Nothing -> counterexample "generated invalid affine slice" False
+          Just child ->
+            counterexample (show child) $
+              all (`elem` ranks parent) (ranks child)
+
+propChildrenIncluded :: Property
+propChildrenIncluded =
+  forAll genShape $ \shape ->
+    let parent = rootTile shape
+        structuralChildren = map tile (childNodes BlockPartitioning parent)
+        communicationChildren = children BlockPartitioning parent
+     in conjoin
+          [ counterexample "structural child outside parent" $
+              all (ranksIncludedIn parent) structuralChildren,
+            counterexample "communication child outside parent" $
+              all (ranksIncludedIn parent) communicationChildren
+          ]
+
+propFaultFreeScheduleSpansTile :: Property
+propFaultFreeScheduleSpansTile =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        memberRanks = tileRanks tile
+        members = memberRanks
+        schedule = buildScheduleFrom BFSScheduler BlockPartitioning members tile
+        senders = map from schedule
+        receivers = map to schedule
+     in conjoin
+          [ length schedule === length memberRanks - 1,
+            sort receivers === sort (filter (/= root tile) memberRanks),
+            unique receivers === True,
+            all (`elem` memberRanks) senders === True,
+            all (`elem` memberRanks) receivers === True,
+            (root tile `notElem` receivers) === True
+          ]
+
+propOccludedScheduleCoversLiveMembers :: Property
+propOccludedScheduleCoversLiveMembers =
+  forAll genLiveRanks $ \(shape, liveRanks) ->
+    let tile = rootTile shape
+        memberRanks = tileRanks tile
+        members = memberRanks
+        live rank = rank `elem` liveRanks
+        occ = Occlusion (not . live)
+     in case buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members tile of
+          Nothing ->
+            counterexample "non-empty live set produced no schedule" $
+              null liveRanks
+          Just RoutedSchedule {ingress = entry, routedSteps = steps} ->
+            let senders = map from steps
+                receivers = map to steps
+             in conjoin
+                  [ counterexample "ingress is not live" $
+                      live entry === True,
+                    counterexample "sender outside live set" $
+                      all live senders === True,
+                    counterexample "receiver outside live set" $
+                      all live receivers === True,
+                    counterexample "live receiver coverage mismatch" $
+                      sort receivers === sort (filter (/= entry) liveRanks),
+                    counterexample "duplicate live receiver" $
+                      unique receivers === True,
+                    counterexample "receiver outside original tile" $
+                      all (`elem` memberRanks) receivers === True
+                  ]
+
+genShape :: Gen Shape
+genShape = do
+  rank <- chooseInt (1, 4)
+  vectorOf rank (chooseInt (1, 4))
+
+genAffineSlice :: Gen (Shape, Int, Int, Int, Int)
+genAffineSlice = do
+  shape <- genShape
+  dim <- chooseInt (0, length shape - 1)
+  let extent = shape !! dim
+  begin <- chooseInt (0, extent - 1)
+  end <- chooseInt (begin + 1, extent)
+  step <- chooseInt (1, extent)
+  pure (shape, dim, begin, end, step)
+
+genLiveRanks :: Gen (Shape, [Int])
+genLiveRanks = do
+  shape <- genShape
+  let rankList = ranks (rowMajor shape)
+  keep <- vectorOf (length rankList) arbitrary
+  let liveRanks = [rank | (rank, True) <- zip rankList keep]
+  pure (shape, liveRanks)
 
 inclusionTests :: TestTree
 inclusionTests =
@@ -410,4 +537,21 @@ assertRanksIncludedIn parent child =
 
 expectTile :: String -> Maybe Tile -> Tile
 expectTile _ (Just tile) = tile
-expectTile label Nothing = error ("expected " ++ label)
+expectTile description Nothing = error ("expected " ++ description)
+
+ranksIncludedIn :: Tile -> Tile -> Bool
+ranksIncludedIn parent child =
+  all (`elem` tileRanks parent) (tileRanks child)
+
+unique :: (Ord a) => [a] -> Bool
+unique xs =
+  sorted == dedupe sorted
+  where
+    sorted = sort xs
+
+dedupe :: (Eq a) => [a] -> [a]
+dedupe [] = []
+dedupe [x] = [x]
+dedupe (x : y : rest)
+  | x == y = dedupe (y : rest)
+  | otherwise = x : dedupe (y : rest)

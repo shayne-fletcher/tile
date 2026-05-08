@@ -11,7 +11,10 @@ tested-with:        GHC == 9.14.1
 -- copyright:
 category:           System
 build-type:         Simple
-extra-doc-files:    CHANGELOG.md
+extra-doc-files:
+    CHANGELOG.md
+    article/routing-foundations.md
+    article/routing-theorems.md
 -- extra-source-files:
 
 source-repository head
@@ -64,4 +67,5 @@ test-suite tile-test
         base ^>=4.22.0.0,
         tile,
         tasty >=1.4,
-        tasty-hunit >=0.10
+        tasty-hunit >=0.10,
+        tasty-quickcheck >=0.10
