@@ -58,21 +58,21 @@ newtype RoutedTree a = RoutedTree
   }
   deriving (Show, Eq)
 
-decompositionTree :: BlockPartitioning -> Tile -> DecompositionTree
+decompositionTree :: (Tiling t) => t -> Tile -> DecompositionTree
 decompositionTree tiling baseTile =
   TileTree $
     unfoldTree
       (childNodes tiling . tile)
       (TileNode baseTile Root)
 
-hopTree :: BlockPartitioning -> Tile -> HopTree
+hopTree :: (Tiling t) => t -> Tile -> HopTree
 hopTree tiling baseTile =
   TileTree $
     unfoldTree
       (nextHops tiling)
       (TileNode baseTile Root)
 
-sendTree :: BlockPartitioning -> Tile -> SendTree
+sendTree :: (Tiling t) => t -> Tile -> SendTree
 sendTree tiling =
   SendTree . mapTree tile . getTileTree . hopTree tiling
 

@@ -9,9 +9,11 @@ main = do
       shape = [2, 4]
 
       tiling = BlockPartitioning
+      bisection = Bisection
       scheduler = BFSScheduler
 
       broadcast = buildSchedule scheduler tiling members shape
+      bisectionBroadcast = buildSchedule scheduler bisection members shape
       converge = reverseSchedule broadcast
 
       full = rootTile shape
@@ -45,6 +47,15 @@ main = do
 
   putStrLn "\nsend tree:"
   putStr (renderSendTree members (sendTree tiling full))
+
+  putStrLn "\nbisection send tree:"
+  putStr (renderSendTree members (sendTree bisection full))
+
+  putStrLn "\nblock-partitioned broadcast schedule:"
+  print broadcast
+
+  putStrLn "\nbisection broadcast schedule:"
+  print bisectionBroadcast
 
   putStrLn "\nmiddle-columns tile ranks:"
   print (tileRanks middleColumns)

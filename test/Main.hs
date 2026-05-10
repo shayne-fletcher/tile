@@ -99,13 +99,19 @@ propChildrenIncluded :: Property
 propChildrenIncluded =
   forAll genShape $ \shape ->
     let parent = rootTile shape
-        structuralChildren = map tile (childNodes BlockPartitioning parent)
-        communicationChildren = children BlockPartitioning parent
+        blockStructuralChildren = map tile (childNodes BlockPartitioning parent)
+        blockCommunicationChildren = children BlockPartitioning parent
+        bisectionStructuralChildren = map tile (childNodes Bisection parent)
+        bisectionCommunicationChildren = children Bisection parent
      in conjoin
-          [ counterexample "structural child outside parent" $
-              all (ranksIncludedIn parent) structuralChildren,
-            counterexample "communication child outside parent" $
-              all (ranksIncludedIn parent) communicationChildren
+          [ counterexample "block structural child outside parent" $
+              all (ranksIncludedIn parent) blockStructuralChildren,
+            counterexample "block communication child outside parent" $
+              all (ranksIncludedIn parent) blockCommunicationChildren,
+            counterexample "bisection structural child outside parent" $
+              all (ranksIncludedIn parent) bisectionStructuralChildren,
+            counterexample "bisection communication child outside parent" $
+              all (ranksIncludedIn parent) bisectionCommunicationChildren
           ]
 
 propFaultFreeScheduleSpansTile :: Property
@@ -338,7 +344,22 @@ tilingTests =
             map (tileRanks . tile) nodes
               @?= [ [1],
                     [0]
-                  ]
+                  ],
+      testCase "bisection childNodes on 1x5 exposes upper sibling and lower anchor" $ do
+        let row = rootTile [1, 5]
+            nodes = childNodes Bisection row
+        map relation nodes
+          @?= [ Sibling (Split 1 2),
+                Anchor (Split 1 0)
+              ]
+        map (tileRanks . tile) nodes
+          @?= [ [2, 3, 4],
+                [0, 1]
+              ],
+      testCase "bisection children on 1x5 contracts the lower anchor" $
+        let row = rootTile [1, 5]
+         in map tileRanks (children Bisection row)
+              @?= [[2, 3, 4], [1]]
     ]
 
 scheduleTests :: TestTree
@@ -401,6 +422,24 @@ scheduleTests =
                 Step "E" "G",
                 Step "E" "H"
               ],
+      testCase "bisection BFS schedule on 1x5 differs from block partitioning" $ do
+        let members = ["A", "B", "C", "D", "E"]
+            shape = [1, 5]
+            blockSchedule = buildSchedule BFSScheduler BlockPartitioning members shape
+            bisectionSchedule = buildSchedule BFSScheduler Bisection members shape
+        blockSchedule
+          @?= [ Step "A" "B",
+                Step "A" "C",
+                Step "A" "D",
+                Step "A" "E"
+              ]
+        bisectionSchedule
+          @?= [ Step "A" "C",
+                Step "A" "B",
+                Step "C" "D",
+                Step "D" "E"
+              ]
+        assertBool "expected distinct schedules" (blockSchedule /= bisectionSchedule),
       testCase "occluded DFS schedule reroots within subtree" $ do
         let members = ["A", "B", "C", "D"]
             occ = Occlusion (== "C")
