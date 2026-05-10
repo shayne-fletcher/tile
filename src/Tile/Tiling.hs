@@ -1,61 +1,179 @@
+-- |
+-- Module      : Tile.Tiling
+-- Description : Recursive decompositions of affine tiles.
+--
+-- A tiling defines the structural decomposition of a tile and derives
+-- communication children by contracting anchor edges.
 module Tile.Tiling
-  ( Tiling (..),
+  ( -- * Tiling
+    Tiling (..),
+
+    -- * Built-in tilings
     BlockPartitioning (..),
     Bisection (..),
+
+    -- * Decomposition nodes
     Split (..),
     Relation (..),
     TileNode (..),
-    nextHops,
+
+    -- * Communication projection
+    contractAnchors,
   )
 where
 
 import Tile.Affine
 import Tile.Tile
 
+-- | A recursive decomposition of an affine 'Tile'.
+--
+-- A 'Tiling' defines the structural children of a tile. Each
+-- structural child is labelled by its relationship to the parent: an
+-- 'Anchor' child contains the parent root, while a 'Sibling' child
+-- introduces a distinct communication root.
+--
+-- Communication children are derived from structural children by
+-- contracting anchor edges with 'contractAnchors'. Instances normally only
+-- define 'childNodes' and inherit the default 'children'
+-- implementation.
+--
+-- A lawful 'Tiling' satisfies:
+--
+-- [Inclusion]
+--   Every structural child is contained in its parent.
+--
+--   @
+--   tileRanks child \`isSubsetOf\` tileRanks parent
+--   @
+--
+-- [Structural cover]
+--   For a non-terminal parent, the structural children partition the
+--   parent ranks: their ranks are pairwise disjoint and their union
+--   is the parent.
+--
+-- [Progress]
+--   Every structural child is strictly smaller than its parent.
+--
+--   @
+--   length (tileRanks child) < length (tileRanks parent)
+--   @
+--
+-- [Anchor preservation]
+--   An anchor child preserves the parent root.
+--
+--   @
+--   case relation node of
+--     Anchor _ -> root (tile node) == root parent
+--     _        -> True
+--   @
+--
+-- [Sibling movement]
+--   A sibling child has a distinct root from its parent.
+--
+--   @
+--   case relation node of
+--     Sibling _ -> root (tile node) /= root parent
+--     _         -> True
+--   @
+--
+-- [Communication projection]
+--   Communication children are the anchor-contracted projection of
+--   structural children.
+--
+--   @
+--   children tiling = map tile . contractAnchors tiling . rootNode
+--   @
+--
+-- [Communication cover]
+--   Communication children cover the parent ranks except the parent
+--   root, with no duplicate ranks across communication children.
 class Tiling t where
+  -- | Structural children of a tile.
+  --
+  -- These children preserve the full decomposition tree, including
+  -- anchor children. Instances should normally define this method.
   childNodes :: t -> Tile -> [TileNode]
 
+  -- | Communication children of a tile.
+  --
+  -- The default implementation contracts anchor edges using
+  -- 'contractAnchors'. Instances should normally inherit this
+  -- definition.
   children :: t -> Tile -> [Tile]
-  children tiling = map tile . nextHops tiling . rootNode
+  children tiling = map tile . contractAnchors tiling . rootNode
 
+-- | The affine dimension and starting index selected by a tiling
+-- step.
+--
+-- A 'Split' records where a child tile came from inside its parent.
 data Split = Split
-  { dim :: Int,
+  { -- | Dimension split by the tiling step.
+    dim :: Int,
+    -- | Starting index of the child along 'dim'.
     index :: Int
   }
   deriving (Show, Eq, Ord)
 
+-- | Relationship between a 'TileNode' and its parent.
+--
+-- Relations distinguish geometry-only anchor steps from communication
+-- steps. Anchor edges are contracted by 'contractAnchors'; sibling
+-- edges become communication edges.
 data Relation
-  = Root
-  | Anchor Split
-  | Sibling Split
+  = -- | The root of a decomposition tree.
+    Root
+  | -- | A child that preserves the parent root.
+    Anchor Split
+  | -- | A child with a distinct root from the parent.
+    Sibling Split
   deriving (Show, Eq, Ord)
 
+-- | A tile labelled with its relationship to a parent tile.
+--
+-- 'TileNode' is the node type used by decomposition and hop trees.
+-- The 'relation' field records how the node arises from its parent;
+-- the root node of a tree uses 'Root'.
 data TileNode = TileNode
-  { tile :: Tile,
+  { -- | Tile carried by the node.
+    tile :: Tile,
+    -- | Relationship to the parent node.
     relation :: Relation
   }
   deriving (Show, Eq)
 
+-- | Fix one affine dimension of a tile to a single index.
 fixTileDim :: Tile -> Int -> Int -> Maybe Tile
 fixTileDim tile dim i = Tile <$> fixDim (space tile) dim i
 
+-- | Select a contiguous interval along one tile dimension.
 selectTileDim :: Tile -> Int -> Int -> Int -> Maybe Tile
 selectTileDim tile dim begin end =
   Tile <$> select (space tile) dim begin end 1
 
+-- | Wrap a tile as the root node of a decomposition tree.
 rootNode :: Tile -> TileNode
 rootNode t = TileNode t Root
 
-nextHops :: (Tiling t) => t -> TileNode -> [TileNode]
-nextHops tiling node = project (childNodes tiling (tile node))
+-- | Contract anchor edges below a node.
+--
+-- Anchor children preserve the parent root, so they would produce
+-- self-edges in the communication tree. This function removes anchor
+-- nodes by recursively splicing in their non-anchor descendants.
+contractAnchors :: (Tiling t) => t -> TileNode -> [TileNode]
+contractAnchors tiling node = project (childNodes tiling (tile node))
   where
     project [] = []
     project (child : rest) =
       case relation child of
         Root -> project rest
         Sibling _ -> child : project rest
-        Anchor _ -> nextHops tiling child ++ project rest
+        Anchor _ -> contractAnchors tiling child ++ project rest
 
+-- | Partition by fixing one coordinate at a time.
+--
+-- 'BlockPartitioning' finds the first non-singleton dimension. It
+-- creates one anchor child at index @0@ and one sibling child for
+-- each remaining index in that dimension.
 data BlockPartitioning = BlockPartitioning
   deriving (Show, Eq)
 
@@ -79,6 +197,11 @@ instance Tiling BlockPartitioning where
         where
           n = sizes (space t) !! d
 
+-- | Partition by bisecting one dimension at a time.
+--
+-- 'Bisection' finds the first non-singleton dimension. It keeps the
+-- lower @floor(n / 2)@ half as the anchor and creates one sibling
+-- from the remaining upper half.
 data Bisection = Bisection
   deriving (Show, Eq)
 

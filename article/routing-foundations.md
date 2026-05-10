@@ -215,12 +215,12 @@ type Schedule a = [Step a]
 
 In practice, ranks are mapped to actual communicating members — the processes that will send and receive. For the 2×2 mesh this gives `[Step a c, Step a b, Step c d]`.
 
-**nextHops.** The function `nextHops` implements the send tree traversal: given a `TileNode`, it descends through anchors and collects siblings. `children` follows directly:
+**contractAnchors.** The function `contractAnchors` implements the send tree traversal: given a `TileNode`, it removes anchor nodes by recursively splicing in their non-anchor descendants. `children` follows directly:
 ```haskell
-  nextHops :: BlockPartitioning -> TileNode -> [TileNode]
+  contractAnchors :: Tiling t => t -> TileNode -> [TileNode]
 
-  children :: BlockPartitioning -> Tile -> [Tile]
-  children tiling = map tile . nextHops tiling . rootNode
+  children :: Tiling t => t -> Tile -> [Tile]
+  children tiling = map tile . contractAnchors tiling . rootNode
     where rootNode t = TileNode t Root
 ```
 

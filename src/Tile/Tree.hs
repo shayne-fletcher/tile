@@ -69,7 +69,7 @@ hopTree :: (Tiling t) => t -> Tile -> HopTree
 hopTree tiling baseTile =
   TileTree $
     unfoldTree
-      (nextHops tiling)
+      (contractAnchors tiling)
       (TileNode baseTile Root)
 
 sendTree :: (Tiling t) => t -> Tile -> SendTree
