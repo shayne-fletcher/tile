@@ -1,9 +1,13 @@
 module Tile.Tree
   ( Tree (..),
+    DecompositionView,
+    HopView,
+    TileTree (..),
+    DecompositionTree,
+    HopTree,
     mapTree,
+    unfoldTree,
     renderTreeWith,
-    DecompositionTree (..),
-    HopTree (..),
     SendTree (..),
     RoutedTree (..),
     scheduleTree,
@@ -31,15 +35,18 @@ data Tree a = Tree
   }
   deriving (Show, Eq)
 
-newtype DecompositionTree = DecompositionTree
-  { getDecompositionTree :: Tree TileNode
+data DecompositionView
+
+data HopView
+
+newtype TileTree view = TileTree
+  { getTileTree :: Tree TileNode
   }
   deriving (Show, Eq)
 
-newtype HopTree = HopTree
-  { getHopTree :: Tree TileNode
-  }
-  deriving (Show, Eq)
+type DecompositionTree = TileTree DecompositionView
+
+type HopTree = TileTree HopView
 
 newtype SendTree = SendTree
   { getSendTree :: Tree Tile
@@ -53,63 +60,35 @@ newtype RoutedTree a = RoutedTree
 
 decompositionTree :: BlockPartitioning -> Tile -> DecompositionTree
 decompositionTree tiling baseTile =
-  DecompositionTree (go (TileNode baseTile Root))
-  where
-    go node =
-      Tree
-        { treeLabel = node,
-          subtrees =
-            [ go child
-            | child <- childNodes tiling (tile node)
-            ]
-        }
+  TileTree $
+    unfoldTree
+      (childNodes tiling . tile)
+      (TileNode baseTile Root)
 
 hopTree :: BlockPartitioning -> Tile -> HopTree
 hopTree tiling baseTile =
-  HopTree (go (TileNode baseTile Root))
-  where
-    go node =
-      Tree
-        { treeLabel = node,
-          subtrees =
-            [ go child
-            | child <- nextHops tiling node
-            ]
-        }
+  TileTree $
+    unfoldTree
+      (nextHops tiling)
+      (TileNode baseTile Root)
 
 sendTree :: BlockPartitioning -> Tile -> SendTree
-sendTree tiling baseTile =
-  fromHopTree (hopTree tiling baseTile)
-
-fromHopTree :: HopTree -> SendTree
-fromHopTree (HopTree tree) =
-  SendTree (mapTree tile tree)
+sendTree tiling =
+  SendTree . mapTree tile . getTileTree . hopTree tiling
 
 scheduleTree :: (Ord a) => a -> Schedule a -> RoutedTree a
 scheduleTree ingress schedule =
-  RoutedTree (go ingress)
+  RoutedTree (unfoldTree childrenOf ingress)
   where
-    graph =
-      foldr
-        (\Step {from = p, to = c} m -> Map.insertWith (++) p [c] m)
-        Map.empty
-        schedule
-
-    go member =
-      Tree
-        { treeLabel = member,
-          subtrees =
-            [ go child
-            | child <- Map.findWithDefault [] member graph
-            ]
-        }
+    childrenOf member =
+      Map.findWithDefault [] member (adjacencyList schedule)
 
 routedTree :: (Ord a) => RoutedSchedule a -> RoutedTree a
 routedTree RoutedSchedule {ingress = member, routedSteps = steps} =
   scheduleTree member steps
 
 renderDecompositionTree :: [String] -> DecompositionTree -> String
-renderDecompositionTree members (DecompositionTree tree) =
+renderDecompositionTree members (TileTree tree) =
   unlines (renderTree [] tree)
   where
     tileIds = zip (sortOn pathKey (decompositionPaths [] tree)) [0 ..]
@@ -135,7 +114,7 @@ renderDecompositionTree members (DecompositionTree tree) =
     pathKey path = (length path, path)
 
 renderHopTree :: [String] -> HopTree -> String
-renderHopTree members (HopTree tree) =
+renderHopTree members (TileTree tree) =
   renderTreeWith (renderTile members . tile) tree
 
 renderSendTree :: [String] -> SendTree -> String
@@ -151,6 +130,13 @@ mapTree f (Tree label kids) =
   Tree
     { treeLabel = f label,
       subtrees = map (mapTree f) kids
+    }
+
+unfoldTree :: (a -> [a]) -> a -> Tree a
+unfoldTree childrenOf label =
+  Tree
+    { treeLabel = label,
+      subtrees = map (unfoldTree childrenOf) (childrenOf label)
     }
 
 renderTreeWith :: (a -> String) -> Tree a -> String

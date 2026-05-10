@@ -2,6 +2,7 @@ module Tile.Schedule
   ( Step (..),
     Schedule,
     RoutedSchedule (..),
+    adjacencyList,
     Scheduler (..),
     DFSScheduler (..),
     BFSScheduler (..),
@@ -14,6 +15,7 @@ module Tile.Schedule
 where
 
 import Data.List (find)
+import Data.Map.Strict qualified as Map
 import Tile.Geometry
 import Tile.Shape
 import Tile.Tile
@@ -26,6 +28,12 @@ data Step a = Step
   deriving (Show, Eq, Ord)
 
 type Schedule a = [Step a]
+
+adjacencyList :: (Ord a) => Schedule a -> Map.Map a [a]
+adjacencyList =
+  foldr
+    (\Step {from = p, to = c} m -> Map.insertWith (++) p [c] m)
+    Map.empty
 
 data RoutedSchedule a = RoutedSchedule
   { ingress :: a,

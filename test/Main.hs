@@ -266,7 +266,23 @@ treeTests =
               "├─ 1",
               "└─ 2",
               "   └─ 3"
-            ]
+            ],
+      testCase "unfoldTree builds a tree from a child function" $
+        unfoldTree (\n -> [n + 1 | n < 2]) (0 :: Int)
+          @?= Tree
+            { treeLabel = 0,
+              subtrees =
+                [ Tree
+                    { treeLabel = 1,
+                      subtrees =
+                        [ Tree
+                            { treeLabel = 2,
+                              subtrees = []
+                            }
+                        ]
+                    }
+                ]
+            }
     ]
   where
     sampleTree :: Tree Int

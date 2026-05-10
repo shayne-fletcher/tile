@@ -1,6 +1,5 @@
 module Tile.Execution
-  ( adjacencyList,
-    runBroadcast,
+  ( runBroadcast,
     runGather,
     runReduce,
     runScatter,
@@ -12,10 +11,6 @@ import Control.Monad
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Tile.Schedule
-
-adjacencyList :: (Ord a) => Schedule a -> Map.Map a [a]
-adjacencyList =
-  foldr (\Step {from = p, to = c} m -> Map.insertWith (++) p [c] m) Map.empty
 
 runBroadcast :: Schedule String -> String -> IO ()
 runBroadcast schedule root = do
