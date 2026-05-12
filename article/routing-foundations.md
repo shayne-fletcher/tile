@@ -215,13 +215,12 @@ type Schedule a = [Step a]
 
 In practice, ranks are mapped to actual communicating members — the processes that will send and receive. For the 2×2 mesh this gives `[Step a c, Step a b, Step c d]`.
 
-**contractAnchors.** The function `contractAnchors` implements the send tree traversal: given a `TileNode`, it removes anchor nodes by recursively splicing in their non-anchor descendants. `children` follows directly:
+**contractAnchors.** The function `contractAnchors` converts a decomposition tree into a hop tree by splicing out anchor nodes and promoting their sibling descendants. `children` follows directly:
 ```haskell
-  contractAnchors :: Tiling t => t -> TileNode -> [TileNode]
+  contractAnchors :: DecompositionTree -> HopTree
 
   children :: Tiling t => t -> Tile -> [Tile]
-  children tiling = map tile . contractAnchors tiling . rootNode
-    where rootNode t = TileNode t Root
+  children tiling = map treeLabel . subtrees . getSendTree . sendTree tiling
 ```
 
 ## Subspace Routing
