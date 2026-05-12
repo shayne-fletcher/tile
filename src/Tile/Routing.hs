@@ -39,8 +39,8 @@ buildOccludedScheduleFrom traversal occ tiling members startTile = do
       prunedTree = pruneOccluded occ members tree
   startRep <- representative occ members (treeLabel prunedTree)
   let steps = case traversal of
-                DFS -> dfsOccluded occ members prunedTree
-                BFS -> bfsOccluded occ members [prunedTree]
+        DFS -> dfsOccluded occ members prunedTree
+        BFS -> bfsOccluded occ members [prunedTree]
   pure RoutedSchedule {ingress = startRep, routedSteps = steps}
 
 pruneOccluded :: (Eq a) => Occlusion a -> [a] -> Tree Tile -> Tree Tile
