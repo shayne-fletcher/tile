@@ -120,7 +120,7 @@ propFaultFreeScheduleSpansTile =
     let tile = rootTile shape
         memberRanks = tileRanks tile
         members = memberRanks
-        schedule = buildScheduleFrom BFSScheduler BlockPartitioning members tile
+        schedule = buildScheduleFrom BFS BlockPartitioning members tile
         senders = map from schedule
         receivers = map to schedule
      in conjoin
@@ -140,7 +140,7 @@ propOccludedScheduleCoversLiveMembers =
         members = memberRanks
         live rank = rank `elem` liveRanks
         occ = Occlusion (not . live)
-     in case buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members tile of
+     in case buildOccludedScheduleFrom BFS occ BlockPartitioning members tile of
           Nothing ->
             counterexample "non-empty live set produced no schedule" $
               null liveRanks
@@ -212,7 +212,7 @@ inclusionTests =
       testCase "occluded schedule over jagged region sends only to live members" $ do
         let members = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
             occ = Occlusion (`elem` ["F", "H", "I"])
-        buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [3, 3])
+        buildOccludedScheduleFrom BFS occ BlockPartitioning members (rootTile [3, 3])
           @?= Just
             RoutedSchedule
               { ingress = "A",
@@ -227,7 +227,7 @@ inclusionTests =
       testCase "occluded schedule over lower-right jagged region shifts ingress" $ do
         let members = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
             occ = Occlusion (`elem` ["A", "B", "D"])
-        buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [3, 3])
+        buildOccludedScheduleFrom BFS occ BlockPartitioning members (rootTile [3, 3])
           @?= Just
             RoutedSchedule
               { ingress = "C",
@@ -367,13 +367,13 @@ scheduleTests =
   testGroup
     "schedule"
     [ testCase "2x2 schedule" $
-        buildSchedule DFSScheduler BlockPartitioning ["A", "B", "C", "D"] [2, 2]
+        buildSchedule DFS BlockPartitioning ["A", "B", "C", "D"] [2, 2]
           @?= [ Step "A" "C",
                 Step "A" "B",
                 Step "C" "D"
               ],
       testCase "2x3 schedule" $
-        buildSchedule DFSScheduler BlockPartitioning ["A", "B", "C", "D", "E", "F"] [2, 3]
+        buildSchedule DFS BlockPartitioning ["A", "B", "C", "D", "E", "F"] [2, 3]
           @?= [ Step "A" "D",
                 Step "A" "B",
                 Step "A" "C",
@@ -386,7 +386,7 @@ scheduleTests =
         case Tile <$> fixDim (space full) 0 0 of
           Nothing -> assertFailure "expected row tile"
           Just row0 ->
-            buildScheduleFrom BFSScheduler BlockPartitioning members row0
+            buildScheduleFrom BFS BlockPartitioning members row0
               @?= [ Step "A" "B",
                     Step "A" "C",
                     Step "A" "D"
@@ -397,7 +397,7 @@ scheduleTests =
         case Tile <$> fixDim (space full) 1 0 of
           Nothing -> assertFailure "expected column tile"
           Just col0 ->
-            buildScheduleFrom BFSScheduler BlockPartitioning members col0
+            buildScheduleFrom BFS BlockPartitioning members col0
               @?= [Step "A" "E"],
       testCase "stepFor takes roots and ignores anchor self-edge" $ do
         let members = ["A", "B", "C", "D"]
@@ -413,7 +413,7 @@ scheduleTests =
           nodes ->
             assertFailure ("unexpected childNodes: " ++ show nodes),
       testCase "2x4 BFS schedule" $
-        buildSchedule BFSScheduler BlockPartitioning ["A", "B", "C", "D", "E", "F", "G", "H"] [2, 4]
+        buildSchedule BFS BlockPartitioning ["A", "B", "C", "D", "E", "F", "G", "H"] [2, 4]
           @?= [ Step "A" "E",
                 Step "A" "B",
                 Step "A" "C",
@@ -425,8 +425,8 @@ scheduleTests =
       testCase "bisection BFS schedule on 1x5 differs from block partitioning" $ do
         let members = ["A", "B", "C", "D", "E"]
             shape = [1, 5]
-            blockSchedule = buildSchedule BFSScheduler BlockPartitioning members shape
-            bisectionSchedule = buildSchedule BFSScheduler Bisection members shape
+            blockSchedule = buildSchedule BFS BlockPartitioning members shape
+            bisectionSchedule = buildSchedule BFS Bisection members shape
         blockSchedule
           @?= [ Step "A" "B",
                 Step "A" "C",
@@ -443,7 +443,7 @@ scheduleTests =
       testCase "occluded DFS schedule reroots within subtree" $ do
         let members = ["A", "B", "C", "D"]
             occ = Occlusion (== "C")
-        buildOccludedScheduleFrom DFSScheduler occ BlockPartitioning members (rootTile [2, 2])
+        buildOccludedScheduleFrom DFS occ BlockPartitioning members (rootTile [2, 2])
           @?= Just
             RoutedSchedule
               { ingress = "A",
@@ -455,7 +455,7 @@ scheduleTests =
       testCase "occluded BFS schedule reroots bottom row" $ do
         let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
             occ = Occlusion (== "E")
-        buildOccludedScheduleFrom BFSScheduler occ BlockPartitioning members (rootTile [2, 4])
+        buildOccludedScheduleFrom BFS occ BlockPartitioning members (rootTile [2, 4])
           @?= Just
             RoutedSchedule
               { ingress = "A",

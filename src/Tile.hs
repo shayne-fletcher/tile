@@ -3,6 +3,7 @@ module Tile
     module Tile.Tile,
     module Tile.Tiling,
     module Tile.Schedule,
+    module Tile.Routing,
     module Tile.Execution,
     module Tile.Neighborhood,
     module Tile.Geometry,
@@ -15,6 +16,7 @@ import Tile.Affine
 import Tile.Execution
 import Tile.Geometry
 import Tile.Neighborhood
+import Tile.Routing
 import Tile.Schedule
 import Tile.Shape
 import Tile.Tile

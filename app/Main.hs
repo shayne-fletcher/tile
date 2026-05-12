@@ -10,10 +10,9 @@ main = do
 
       tiling = BlockPartitioning
       bisection = Bisection
-      scheduler = BFSScheduler
 
-      broadcast = buildSchedule scheduler tiling members shape
-      bisectionBroadcast = buildSchedule scheduler bisection members shape
+      broadcast = buildSchedule BFS tiling members shape
+      bisectionBroadcast = buildSchedule BFS bisection members shape
       converge = reverseSchedule broadcast
 
       full = rootTile shape
@@ -24,20 +23,20 @@ main = do
 
       repairedFull =
         expectRouted "occluded full mesh" $
-          buildOccludedScheduleFrom scheduler occE tiling members full
+          buildOccludedScheduleFrom BFS occE tiling members full
       jaggedRoute =
         expectRouted "jagged region" $
-          buildOccludedScheduleFrom scheduler jaggedOcclusion tiling jaggedMembers jaggedEnvelope
+          buildOccludedScheduleFrom BFS jaggedOcclusion tiling jaggedMembers jaggedEnvelope
       lowerRightRoute =
         expectRouted "lower-right jagged region" $
-          buildOccludedScheduleFrom scheduler lowerRightOcclusion tiling jaggedMembers jaggedEnvelope
+          buildOccludedScheduleFrom BFS lowerRightOcclusion tiling jaggedMembers jaggedEnvelope
 
       row0 = expectTile "row 0" (Tile <$> fixDim (space full) 0 0)
       col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
       middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
 
-      row0Broadcast = buildScheduleFrom scheduler tiling members row0
-      col0Broadcast = buildScheduleFrom scheduler tiling members col0
+      row0Broadcast = buildScheduleFrom BFS tiling members row0
+      col0Broadcast = buildScheduleFrom BFS tiling members col0
 
   putStrLn "decomposition tree:"
   putStr (renderDecompositionTree members (decompositionTree tiling full))

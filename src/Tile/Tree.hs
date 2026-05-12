@@ -14,8 +14,10 @@ module Tile.Tree
     routedTree,
     renderRoutedTree,
     decompositionTree,
+    contractAnchors,
     hopTree,
     sendTree,
+    children,
     renderDecompositionTree,
     renderHopTree,
     renderSendTree,
@@ -65,16 +67,26 @@ decompositionTree tiling baseTile =
       (childNodes tiling . tile)
       (TileNode baseTile Root)
 
+contractAnchors :: DecompositionTree -> HopTree
+contractAnchors (TileTree tree) = TileTree (go tree)
+  where
+    go (Tree node kids) = Tree node (concatMap project kids)
+    project subtree@(Tree node kids) =
+      case relation node of
+        Sibling _ -> [go subtree]
+        Anchor _ -> concatMap project kids
+        Root -> []
+
 hopTree :: (Tiling t) => t -> Tile -> HopTree
-hopTree tiling baseTile =
-  TileTree $
-    unfoldTree
-      (contractAnchors tiling)
-      (TileNode baseTile Root)
+hopTree tiling = contractAnchors . decompositionTree tiling
 
 sendTree :: (Tiling t) => t -> Tile -> SendTree
 sendTree tiling =
   SendTree . mapTree tile . getTileTree . hopTree tiling
+
+children :: (Tiling t) => t -> Tile -> [Tile]
+children tiling =
+  map treeLabel . subtrees . getSendTree . sendTree tiling
 
 scheduleTree :: (Ord a) => a -> Schedule a -> RoutedTree a
 scheduleTree ingress schedule =

@@ -33,6 +33,7 @@ library
       Tile.Tile
       Tile.Tiling
       Tile.Schedule
+      Tile.Routing
       Tile.Execution
       Tile.Neighborhood
       Tile.Geometry

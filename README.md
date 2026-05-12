@@ -49,7 +49,7 @@ Its root is the offset. Its members are the ranks covered by the affine view.
 
 A `Tiling` decomposes a tile.
 
-`BlockPartitioning` exposes the structural tree through `childNodes` and the communication projection through `contractAnchors`.
+`BlockPartitioning` exposes structural children through `childNodes`. `Tile.Tree.contractAnchors` derives the hop tree by contracting anchor edges.
 
 ## Tree
 

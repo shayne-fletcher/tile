@@ -2,8 +2,8 @@
 -- Module      : Tile.Tiling
 -- Description : Recursive decompositions of affine tiles.
 --
--- A tiling defines the structural decomposition of a tile and derives
--- communication children by contracting anchor edges.
+-- A tiling defines the structural decomposition of a tile. The tree
+-- layer derives communication children by contracting anchor edges.
 module Tile.Tiling
   ( -- * Tiling
     Tiling (..),
@@ -16,9 +16,6 @@ module Tile.Tiling
     Split (..),
     Relation (..),
     TileNode (..),
-
-    -- * Communication projection
-    contractAnchors,
   )
 where
 
@@ -31,11 +28,6 @@ import Tile.Tile
 -- structural child is labelled by its relationship to the parent: an
 -- 'Anchor' child contains the parent root, while a 'Sibling' child
 -- introduces a distinct communication root.
---
--- Communication children are derived from structural children by
--- contracting anchor edges with 'contractAnchors'. Instances normally only
--- define 'childNodes' and inherit the default 'children'
--- implementation.
 --
 -- A lawful 'Tiling' satisfies:
 --
@@ -75,32 +67,11 @@ import Tile.Tile
 --     Sibling _ -> root (tile node) /= root parent
 --     _         -> True
 --   @
---
--- [Communication projection]
---   Communication children are the anchor-contracted projection of
---   structural children.
---
---   @
---   children tiling = map tile . contractAnchors tiling . rootNode
---   @
---
--- [Communication cover]
---   Communication children cover the parent ranks except the parent
---   root, with no duplicate ranks across communication children.
 class Tiling t where
-  -- | Structural children of a tile.
-  --
-  -- These children preserve the full decomposition tree, including
-  -- anchor children. Instances should normally define this method.
+  -- | Structural children of a tile, labelled by their decomposition
+  -- relation. Anchor children carry the parent root; sibling children
+  -- introduce a distinct communication root.
   childNodes :: t -> Tile -> [TileNode]
-
-  -- | Communication children of a tile.
-  --
-  -- The default implementation contracts anchor edges using
-  -- 'contractAnchors'. Instances should normally inherit this
-  -- definition.
-  children :: t -> Tile -> [Tile]
-  children tiling = map tile . contractAnchors tiling . rootNode
 
 -- | The affine dimension and starting index selected by a tiling
 -- step.
@@ -117,8 +88,8 @@ data Split = Split
 -- | Relationship between a 'TileNode' and its parent.
 --
 -- Relations distinguish geometry-only anchor steps from communication
--- steps. Anchor edges are contracted by 'contractAnchors'; sibling
--- edges become communication edges.
+-- steps. The tree layer contracts anchor edges; sibling edges become
+-- communication edges.
 data Relation
   = -- | The root of a decomposition tree.
     Root
@@ -149,25 +120,6 @@ fixTileDim tile dim i = Tile <$> fixDim (space tile) dim i
 selectTileDim :: Tile -> Int -> Int -> Int -> Maybe Tile
 selectTileDim tile dim begin end =
   Tile <$> select (space tile) dim begin end 1
-
--- | Wrap a tile as the root node of a decomposition tree.
-rootNode :: Tile -> TileNode
-rootNode t = TileNode t Root
-
--- | Contract anchor edges below a node.
---
--- Anchor children preserve the parent root, so they would produce
--- self-edges in the communication tree. This function removes anchor
--- nodes by recursively splicing in their non-anchor descendants.
-contractAnchors :: (Tiling t) => t -> TileNode -> [TileNode]
-contractAnchors tiling node = project (childNodes tiling (tile node))
-  where
-    project [] = []
-    project (child : rest) =
-      case relation child of
-        Root -> project rest
-        Sibling _ -> child : project rest
-        Anchor _ -> contractAnchors tiling child ++ project rest
 
 -- | Partition by fixing one coordinate at a time.
 --
