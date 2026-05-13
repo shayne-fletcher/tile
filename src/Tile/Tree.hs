@@ -1,26 +1,49 @@
+-- |
+-- Module      : Tile.Tree
+-- Description : Communication structure materialized as explicit
+-- trees.
+--
+-- The pipeline converts a 'Tiling' into a 'Schedule' through a
+-- sequence of tree transformations:
+--
+-- @
+-- 'decompositionTree' → 'contractAnchors' → 'hopTree' → 'sendTree'
+-- @
+--
+-- The generic spine ('Tree', 'unfoldTree', 'mapTree') is the common
+-- substrate for all four views.
 module Tile.Tree
-  ( Tree (..),
+  ( -- * Generic tree
+    Tree (..),
+    mapTree,
+    unfoldTree,
+    renderTreeWith,
+
+    -- * Tile tree views
     DecompositionView,
     HopView,
     TileTree (..),
     DecompositionTree,
     HopTree,
-    mapTree,
-    unfoldTree,
-    renderTreeWith,
     SendTree (..),
     RoutedTree (..),
-    scheduleTree,
-    routedTree,
-    renderRoutedTree,
+
+    -- * Tile pipeline
     decompositionTree,
     contractAnchors,
     hopTree,
     sendTree,
     children,
+
+    -- * Schedule trees
+    scheduleTree,
+    routedTree,
+
+    -- * Rendering
     renderDecompositionTree,
     renderHopTree,
     renderSendTree,
+    renderRoutedTree,
   )
 where
 
@@ -31,35 +54,50 @@ import Tile.Schedule
 import Tile.Tile
 import Tile.Tiling
 
+-- | A rose tree: a label with an ordered list of subtrees.
 data Tree a = Tree
   { treeLabel :: a,
     subtrees :: [Tree a]
   }
   deriving (Show, Eq)
 
+-- | Phantom type distinguishing a structural decomposition tree.
 data DecompositionView
 
+-- | Phantom type distinguishing a hop tree.
 data HopView
 
+-- | A tree of 'TileNode's tagged with a phantom view type to prevent
+-- mixing structurally distinct tree views.
 newtype TileTree view = TileTree
   { getTileTree :: Tree TileNode
   }
   deriving (Show, Eq)
 
+-- | A structural decomposition tree: every node carries the full
+-- 'Relation' metadata from its parent split.
 type DecompositionTree = TileTree DecompositionView
 
+-- | A hop tree: anchor nodes have been contracted; every edge is a
+-- communication hop.
 type HopTree = TileTree HopView
 
+-- | A tree of 'Tile's whose roots are the communication destinations.
+-- Each parent–child edge corresponds to one 'Step' in the fault-free
+-- schedule.
 newtype SendTree = SendTree
   { getSendTree :: Tree Tile
   }
   deriving (Show, Eq)
 
+-- | A tree of schedule members reconstructed from a 'RoutedSchedule'.
 newtype RoutedTree a = RoutedTree
   { getRoutedTree :: Tree a
   }
   deriving (Show, Eq)
 
+-- | Unfold the structural decomposition of a tile using 'childNodes'.
+-- Every node in the result carries its 'Relation' to its parent.
 decompositionTree :: (Tiling t) => t -> Tile -> DecompositionTree
 decompositionTree tiling baseTile =
   TileTree $
@@ -67,6 +105,9 @@ decompositionTree tiling baseTile =
       (childNodes tiling . tile)
       (TileNode baseTile Root)
 
+-- | Convert a 'DecompositionTree' into a 'HopTree' by contracting
+-- anchor edges. Anchor nodes are spliced out and their sibling
+-- descendants promoted; the result contains only communication hops.
 contractAnchors :: DecompositionTree -> HopTree
 contractAnchors (TileTree tree) = TileTree (go tree)
   where
@@ -77,17 +118,28 @@ contractAnchors (TileTree tree) = TileTree (go tree)
         Anchor _ -> concatMap project kids
         Root -> []
 
+-- | Build the hop tree for a tile: structural decomposition followed
+-- by anchor contraction.
+--
+-- @
+-- hopTree = contractAnchors . decompositionTree
+-- @
 hopTree :: (Tiling t) => t -> Tile -> HopTree
 hopTree tiling = contractAnchors . decompositionTree tiling
 
+-- | Project a 'HopTree' to a tree of communication-root 'Tile's.
 sendTree :: (Tiling t) => t -> Tile -> SendTree
 sendTree tiling =
   SendTree . mapTree tile . getTileTree . hopTree tiling
 
+-- | Direct communication children of a tile: the roots of the
+-- subtiles in its 'SendTree'.
 children :: (Tiling t) => t -> Tile -> [Tile]
 children tiling =
   map treeLabel . subtrees . getSendTree . sendTree tiling
 
+-- | Reconstruct a broadcast tree from a schedule by following
+-- sender-to-receiver edges in 'adjacencyList' order.
 scheduleTree :: (Ord a) => a -> Schedule a -> RoutedTree a
 scheduleTree ingress schedule =
   RoutedTree (unfoldTree childrenOf ingress)
@@ -95,10 +147,12 @@ scheduleTree ingress schedule =
     childrenOf member =
       Map.findWithDefault [] member (adjacencyList schedule)
 
+-- | Build a 'RoutedTree' from a 'RoutedSchedule'.
 routedTree :: (Ord a) => RoutedSchedule a -> RoutedTree a
 routedTree RoutedSchedule {ingress = member, routedSteps = steps} =
   scheduleTree member steps
 
+-- | Render a 'DecompositionTree' with numbered tile nodes.
 renderDecompositionTree :: [String] -> DecompositionTree -> String
 renderDecompositionTree members (TileTree tree) =
   unlines (renderTree [] tree)
@@ -125,18 +179,22 @@ renderDecompositionTree members (TileTree tree) =
 
     pathKey path = (length path, path)
 
+-- | Render a 'HopTree' showing each tile's member set.
 renderHopTree :: [String] -> HopTree -> String
 renderHopTree members (TileTree tree) =
   renderTreeWith (renderTile members . tile) tree
 
+-- | Render a 'SendTree' showing each tile's communication root.
 renderSendTree :: [String] -> SendTree -> String
 renderSendTree members (SendTree tree) =
   renderTreeWith (renderMember members) tree
 
+-- | Render a 'RoutedTree' of strings.
 renderRoutedTree :: RoutedTree String -> String
 renderRoutedTree (RoutedTree tree) =
   renderTreeWith id tree
 
+-- | Apply a function to every label in a tree.
 mapTree :: (a -> b) -> Tree a -> Tree b
 mapTree f (Tree label kids) =
   Tree
@@ -144,6 +202,7 @@ mapTree f (Tree label kids) =
       subtrees = map (mapTree f) kids
     }
 
+-- | Build a tree from a seed by repeatedly applying a child function.
 unfoldTree :: (a -> [a]) -> a -> Tree a
 unfoldTree childrenOf label =
   Tree
@@ -151,6 +210,7 @@ unfoldTree childrenOf label =
       subtrees = map (unfoldTree childrenOf) (childrenOf label)
     }
 
+-- | Render a tree as an ASCII box-drawing string.
 renderTreeWith :: (a -> String) -> Tree a -> String
 renderTreeWith renderLabel tree =
   unlines (renderLines tree)
