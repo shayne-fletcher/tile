@@ -17,6 +17,8 @@ module Tile.Tree
     Tree (..),
     mapTree,
     unfoldTree,
+    treeLabels,
+    treeIndex,
     renderTreeWith,
 
     -- * Tile tree views
@@ -49,6 +51,7 @@ where
 
 import Data.List (sortOn)
 import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
 import Tile.Geometry
 import Tile.Schedule
 import Tile.Tile
@@ -209,6 +212,16 @@ unfoldTree childrenOf label =
     { treeLabel = label,
       subtrees = map (unfoldTree childrenOf) (childrenOf label)
     }
+
+-- | Collect every label in a tree.
+treeLabels :: (Ord a) => Tree a -> Set.Set a
+treeLabels (Tree label kids) =
+  Set.insert label (Set.unions (map treeLabels kids))
+
+-- | Index every subtree by its root label.
+treeIndex :: (Ord a) => Tree a -> Map.Map a (Tree a)
+treeIndex tree@(Tree label kids) =
+  Map.insert label tree (Map.unions (map treeIndex kids))
 
 -- | Render a tree as an ASCII box-drawing string.
 renderTreeWith :: (a -> String) -> Tree a -> String

@@ -66,6 +66,7 @@ test-suite tile-test
     main-is:          Main.hs
     build-depends:
         base ^>=4.22.0.0,
+        containers >=0.8 && <0.9,
         tile,
         tasty >=1.4,
         tasty-hunit >=0.10,

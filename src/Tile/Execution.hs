@@ -11,6 +11,7 @@ import Control.Monad
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Tile.Schedule
+import Tile.Tree (RoutedTree (..), scheduleTree, treeIndex, treeLabels)
 
 runBroadcast :: Schedule String -> String -> IO ()
 runBroadcast schedule root = do
@@ -147,7 +148,8 @@ runScatter schedule initialValues root = do
         Set.toList $
           Set.fromList $
             Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
-      subtree = subtreeMembers graph
+      RoutedTree routed = scheduleTree root schedule
+      routedSubtrees = treeIndex routed
 
   chanPairs <- forM members $ \m -> do
     ch <- newChan
@@ -164,13 +166,17 @@ runScatter schedule initialValues root = do
           | otherwise = Map.findWithDefault 0 m incoming
 
     _ <- forkIO $ do
+      -- Scatter schedules are normally trees, so this usually reads
+      -- one payload. For a general schedule, merge all incoming
+      -- payload fragments before forwarding.
       payload <- concat <$> replicateM expected (readChan inbox)
       case lookup m payload of
         Just value -> putStrLn $ m ++ " received scatter value: " ++ show value
         Nothing -> pure ()
 
       forM_ childChans $ \(childName, childInbox) -> do
-        let childMembers = subtree childName
+        let childMembers =
+              maybe Set.empty treeLabels (Map.lookup childName routedSubtrees)
             childPayload =
               [ item
               | item@(dest, _) <- payload,
@@ -182,11 +188,3 @@ runScatter schedule initialValues root = do
 
   writeChan (chanMap Map.! root) initialValues
   threadDelay 1000000
-
-subtreeMembers :: Map.Map String [String] -> String -> Set.Set String
-subtreeMembers graph member =
-  Set.insert member $
-    Set.unions
-      [ subtreeMembers graph child
-      | child <- Map.findWithDefault [] member graph
-      ]

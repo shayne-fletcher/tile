@@ -1,6 +1,8 @@
 module Main (main) where
 
 import Data.List (sort)
+import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -288,7 +290,11 @@ treeTests =
                         ]
                     }
                 ]
-            }
+            },
+      testCase "treeLabels collects subtree labels" $
+        treeLabels sampleTree @?= Set.fromList [0, 1, 2, 3],
+      testCase "treeIndex indexes every subtree by label" $
+        Map.keysSet (treeIndex sampleTree) @?= Set.fromList [0, 1, 2, 3]
     ]
   where
     sampleTree :: Tree Int
