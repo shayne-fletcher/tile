@@ -35,6 +35,7 @@ library
       Tile.Schedule
       Tile.Routing
       Tile.Execution
+      Tile.Execution.Concurrent
       Tile.Neighborhood
       Tile.Geometry
       Tile.Affine
@@ -53,6 +54,7 @@ executable tile-demo
   hs-source-dirs: app
   build-depends:
       base >=4.18 && <4.23,
+      containers >=0.8 && <0.9,
       tile
   default-language: GHC2024
 

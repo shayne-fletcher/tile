@@ -1,5 +1,6 @@
 module Main where
 
+import Data.Map.Strict qualified as Map
 import Tile
 
 main :: IO ()
@@ -82,16 +83,17 @@ main = do
   print col0Broadcast
 
   putStrLn "\nrunning row-0 broadcast from A:"
-  runBroadcast row0Broadcast "A"
+  runBroadcastWithTrace (putStrLn . renderTrace) row0Broadcast "A" "hello"
 
   putStrLn "\nrunning column-0 broadcast from A:"
-  runBroadcast col0Broadcast "A"
+  runBroadcastWithTrace (putStrLn . renderTrace) col0Broadcast "A" "hello"
 
   putStrLn "\nrunning full-mesh broadcast from A:"
-  runBroadcast broadcast "A"
+  runBroadcastWithTrace (putStrLn . renderTrace) broadcast "A" "hello"
 
   putStrLn "\nrunning full-mesh scatter from A:"
-  runScatter
+  runScatterWithTrace
+    (putStrLn . renderTrace)
     broadcast
     [ ("A", "payload-a"),
       ("B", "payload-b"),
@@ -129,36 +131,44 @@ main = do
   putStr (renderRoutedTree (routedTree lowerRightRoute))
 
   putStrLn "\nrunning occluded full-mesh broadcast:"
-  runBroadcast (routedSteps repairedFull) (ingress repairedFull)
+  runBroadcastWithTrace (putStrLn . renderTrace) (routedSteps repairedFull) (ingress repairedFull) "hello"
 
   putStrLn "\nrunning full-mesh reduce:"
-  runReduce
+  runReduceWithTrace
+    (putStrLn . renderTrace)
     converge
-    [ ("A", 1),
-      ("B", 2),
-      ("C", 3),
-      ("D", 4),
-      ("E", 5),
-      ("F", 6),
-      ("G", 7),
-      ("H", 8)
-    ]
+    ( Map.fromList
+        [ ("A", 1),
+          ("B", 2),
+          ("C", 3),
+          ("D", 4),
+          ("E", 5),
+          ("F", 6),
+          ("G", 7),
+          ("H", 8)
+        ]
+    )
     (+)
     "A"
 
   putStrLn "\nrunning full-mesh gather:"
-  runGather
-    converge
-    [ ("A", "value-a"),
-      ("B", "value-b"),
-      ("C", "value-c"),
-      ("D", "value-d"),
-      ("E", "value-e"),
-      ("F", "value-f"),
-      ("G", "value-g"),
-      ("H", "value-h")
-    ]
-    "A"
+  _ <-
+    runGatherWithTrace
+      (putStrLn . renderTrace)
+      converge
+      ( Map.fromList
+          [ ("A", "value-a"),
+            ("B", "value-b"),
+            ("C", "value-c"),
+            ("D", "value-d"),
+            ("E", "value-e"),
+            ("F", "value-f"),
+            ("G", "value-g"),
+            ("H", "value-h")
+          ]
+      )
+      "A"
+  pure ()
 
 expectTile :: String -> Maybe Tile -> Tile
 expectTile _ (Just tile) = tile
@@ -167,3 +177,11 @@ expectTile label Nothing = error ("expected " ++ label)
 expectRouted :: String -> Maybe (RoutedSchedule a) -> RoutedSchedule a
 expectRouted _ (Just routed) = routed
 expectRouted label Nothing = error ("expected " ++ label)
+
+renderTrace :: (Show m, Show msg) => Trace m msg -> String
+renderTrace (Received member msg) =
+  show member ++ " received: " ++ show msg
+renderTrace (Sent sender receiver msg) =
+  show sender ++ " sent " ++ show msg ++ " to " ++ show receiver
+renderTrace (Completed member msg) =
+  show member ++ " completed: " ++ show msg

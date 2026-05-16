@@ -65,12 +65,23 @@ A `Schedule` is a directed communication plan derived from a tiling by taking ro
 
 ## Execution
 
-The same schedule algebra supports multiple runtimes:
+The same schedule algebra has two readings.
+
+`Tile.Execution` gives pure reference semantics:
+
+- `broadcastResult`
+- `scatterResult`
+- `gatherResult`
+- `reduceResult`
+
+`Tile.Execution.Concurrent` gives a small actor-style interpreter:
 
 - `runBroadcast`
 - `runScatter`
 - `runGather`
 - `runReduce`
+
+The concurrent runners return observed results. The `run*WithTrace` variants expose structured message-flow events used by the demo.
 
 ## Notes
 

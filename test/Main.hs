@@ -23,6 +23,7 @@ tests =
       treeTests,
       tilingTests,
       scheduleTests,
+      executionTests,
       affineTests
     ]
 
@@ -163,6 +164,107 @@ propOccludedScheduleCoversLiveMembers =
                     counterexample "receiver outside original tile" $
                       all (`elem` memberRanks) receivers === True
                   ]
+
+executionTests :: TestTree
+executionTests =
+  testGroup
+    "execution"
+    [ testProperty "T7 broadcastResult covers every member in the tile" propBroadcastCoversMembers,
+      testProperty "T8 broadcastResult delivers the same payload to every member" propBroadcastDeliversPayload,
+      testProperty "T9 reduceResult with (+) equals the sum of all member values" propReduceSumsValues,
+      testProperty "T10 gatherResult collects every member's value at the root" propGatherCollectsValues,
+      testProperty "T11 scatterResult delivers exactly the payloads for reachable members" propScatterDeliversReachablePayloads,
+      testCase "concurrent broadcast agrees with pure broadcast" testConcurrentBroadcastAgrees,
+      testCase "concurrent reduce agrees with pure reduce" testConcurrentReduceAgrees,
+      testCase "concurrent gather agrees with pure gather" testConcurrentGatherAgrees,
+      testCase "concurrent scatter agrees with pure scatter" testConcurrentScatterAgrees
+    ]
+
+propBroadcastCoversMembers :: Property
+propBroadcastCoversMembers =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = buildScheduleFrom BFS BlockPartitioning members tile
+        result = broadcastResult schedule (root tile) "payload"
+     in Map.keysSet result === Set.fromList members
+
+propBroadcastDeliversPayload :: Property
+propBroadcastDeliversPayload =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = buildScheduleFrom BFS BlockPartitioning members tile
+        result = broadcastResult schedule (root tile) "payload"
+     in conjoin
+          [ Map.keysSet result === Set.fromList members,
+            all (== "payload") (Map.elems result) === True
+          ]
+
+propReduceSumsValues :: Property
+propReduceSumsValues =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = reverseSchedule (buildScheduleFrom BFS BlockPartitioning members tile)
+        values = Map.fromList [(member, member + 1) | member <- members]
+     in reduceResult schedule (root tile) values (+) === sum (Map.elems values)
+
+propGatherCollectsValues :: Property
+propGatherCollectsValues =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = reverseSchedule (buildScheduleFrom BFS BlockPartitioning members tile)
+        values = Map.fromList [(member, member + 1) | member <- members]
+        result = gatherResult schedule (root tile) values
+     in Map.fromList result === values
+
+propScatterDeliversReachablePayloads :: Property
+propScatterDeliversReachablePayloads =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = buildScheduleFrom BFS BlockPartitioning members tile
+        payloads = [(member, member + 1) | member <- members]
+        result = scatterResult schedule (root tile) payloads
+        reachable = treeLabels (getRoutedTree (scheduleTree (root tile) schedule))
+     in result === Map.restrictKeys (Map.fromList payloads) reachable
+
+testConcurrentBroadcastAgrees :: Assertion
+testConcurrentBroadcastAgrees = do
+  let tile = rootTile [2, 2]
+      members = tileRanks tile
+      schedule = buildScheduleFrom BFS BlockPartitioning members tile
+  actual <- runBroadcast schedule (root tile) "payload"
+  actual @?= broadcastResult schedule (root tile) "payload"
+
+testConcurrentReduceAgrees :: Assertion
+testConcurrentReduceAgrees = do
+  let tile = rootTile [2, 2]
+      members = tileRanks tile
+      schedule = reverseSchedule (buildScheduleFrom BFS BlockPartitioning members tile)
+      values = Map.fromList [(member, member + 1) | member <- members]
+  actual <- runReduce schedule values (+) (root tile)
+  actual @?= reduceResult schedule (root tile) values (+)
+
+testConcurrentGatherAgrees :: Assertion
+testConcurrentGatherAgrees = do
+  let tile = rootTile [2, 2]
+      members = tileRanks tile
+      schedule = reverseSchedule (buildScheduleFrom BFS BlockPartitioning members tile)
+      values = Map.fromList [(member, member + 1) | member <- members]
+  actual <- runGather schedule values (root tile)
+  Map.fromList actual @?= Map.fromList (gatherResult schedule (root tile) values)
+
+testConcurrentScatterAgrees :: Assertion
+testConcurrentScatterAgrees = do
+  let tile = rootTile [2, 2]
+      members = tileRanks tile
+      schedule = buildScheduleFrom BFS BlockPartitioning members tile
+      payloads = [(member, member + 1) | member <- members]
+  actual <- runScatter schedule payloads (root tile)
+  actual @?= scatterResult schedule (root tile) payloads
 
 genShape :: Gen Shape
 genShape = do
