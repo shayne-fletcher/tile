@@ -67,11 +67,11 @@
 </span><span id="line-67"></span><span class="hs-comment">--     Sibling _ -&gt; root (tile node) /= root parent</span><span>
 </span><span id="line-68"></span><span class="hs-comment">--     _         -&gt; True</span><span>
 </span><span id="line-69"></span><span class="hs-comment">--   @</span><span>
-</span><span id="line-70"></span><span class="hs-keyword">class</span><span> </span><span id="Tiling"><span class="annot"><a href="Tile.Tiling.html#Tiling"><span class="hs-identifier hs-var">Tiling</span></a></span></span><span> </span><span id="local-6989586621679057120"><span class="annot"><a href="#local-6989586621679057120"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-70"></span><span class="hs-keyword">class</span><span> </span><span id="Tiling"><span class="annot"><a href="Tile.Tiling.html#Tiling"><span class="hs-identifier hs-var">Tiling</span></a></span></span><span> </span><span id="local-6989586621679057307"><span class="annot"><a href="#local-6989586621679057307"><span class="hs-identifier hs-type">t</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-71"></span><span>  </span><span class="hs-comment">-- | Structural children of a tile, labelled by their decomposition</span><span>
 </span><span id="line-72"></span><span>  </span><span class="hs-comment">-- relation. Anchor children carry the parent root; sibling children</span><span>
 </span><span id="line-73"></span><span>  </span><span class="hs-comment">-- introduce a distinct communication root.</span><span>
-</span><span id="line-74"></span><span>  </span><span id="childNodes"><span class="annot"><a href="Tile.Tiling.html#childNodes"><span class="hs-identifier hs-type">childNodes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679057120"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Tiling.html#TileNode"><span class="hs-identifier hs-type">TileNode</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-74"></span><span>  </span><span id="childNodes"><span class="annot"><a href="Tile.Tiling.html#childNodes"><span class="hs-identifier hs-type">childNodes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679057307"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Tiling.html#TileNode"><span class="hs-identifier hs-type">TileNode</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-75"></span><span>
 </span><span id="line-76"></span><span class="hs-comment">-- | The affine dimension and starting index selected by a tiling</span><span>
 </span><span id="line-77"></span><span class="hs-comment">-- step.</span><span>
@@ -85,7 +85,7 @@
 </span><span id="line-84"></span><span>    </span><span id="index"><span class="annot"><span class="annottext">Split -&gt; Int
 </span><a href="Tile.Tiling.html#index"><span class="hs-identifier hs-var hs-var">index</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-85"></span><span>  </span><span class="hs-special">}</span><span>
-</span><span id="line-86"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057152"><span id="local-6989586621679057158"><span id="local-6989586621679057162"><span class="annot"><span class="annottext">Int -&gt; Split -&gt; ShowS
+</span><span id="line-86"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057339"><span id="local-6989586621679057345"><span id="local-6989586621679057349"><span class="annot"><span class="annottext">Int -&gt; Split -&gt; ShowS
 [Split] -&gt; ShowS
 Split -&gt; String
 (Int -&gt; Split -&gt; ShowS)
@@ -98,14 +98,14 @@ $cshow :: Split -&gt; String
 show :: Split -&gt; String
 $cshowList :: [Split] -&gt; ShowS
 showList :: [Split] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057167"><span id="local-6989586621679057172"><span class="annot"><span class="annottext">Split -&gt; Split -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057354"><span id="local-6989586621679057359"><span class="annot"><span class="annottext">Split -&gt; Split -&gt; Bool
 (Split -&gt; Split -&gt; Bool) -&gt; (Split -&gt; Split -&gt; Bool) -&gt; Eq Split
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c== :: Split -&gt; Split -&gt; Bool
 == :: Split -&gt; Split -&gt; Bool
 $c/= :: Split -&gt; Split -&gt; Bool
 /= :: Split -&gt; Split -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057179"><span id="local-6989586621679057183"><span id="local-6989586621679057187"><span id="local-6989586621679057191"><span id="local-6989586621679057194"><span id="local-6989586621679057197"><span id="local-6989586621679057200"><span class="annot"><span class="annottext">Eq Split
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057366"><span id="local-6989586621679057370"><span id="local-6989586621679057374"><span id="local-6989586621679057378"><span id="local-6989586621679057381"><span id="local-6989586621679057384"><span id="local-6989586621679057387"><span class="annot"><span class="annottext">Eq Split
 Eq Split =&gt;
 (Split -&gt; Split -&gt; Ordering)
 -&gt; (Split -&gt; Split -&gt; Bool)
@@ -156,7 +156,7 @@ min :: Split -&gt; Split -&gt; Split
 </span><span id="line-97"></span><span>    </span><span id="Anchor"><span class="annot"><a href="Tile.Tiling.html#Anchor"><span class="hs-identifier hs-var">Anchor</span></a></span></span><span> </span><span class="annot"><a href="Tile.Tiling.html#Split"><span class="hs-identifier hs-type">Split</span></a></span><span>
 </span><span id="line-98"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-comment">-- | A child with a distinct root from the parent.</span></span><span>
 </span><span id="line-99"></span><span>    </span><span id="Sibling"><span class="annot"><a href="Tile.Tiling.html#Sibling"><span class="hs-identifier hs-var">Sibling</span></a></span></span><span> </span><span class="annot"><a href="Tile.Tiling.html#Split"><span class="hs-identifier hs-type">Split</span></a></span><span>
-</span><span id="line-100"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057210"><span id="local-6989586621679057216"><span id="local-6989586621679057220"><span class="annot"><span class="annottext">Int -&gt; Relation -&gt; ShowS
+</span><span id="line-100"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057397"><span id="local-6989586621679057403"><span id="local-6989586621679057407"><span class="annot"><span class="annottext">Int -&gt; Relation -&gt; ShowS
 [Relation] -&gt; ShowS
 Relation -&gt; String
 (Int -&gt; Relation -&gt; ShowS)
@@ -169,7 +169,7 @@ $cshow :: Relation -&gt; String
 show :: Relation -&gt; String
 $cshowList :: [Relation] -&gt; ShowS
 showList :: [Relation] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057223"><span id="local-6989586621679057230"><span class="annot"><span class="annottext">Relation -&gt; Relation -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057410"><span id="local-6989586621679057417"><span class="annot"><span class="annottext">Relation -&gt; Relation -&gt; Bool
 (Relation -&gt; Relation -&gt; Bool)
 -&gt; (Relation -&gt; Relation -&gt; Bool) -&gt; Eq Relation
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -177,7 +177,7 @@ $c== :: Relation -&gt; Relation -&gt; Bool
 == :: Relation -&gt; Relation -&gt; Bool
 $c/= :: Relation -&gt; Relation -&gt; Bool
 /= :: Relation -&gt; Relation -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057236"><span id="local-6989586621679057240"><span id="local-6989586621679057244"><span id="local-6989586621679057248"><span id="local-6989586621679057251"><span id="local-6989586621679057254"><span id="local-6989586621679057257"><span class="annot"><span class="annottext">Eq Relation
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057423"><span id="local-6989586621679057427"><span id="local-6989586621679057431"><span id="local-6989586621679057435"><span id="local-6989586621679057438"><span id="local-6989586621679057441"><span id="local-6989586621679057444"><span class="annot"><span class="annottext">Eq Relation
 Eq Relation =&gt;
 (Relation -&gt; Relation -&gt; Ordering)
 -&gt; (Relation -&gt; Relation -&gt; Bool)
@@ -229,7 +229,7 @@ min :: Relation -&gt; Relation -&gt; Relation
 </span><span id="line-111"></span><span>    </span><span id="relation"><span class="annot"><span class="annottext">TileNode -&gt; Relation
 </span><a href="Tile.Tiling.html#relation"><span class="hs-identifier hs-var hs-var">relation</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tiling.html#Relation"><span class="hs-identifier hs-type">Relation</span></a></span><span>
 </span><span id="line-112"></span><span>  </span><span class="hs-special">}</span><span>
-</span><span id="line-113"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057262"><span id="local-6989586621679057268"><span id="local-6989586621679057272"><span class="annot"><span class="annottext">Int -&gt; TileNode -&gt; ShowS
+</span><span id="line-113"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057449"><span id="local-6989586621679057455"><span id="local-6989586621679057459"><span class="annot"><span class="annottext">Int -&gt; TileNode -&gt; ShowS
 [TileNode] -&gt; ShowS
 TileNode -&gt; String
 (Int -&gt; TileNode -&gt; ShowS)
@@ -242,7 +242,7 @@ $cshow :: TileNode -&gt; String
 show :: TileNode -&gt; String
 $cshowList :: [TileNode] -&gt; ShowS
 showList :: [TileNode] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057275"><span id="local-6989586621679057280"><span class="annot"><span class="annottext">TileNode -&gt; TileNode -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057462"><span id="local-6989586621679057467"><span class="annot"><span class="annottext">TileNode -&gt; TileNode -&gt; Bool
 (TileNode -&gt; TileNode -&gt; Bool)
 -&gt; (TileNode -&gt; TileNode -&gt; Bool) -&gt; Eq TileNode
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -255,27 +255,27 @@ $c/= :: TileNode -&gt; TileNode -&gt; Bool
 </span><span id="line-115"></span><span class="annot"><span class="hs-comment">-- | Fix one affine dimension of a tile to a single index.</span></span><span>
 </span><span id="line-116"></span><span class="annot"><a href="Tile.Tiling.html#fixTileDim"><span class="hs-identifier hs-type">fixTileDim</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span>
 </span><span id="line-117"></span><span id="fixTileDim"><span class="annot"><span class="annottext">fixTileDim :: Tile -&gt; Int -&gt; Int -&gt; Maybe Tile
-</span><a href="Tile.Tiling.html#fixTileDim"><span class="hs-identifier hs-var hs-var">fixTileDim</span></a></span></span><span> </span><span id="local-6989586621679057284"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057284"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span id="local-6989586621679057285"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057285"><span class="hs-identifier hs-var">dim</span></a></span></span><span> </span><span id="local-6989586621679057286"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057286"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Tile
+</span><a href="Tile.Tiling.html#fixTileDim"><span class="hs-identifier hs-var hs-var">fixTileDim</span></a></span></span><span> </span><span id="local-6989586621679057471"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057471"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span id="local-6989586621679057472"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057472"><span class="hs-identifier hs-var">dim</span></a></span></span><span> </span><span id="local-6989586621679057473"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057473"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Tile
 </span><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-var">Tile</span></a></span><span> </span><span class="annot"><span class="annottext">(AffineRankSpace -&gt; Tile) -&gt; Maybe AffineRankSpace -&gt; Maybe Tile
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Int -&gt; Int -&gt; Maybe AffineRankSpace
 </span><a href="Tile.Affine.html#fixDim"><span class="hs-identifier hs-var">fixDim</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057284"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057285"><span class="hs-identifier hs-var">dim</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057286"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><a href="#local-6989586621679057471"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057472"><span class="hs-identifier hs-var">dim</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057473"><span class="hs-identifier hs-var">i</span></a></span><span>
 </span><span id="line-118"></span><span>
 </span><span id="line-119"></span><span class="annot"><span class="hs-comment">-- | Select a contiguous interval along one tile dimension.</span></span><span>
 </span><span id="line-120"></span><span class="annot"><a href="Tile.Tiling.html#selectTileDim"><span class="hs-identifier hs-type">selectTileDim</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span>
 </span><span id="line-121"></span><span id="selectTileDim"><span class="annot"><span class="annottext">selectTileDim :: Tile -&gt; Int -&gt; Int -&gt; Int -&gt; Maybe Tile
-</span><a href="Tile.Tiling.html#selectTileDim"><span class="hs-identifier hs-var hs-var">selectTileDim</span></a></span></span><span> </span><span id="local-6989586621679057291"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057291"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span id="local-6989586621679057292"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057292"><span class="hs-identifier hs-var">dim</span></a></span></span><span> </span><span id="local-6989586621679057293"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057293"><span class="hs-identifier hs-var">begin</span></a></span></span><span> </span><span id="local-6989586621679057294"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057294"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tile.Tiling.html#selectTileDim"><span class="hs-identifier hs-var hs-var">selectTileDim</span></a></span></span><span> </span><span id="local-6989586621679057478"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057478"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span id="local-6989586621679057479"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057479"><span class="hs-identifier hs-var">dim</span></a></span></span><span> </span><span id="local-6989586621679057480"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057480"><span class="hs-identifier hs-var">begin</span></a></span></span><span> </span><span id="local-6989586621679057481"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057481"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-122"></span><span>  </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Tile
 </span><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-var">Tile</span></a></span><span> </span><span class="annot"><span class="annottext">(AffineRankSpace -&gt; Tile) -&gt; Maybe AffineRankSpace -&gt; Maybe Tile
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -283,10 +283,10 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 -&gt; Int -&gt; Int -&gt; Int -&gt; Int -&gt; Maybe AffineRankSpace
 </span><a href="Tile.Affine.html#select"><span class="hs-identifier hs-var">select</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057291"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057292"><span class="hs-identifier hs-var">dim</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057293"><span class="hs-identifier hs-var">begin</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057294"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057478"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057479"><span class="hs-identifier hs-var">dim</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057480"><span class="hs-identifier hs-var">begin</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057481"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span>
 </span><span id="line-123"></span><span>
 </span><span id="line-124"></span><span class="hs-comment">-- | Partition by fixing one coordinate at a time.</span><span>
@@ -295,7 +295,7 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span id="line-127"></span><span class="hs-comment">-- creates one anchor child at index @0@ and one sibling child for</span><span>
 </span><span id="line-128"></span><span class="hs-comment">-- each remaining index in that dimension.</span><span>
 </span><span id="line-129"></span><span class="hs-keyword">data</span><span> </span><span id="BlockPartitioning"><span class="annot"><a href="Tile.Tiling.html#BlockPartitioning"><span class="hs-identifier hs-var">BlockPartitioning</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="BlockPartitioning"><span class="annot"><a href="Tile.Tiling.html#BlockPartitioning"><span class="hs-identifier hs-var">BlockPartitioning</span></a></span></span><span>
-</span><span id="line-130"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057298"><span id="local-6989586621679057300"><span id="local-6989586621679057304"><span class="annot"><span class="annottext">Int -&gt; BlockPartitioning -&gt; ShowS
+</span><span id="line-130"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057485"><span id="local-6989586621679057487"><span id="local-6989586621679057491"><span class="annot"><span class="annottext">Int -&gt; BlockPartitioning -&gt; ShowS
 [BlockPartitioning] -&gt; ShowS
 BlockPartitioning -&gt; String
 (Int -&gt; BlockPartitioning -&gt; ShowS)
@@ -310,7 +310,7 @@ $cshow :: BlockPartitioning -&gt; String
 show :: BlockPartitioning -&gt; String
 $cshowList :: [BlockPartitioning] -&gt; ShowS
 showList :: [BlockPartitioning] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057307"><span id="local-6989586621679057309"><span class="annot"><span class="annottext">BlockPartitioning -&gt; BlockPartitioning -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057494"><span id="local-6989586621679057496"><span class="annot"><span class="annottext">BlockPartitioning -&gt; BlockPartitioning -&gt; Bool
 (BlockPartitioning -&gt; BlockPartitioning -&gt; Bool)
 -&gt; (BlockPartitioning -&gt; BlockPartitioning -&gt; Bool)
 -&gt; Eq BlockPartitioning
@@ -322,20 +322,20 @@ $c/= :: BlockPartitioning -&gt; BlockPartitioning -&gt; Bool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-131"></span><span>
 </span><span id="line-132"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tile.Tiling.html#Tiling"><span class="hs-identifier hs-type">Tiling</span></a></span><span> </span><span class="annot"><a href="Tile.Tiling.html#BlockPartitioning"><span class="hs-identifier hs-type">BlockPartitioning</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-133"></span><span>  </span><span id="local-6989586621679057315"><span class="annot"><span class="annottext">childNodes :: BlockPartitioning -&gt; Tile -&gt; [TileNode]
+</span><span id="line-133"></span><span>  </span><span id="local-6989586621679057502"><span class="annot"><span class="annottext">childNodes :: BlockPartitioning -&gt; Tile -&gt; [TileNode]
 </span><a href="Tile.Tiling.html#childNodes"><span class="hs-identifier hs-var hs-var hs-var">childNodes</span></a></span></span><span> </span><span class="annot"><span class="annottext">BlockPartitioning
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679057316"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057316"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; [TileNode]
-</span><a href="#local-6989586621679057317"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057316"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679057503"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057503"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; [TileNode]
+</span><a href="#local-6989586621679057504"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057503"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span>
 </span><span id="line-134"></span><span>    </span><span class="hs-keyword">where</span><span>
-</span><span id="line-135"></span><span>      </span><span id="local-6989586621679057317"><span class="annot"><span class="annottext">go :: Tile -&gt; Int -&gt; [TileNode]
-</span><a href="#local-6989586621679057317"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679057333"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057333"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679057334"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span></span><span>
+</span><span id="line-135"></span><span>      </span><span id="local-6989586621679057504"><span class="annot"><span class="annottext">go :: Tile -&gt; Int -&gt; [TileNode]
+</span><a href="#local-6989586621679057504"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679057520"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057520"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679057521"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span></span><span>
 </span><span id="line-136"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int
 forall a. [a] -&gt; Int
@@ -343,73 +343,73 @@ forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 </span><span class="hs-identifier hs-var">length</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
 </span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057333"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679057520"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
 </span><span id="line-137"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057337"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679057524"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; [TileNode]
-</span><a href="#local-6989586621679057317"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057333"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679057504"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057520"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
 </span><span id="line-138"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-139"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679057339"><span class="annot"><span class="annottext">siblings :: [TileNode]
-</span><a href="#local-6989586621679057339"><span class="hs-identifier hs-var hs-var">siblings</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-139"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679057526"><span class="annot"><span class="annottext">siblings :: [TileNode]
+</span><a href="#local-6989586621679057526"><span class="hs-identifier hs-var hs-var">siblings</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-140"></span><span>                  </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Relation -&gt; TileNode
 </span><a href="Tile.Tiling.html#TileNode"><span class="hs-identifier hs-var">TileNode</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057340"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
+</span><a href="#local-6989586621679057527"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
 </span><a href="Tile.Tiling.html#Sibling"><span class="hs-identifier hs-var">Sibling</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Split
 </span><a href="Tile.Tiling.html#Split"><span class="hs-identifier hs-var">Split</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057341"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-141"></span><span>                  </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679057341"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057341"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057528"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-141"></span><span>                  </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679057528"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057528"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057337"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679057524"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
-</span><span id="line-142"></span><span>                    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057340"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057340"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Maybe Tile
+</span><span id="line-142"></span><span>                    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057527"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057527"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Maybe Tile
 </span><a href="Tile.Tiling.html#fixTileDim"><span class="hs-identifier hs-var">fixTileDim</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057333"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057341"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679057520"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057528"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-143"></span><span>                  </span><span class="hs-special">]</span><span>
-</span><span id="line-144"></span><span>                </span><span id="local-6989586621679057342"><span class="annot"><span class="annottext">anchors :: [TileNode]
-</span><a href="#local-6989586621679057342"><span class="hs-identifier hs-var hs-var">anchors</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-144"></span><span>                </span><span id="local-6989586621679057529"><span class="annot"><span class="annottext">anchors :: [TileNode]
+</span><a href="#local-6989586621679057529"><span class="hs-identifier hs-var hs-var">anchors</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-145"></span><span>                  </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Relation -&gt; TileNode
 </span><a href="Tile.Tiling.html#TileNode"><span class="hs-identifier hs-var">TileNode</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057343"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
+</span><a href="#local-6989586621679057530"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
 </span><a href="Tile.Tiling.html#Anchor"><span class="hs-identifier hs-var">Anchor</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Split
 </span><a href="Tile.Tiling.html#Split"><span class="hs-identifier hs-var">Split</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-146"></span><span>                  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057343"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057343"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Maybe Tile
+</span><span id="line-146"></span><span>                  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057530"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057530"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Maybe Tile
 </span><a href="Tile.Tiling.html#fixTileDim"><span class="hs-identifier hs-var">fixTileDim</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057333"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057520"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span class="hs-special">]</span><span>
 </span><span id="line-147"></span><span>                  </span><span class="hs-special">]</span><span>
 </span><span id="line-148"></span><span>             </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[TileNode]
-</span><a href="#local-6989586621679057339"><span class="hs-identifier hs-var">siblings</span></a></span><span> </span><span class="annot"><span class="annottext">[TileNode] -&gt; [TileNode] -&gt; [TileNode]
+</span><a href="#local-6989586621679057526"><span class="hs-identifier hs-var">siblings</span></a></span><span> </span><span class="annot"><span class="annottext">[TileNode] -&gt; [TileNode] -&gt; [TileNode]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[TileNode]
-</span><a href="#local-6989586621679057342"><span class="hs-identifier hs-var">anchors</span></a></span><span>
+</span><a href="#local-6989586621679057529"><span class="hs-identifier hs-var">anchors</span></a></span><span>
 </span><span id="line-149"></span><span>        </span><span class="hs-keyword">where</span><span>
-</span><span id="line-150"></span><span>          </span><span id="local-6989586621679057337"><span class="annot"><span class="annottext">n :: Int
-</span><a href="#local-6989586621679057337"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><span id="line-150"></span><span>          </span><span id="local-6989586621679057524"><span class="annot"><span class="annottext">n :: Int
+</span><a href="#local-6989586621679057524"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
 </span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057333"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679057520"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int -&gt; Int
 forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
 </span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057334"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><a href="#local-6989586621679057521"><span class="hs-identifier hs-var">d</span></a></span><span>
 </span><span id="line-151"></span><span>
 </span><span id="line-152"></span><span class="hs-comment">-- | Partition by bisecting one dimension at a time.</span><span>
 </span><span id="line-153"></span><span class="hs-comment">--</span><span>
@@ -417,7 +417,7 @@ forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
 </span><span id="line-155"></span><span class="hs-comment">-- lower @floor(n / 2)@ half as the anchor and creates one sibling</span><span>
 </span><span id="line-156"></span><span class="hs-comment">-- from the remaining upper half.</span><span>
 </span><span id="line-157"></span><span class="hs-keyword">data</span><span> </span><span id="Bisection"><span class="annot"><a href="Tile.Tiling.html#Bisection"><span class="hs-identifier hs-var">Bisection</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Bisection"><span class="annot"><a href="Tile.Tiling.html#Bisection"><span class="hs-identifier hs-var">Bisection</span></a></span></span><span>
-</span><span id="line-158"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057347"><span id="local-6989586621679057349"><span id="local-6989586621679057353"><span class="annot"><span class="annottext">Int -&gt; Bisection -&gt; ShowS
+</span><span id="line-158"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057534"><span id="local-6989586621679057536"><span id="local-6989586621679057540"><span class="annot"><span class="annottext">Int -&gt; Bisection -&gt; ShowS
 [Bisection] -&gt; ShowS
 Bisection -&gt; String
 (Int -&gt; Bisection -&gt; ShowS)
@@ -432,7 +432,7 @@ $cshow :: Bisection -&gt; String
 show :: Bisection -&gt; String
 $cshowList :: [Bisection] -&gt; ShowS
 showList :: [Bisection] -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057356"><span id="local-6989586621679057358"><span class="annot"><span class="annottext">Bisection -&gt; Bisection -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679057543"><span id="local-6989586621679057545"><span class="annot"><span class="annottext">Bisection -&gt; Bisection -&gt; Bool
 (Bisection -&gt; Bisection -&gt; Bool)
 -&gt; (Bisection -&gt; Bisection -&gt; Bool) -&gt; Eq Bisection
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -443,106 +443,106 @@ $c/= :: Bisection -&gt; Bisection -&gt; Bool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-159"></span><span>
 </span><span id="line-160"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tile.Tiling.html#Tiling"><span class="hs-identifier hs-type">Tiling</span></a></span><span> </span><span class="annot"><a href="Tile.Tiling.html#Bisection"><span class="hs-identifier hs-type">Bisection</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-161"></span><span>  </span><span id="local-6989586621679057368"><span class="annot"><span class="annottext">childNodes :: Bisection -&gt; Tile -&gt; [TileNode]
+</span><span id="line-161"></span><span>  </span><span id="local-6989586621679057555"><span class="annot"><span class="annottext">childNodes :: Bisection -&gt; Tile -&gt; [TileNode]
 </span><a href="Tile.Tiling.html#childNodes"><span class="hs-identifier hs-var hs-var hs-var">childNodes</span></a></span></span><span> </span><span class="annot"><span class="annottext">Bisection
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679057369"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057369"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679057556"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057556"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-162"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Maybe Int
 </span><a href="Tile.Tiling.html#firstNonSingletonDim"><span class="hs-identifier hs-var">firstNonSingletonDim</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057369"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679057556"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-163"></span><span>      </span><span class="annot"><span class="annottext">Maybe Int
 </span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-164"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057371"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057371"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-165"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679057372"><span class="annot"><span class="annottext">n :: Int
-</span><a href="#local-6989586621679057372"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
+</span><span id="line-164"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057558"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057558"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-165"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679057559"><span class="annot"><span class="annottext">n :: Int
+</span><a href="#local-6989586621679057559"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
 </span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057369"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679057556"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int -&gt; Int
 forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
 </span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057371"><span class="hs-identifier hs-var">d</span></a></span><span>
-</span><span id="line-166"></span><span>            </span><span id="local-6989586621679057373"><span class="annot"><span class="annottext">lower :: Int
-</span><a href="#local-6989586621679057373"><span class="hs-identifier hs-var hs-var">lower</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057372"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679057558"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><span id="line-166"></span><span>            </span><span id="local-6989586621679057560"><span class="annot"><span class="annottext">lower :: Int
+</span><a href="#local-6989586621679057560"><span class="hs-identifier hs-var hs-var">lower</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057559"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span>
-</span><span id="line-167"></span><span>            </span><span id="local-6989586621679057375"><span class="annot"><span class="annottext">siblings :: [TileNode]
-</span><a href="#local-6989586621679057375"><span class="hs-identifier hs-var hs-var">siblings</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-167"></span><span>            </span><span id="local-6989586621679057562"><span class="annot"><span class="annottext">siblings :: [TileNode]
+</span><a href="#local-6989586621679057562"><span class="hs-identifier hs-var hs-var">siblings</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-168"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Relation -&gt; TileNode
 </span><a href="Tile.Tiling.html#TileNode"><span class="hs-identifier hs-var">TileNode</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057376"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
+</span><a href="#local-6989586621679057563"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
 </span><a href="Tile.Tiling.html#Sibling"><span class="hs-identifier hs-var">Sibling</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Split
 </span><a href="Tile.Tiling.html#Split"><span class="hs-identifier hs-var">Split</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057371"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057373"><span class="hs-identifier hs-var">lower</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-169"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057376"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057376"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Int -&gt; Maybe Tile
+</span><a href="#local-6989586621679057558"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057560"><span class="hs-identifier hs-var">lower</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-169"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057563"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057563"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Int -&gt; Maybe Tile
 </span><a href="Tile.Tiling.html#selectTileDim"><span class="hs-identifier hs-var">selectTileDim</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057369"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057371"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057373"><span class="hs-identifier hs-var">lower</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057372"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679057556"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057558"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057560"><span class="hs-identifier hs-var">lower</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057559"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-170"></span><span>              </span><span class="hs-special">]</span><span>
-</span><span id="line-171"></span><span>            </span><span id="local-6989586621679057377"><span class="annot"><span class="annottext">anchors :: [TileNode]
-</span><a href="#local-6989586621679057377"><span class="hs-identifier hs-var hs-var">anchors</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-171"></span><span>            </span><span id="local-6989586621679057564"><span class="annot"><span class="annottext">anchors :: [TileNode]
+</span><a href="#local-6989586621679057564"><span class="hs-identifier hs-var hs-var">anchors</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-172"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Tile -&gt; Relation -&gt; TileNode
 </span><a href="Tile.Tiling.html#TileNode"><span class="hs-identifier hs-var">TileNode</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057378"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
+</span><a href="#local-6989586621679057565"><span class="hs-identifier hs-var">child</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Split -&gt; Relation
 </span><a href="Tile.Tiling.html#Anchor"><span class="hs-identifier hs-var">Anchor</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Split
 </span><a href="Tile.Tiling.html#Split"><span class="hs-identifier hs-var">Split</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057371"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057558"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-173"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057378"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057378"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Int -&gt; Maybe Tile
+</span><span id="line-173"></span><span>              </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679057565"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057565"><span class="hs-identifier hs-var">child</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Tile -&gt; Int -&gt; Int -&gt; Int -&gt; Maybe Tile
 </span><a href="Tile.Tiling.html#selectTileDim"><span class="hs-identifier hs-var">selectTileDim</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057369"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057371"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057556"><span class="hs-identifier hs-var">tile</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057558"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679057373"><span class="hs-identifier hs-var">lower</span></a></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679057560"><span class="hs-identifier hs-var">lower</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-174"></span><span>              </span><span class="hs-special">]</span><span>
 </span><span id="line-175"></span><span>         </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[TileNode]
-</span><a href="#local-6989586621679057375"><span class="hs-identifier hs-var">siblings</span></a></span><span> </span><span class="annot"><span class="annottext">[TileNode] -&gt; [TileNode] -&gt; [TileNode]
+</span><a href="#local-6989586621679057562"><span class="hs-identifier hs-var">siblings</span></a></span><span> </span><span class="annot"><span class="annottext">[TileNode] -&gt; [TileNode] -&gt; [TileNode]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[TileNode]
-</span><a href="#local-6989586621679057377"><span class="hs-identifier hs-var">anchors</span></a></span><span>
+</span><a href="#local-6989586621679057564"><span class="hs-identifier hs-var">anchors</span></a></span><span>
 </span><span id="line-176"></span><span>
 </span><span id="line-177"></span><span class="annot"><a href="Tile.Tiling.html#firstNonSingletonDim"><span class="hs-identifier hs-type">firstNonSingletonDim</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-178"></span><span id="firstNonSingletonDim"><span class="annot"><span class="annottext">firstNonSingletonDim :: Tile -&gt; Maybe Int
-</span><a href="Tile.Tiling.html#firstNonSingletonDim"><span class="hs-identifier hs-var hs-var">firstNonSingletonDim</span></a></span></span><span> </span><span id="local-6989586621679057379"><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057379"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tile.Tiling.html#firstNonSingletonDim"><span class="hs-identifier hs-var hs-var">firstNonSingletonDim</span></a></span></span><span> </span><span id="local-6989586621679057566"><span class="annot"><span class="annottext">Tile
+</span><a href="#local-6989586621679057566"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-179"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; [Int] -&gt; Maybe Int
 forall {a} {t}. (Ord a, Num a, Num t) =&gt; t -&gt; [a] -&gt; Maybe t
-</span><a href="#local-6989586621679057380"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679057567"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
 </span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
-</span><a href="#local-6989586621679057379"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679057566"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-180"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-181"></span><span>    </span><span id="local-6989586621679057380"><span class="annot"><span class="annottext">go :: t -&gt; [a] -&gt; Maybe t
-</span><a href="#local-6989586621679057380"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">t
+</span><span id="line-181"></span><span>    </span><span id="local-6989586621679057567"><span class="annot"><span class="annottext">go :: t -&gt; [a] -&gt; Maybe t
+</span><a href="#local-6989586621679057567"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">t
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe t
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-182"></span><span>    </span><span class="annot"><a href="#local-6989586621679057380"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679057391"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679057391"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057392"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679057392"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679057393"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679057393"><span class="hs-identifier hs-var">ns</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-182"></span><span>    </span><span class="annot"><a href="#local-6989586621679057567"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679057578"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679057578"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679057579"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679057579"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span id="local-6989586621679057580"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679057580"><span class="hs-identifier hs-var">ns</span></a></span></span><span class="hs-special">)</span><span>
 </span><span id="line-183"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679057392"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679057579"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; Maybe t
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679057391"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><a href="#local-6989586621679057578"><span class="hs-identifier hs-var">d</span></a></span><span>
 </span><span id="line-184"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; [a] -&gt; Maybe t
-</span><a href="#local-6989586621679057380"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679057391"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679057567"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679057578"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">t
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679057393"><span class="hs-identifier hs-var">ns</span></a></span><span>
+</span><a href="#local-6989586621679057580"><span class="hs-identifier hs-var">ns</span></a></span><span>
 </span><span id="line-185"></span></pre></body></html>
