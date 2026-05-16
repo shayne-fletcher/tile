@@ -12,6 +12,7 @@ module Tile
     module Tile.Schedule,
     module Tile.Routing,
     module Tile.Execution,
+    module Tile.Execution.Concurrent,
     module Tile.Neighborhood,
     module Tile.Geometry,
     module Tile.Affine,
@@ -21,6 +22,7 @@ where
 
 import Tile.Affine
 import Tile.Execution
+import Tile.Execution.Concurrent
 import Tile.Geometry
 import Tile.Neighborhood
 import Tile.Routing

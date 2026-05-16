@@ -1,209 +1,65 @@
 -- |
 -- Module      : Tile.Execution
--- Description : Concurrent execution of schedules.
+-- Description : Pure execution semantics for schedules.
 --
--- These functions interpret schedules using lightweight concurrent
--- Haskell channels and print the resulting message flow.
+-- These functions interpret schedules as pure results. They provide a
+-- denotational reference for concurrent interpreters.
 module Tile.Execution
-  ( -- * Executors
-    runBroadcast,
-    runGather,
-    runReduce,
-    runScatter,
+  ( -- * Pure execution semantics
+    broadcastResult,
+    reduceResult,
+    gatherResult,
+    scatterResult,
   )
 where
 
-import Control.Concurrent
-import Control.Monad
 import Data.Map.Strict qualified as Map
-import Data.Set qualified as Set
 import Tile.Schedule
-import Tile.Tree (RoutedTree (..), scheduleTree, treeIndex, treeLabels)
+import Tile.Tree
 
--- | Run a broadcast schedule with the fixed message @"hello"@.
-runBroadcast :: Schedule String -> String -> IO ()
-runBroadcast schedule root = do
-  let graph = adjacencyList schedule
-      members =
-        Set.toList $
-          Set.fromList (Map.keys graph ++ concat (Map.elems graph))
-
-  chans <- forM members $ \m -> do
-    ch <- newChan
-    pure (m, ch)
-
-  let chanMap = Map.fromList chans
-
-  forM_ members $ \m -> do
-    let inbox = chanMap Map.! m
-        children = Map.findWithDefault [] m graph
-        childChans = [(c, chanMap Map.! c) | c <- children]
-    _ <- forkIO $ forever $ do
-      msg <- readChan inbox
-      putStrLn $ m ++ " received: " ++ msg
-      forM_ childChans $ \(childName, childInbox) -> do
-        putStrLn $ m ++ " forwarding to " ++ childName
-        writeChan childInbox msg
-    pure ()
-
-  writeChan (chanMap Map.! root) "hello"
-  threadDelay 1000000
-
-incomingCounts :: (Ord a) => Schedule a -> Map.Map a Int
-incomingCounts =
-  foldr
-    (\Step {to = c} m -> Map.insertWith (+) c 1 m)
-    Map.empty
-
--- | Run a reduce schedule.
+-- | Delivery state after broadcast execution.
 --
--- Leaf values flow toward the root and are combined at each node.
-runReduce ::
-  Schedule String ->
-  [(String, Int)] ->
-  (Int -> Int -> Int) ->
-  String ->
-  IO ()
-runReduce schedule initialValues combine root = do
-  let graph = adjacencyList schedule
-      incoming = incomingCounts schedule
-      members =
-        Set.toList $
-          Set.fromList $
-            Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
+-- The result includes the root, which holds the payload from the
+-- start. This records reachable members, not only receivers of
+-- schedule steps.
+broadcastResult :: (Ord m) => Schedule m -> m -> p -> Map.Map m p
+broadcastResult schedule root payload =
+  let RoutedTree tree = scheduleTree root schedule
+   in Map.fromSet (const payload) (treeLabels tree)
 
-  chanPairs <- forM members $ \m -> do
-    ch <- newChan
-    pure (m, ch)
-
-  let chanMap = Map.fromList chanPairs
-      valueMap = Map.fromList initialValues
-
-  forM_ members $ \m -> do
-    let inbox = chanMap Map.! m
-        children = Map.findWithDefault [] m graph
-        childChans = [(c, chanMap Map.! c) | c <- children]
-        expected = Map.findWithDefault 0 m incoming
-        localValue = valueMap Map.! m
-
-    _ <- forkIO $ do
-      received <- replicateM expected (readChan inbox)
-      let total = foldl combine localValue received
-      if m == root
-        then putStrLn $ m ++ " reduced result: " ++ show total
-        else forM_ childChans $ \(childName, childInbox) -> do
-          putStrLn $ m ++ " sending reduced value " ++ show total ++ " to " ++ childName
-          writeChan childInbox total
-    pure ()
-
-  forM_ members $ \m ->
-    when (Map.findWithDefault 0 m incoming == 0) $
-      writeChan (chanMap Map.! m) (valueMap Map.! m)
-
-  threadDelay 1000000
-
--- | Run a gather schedule.
+-- | Result of reducing values along a schedule that flows toward the
+-- root.
 --
--- Each member contributes one value; values flow toward the root as
--- lists of member-value pairs.
-runGather ::
-  (Show a) =>
-  Schedule String ->
-  [(String, a)] ->
-  String ->
-  IO ()
-runGather schedule initialValues root = do
-  let graph = adjacencyList schedule
-      incoming = incomingCounts schedule
-      members =
-        Set.toList $
-          Set.fromList $
-            Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
+-- Precondition: the value map contains every member reachable from
+-- the root.
+reduceResult :: (Ord m) => Schedule m -> m -> Map.Map m v -> (v -> v -> v) -> v
+reduceResult schedule root values combine =
+  let RoutedTree tree = scheduleTree root (reverseSchedule schedule)
+   in go tree
+  where
+    go (Tree member kids) =
+      foldl' combine (values Map.! member) (map go kids)
 
-  chanPairs <- forM members $ \m -> do
-    ch <- newChan
-    pure (m, ch)
-
-  let chanMap = Map.fromList chanPairs
-      valueMap = Map.fromList initialValues
-
-  forM_ members $ \m -> do
-    let inbox = chanMap Map.! m
-        children = Map.findWithDefault [] m graph
-        childChans = [(c, chanMap Map.! c) | c <- children]
-        expected = Map.findWithDefault 0 m incoming
-        localValue = [(m, valueMap Map.! m)]
-
-    _ <- forkIO $ do
-      received <- concat <$> replicateM expected (readChan inbox)
-      let gathered = localValue ++ received
-      if m == root
-        then putStrLn $ m ++ " gathered result: " ++ show gathered
-        else forM_ childChans $ \(childName, childInbox) -> do
-          putStrLn $ m ++ " sending gathered values " ++ show gathered ++ " to " ++ childName
-          writeChan childInbox gathered
-    pure ()
-
-  forM_ members $ \m ->
-    when (Map.findWithDefault 0 m incoming == 0) $
-      writeChan (chanMap Map.! m) [(m, valueMap Map.! m)]
-
-  threadDelay 1000000
-
--- | Run a scatter schedule.
+-- | Result of gathering values at the root.
 --
--- The root starts with a value for each destination. At each hop, the
--- payload is partitioned by the routed subtree below each child.
-runScatter ::
-  (Show a) =>
-  Schedule String ->
-  [(String, a)] ->
-  String ->
-  IO ()
-runScatter schedule initialValues root = do
-  let graph = adjacencyList schedule
-      incoming = incomingCounts schedule
-      members =
-        Set.toList $
-          Set.fromList $
-            Map.keys graph ++ concat (Map.elems graph) ++ map fst initialValues
-      RoutedTree routed = scheduleTree root schedule
-      routedSubtrees = treeIndex routed
+-- Values are returned in preorder over the reversed convergence tree.
+--
+-- Precondition: the value map contains every member reachable from
+-- the root.
+gatherResult :: (Ord m) => Schedule m -> m -> Map.Map m v -> [(m, v)]
+gatherResult schedule root values =
+  let RoutedTree tree = scheduleTree root (reverseSchedule schedule)
+   in go tree
+  where
+    go (Tree member kids) =
+      (member, values Map.! member) : concatMap go kids
 
-  chanPairs <- forM members $ \m -> do
-    ch <- newChan
-    pure (m, ch)
-
-  let chanMap = Map.fromList chanPairs
-
-  forM_ members $ \m -> do
-    let inbox = chanMap Map.! m
-        children = Map.findWithDefault [] m graph
-        childChans = [(c, chanMap Map.! c) | c <- children]
-        expected
-          | m == root = 1
-          | otherwise = Map.findWithDefault 0 m incoming
-
-    _ <- forkIO $ do
-      -- Scatter schedules are normally trees, so this usually reads
-      -- one payload. For a general schedule, merge all incoming
-      -- payload fragments before forwarding.
-      payload <- concat <$> replicateM expected (readChan inbox)
-      case lookup m payload of
-        Just value -> putStrLn $ m ++ " received scatter value: " ++ show value
-        Nothing -> pure ()
-
-      forM_ childChans $ \(childName, childInbox) -> do
-        let childMembers =
-              maybe Set.empty treeLabels (Map.lookup childName routedSubtrees)
-            childPayload =
-              [ item
-              | item@(dest, _) <- payload,
-                dest `Set.member` childMembers
-              ]
-        putStrLn $ m ++ " scattering " ++ show childPayload ++ " to " ++ childName
-        writeChan childInbox childPayload
-    pure ()
-
-  writeChan (chanMap Map.! root) initialValues
-  threadDelay 1000000
+-- | Result of scattering destination-specific payloads.
+--
+-- Only payloads whose destinations are reachable from the root are
+-- delivered.
+scatterResult :: (Ord m) => Schedule m -> m -> [(m, p)] -> Map.Map m p
+scatterResult schedule root payloads =
+  let RoutedTree tree = scheduleTree root schedule
+      reachable = treeLabels tree
+   in Map.restrictKeys (Map.fromList payloads) reachable
