@@ -1,45 +1,56 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Neighborhood.html"><span class="hs-identifier">Tile.Neighborhood</span></a></span><span>
-</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Neighborhood.html#neighbors"><span class="hs-identifier">neighbors</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-3"></span><span>  </span><span class="hs-special">)</span><span>
-</span><span id="line-4"></span><span class="hs-keyword">where</span><span>
-</span><span id="line-5"></span><span>
-</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Affine.html"><span class="hs-identifier">Tile.Affine</span></a></span><span>
-</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Shape.html"><span class="hs-identifier">Tile.Shape</span></a></span><span>
-</span><span id="line-8"></span><span>
-</span><span id="line-9"></span><span class="annot"><a href="Tile.Neighborhood.html#neighbors"><span class="hs-identifier hs-type">neighbors</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span>
-</span><span id="line-10"></span><span id="neighbors"><span class="annot"><span class="annottext">neighbors :: AffineRankSpace -&gt; Int -&gt; [Int]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Module      : Tile.Neighborhood</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- Description : Grid neighbors in affine rank spaces.</span><span>
+</span><span id="line-4"></span><span class="hs-comment">--</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Neighborhood queries use the logical coordinates of an affine rank</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- space, then map neighboring coordinates back to ranks.</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Neighborhood.html"><span class="hs-identifier">Tile.Neighborhood</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Neighbors</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Tile.Neighborhood.html#neighbors"><span class="hs-identifier">neighbors</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Affine.html"><span class="hs-identifier">Tile.Affine</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Shape.html"><span class="hs-identifier">Tile.Shape</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | Ranks adjacent to a rank along each logical dimension.</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- For each dimension, this returns the valid predecessor and successor</span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- ranks when they lie inside the affine rank space.</span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Tile.Neighborhood.html#neighbors"><span class="hs-identifier hs-type">neighbors</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span>
+</span><span id="line-21"></span><span id="neighbors"><span class="annot"><span class="annottext">neighbors :: AffineRankSpace -&gt; Int -&gt; [Int]
 </span><a href="Tile.Neighborhood.html#neighbors"><span class="hs-identifier hs-var hs-var">neighbors</span></a></span></span><span> </span><span id="local-6989586621679055771"><span class="annot"><span class="annottext">AffineRankSpace
 </span><a href="#local-6989586621679055771"><span class="hs-identifier hs-var">rankSpace</span></a></span></span><span> </span><span id="local-6989586621679055772"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055772"><span class="hs-identifier hs-var">rank</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-11"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679055773"><span class="annot"><span class="annottext">point :: [Int]
+</span><span id="line-22"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679055773"><span class="annot"><span class="annottext">point :: [Int]
 </span><a href="#local-6989586621679055773"><span class="hs-identifier hs-var hs-var">point</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; Int -&gt; [Int]
 </span><a href="Tile.Affine.html#pointOf"><span class="hs-identifier hs-var">pointOf</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
 </span><a href="#local-6989586621679055771"><span class="hs-identifier hs-var">rankSpace</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055772"><span class="hs-identifier hs-var">rank</span></a></span><span>
-</span><span id="line-12"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int] -&gt; Int
+</span><span id="line-23"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int] -&gt; Int
 </span><a href="Tile.Affine.html#rankOf"><span class="hs-identifier hs-var">rankOf</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
 </span><a href="#local-6989586621679055771"><span class="hs-identifier hs-var">rankSpace</span></a></span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055776"><span class="hs-identifier hs-var">p'</span></a></span><span>
-</span><span id="line-13"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679055776"><span class="annot"><span class="annottext">[Int]
+</span><span id="line-24"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679055776"><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055776"><span class="hs-identifier hs-var">p'</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [Int] -&gt; [[Int]]
 </span><a href="Tile.Neighborhood.html#neighborPoints"><span class="hs-identifier hs-var">neighborPoints</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
 </span><a href="Tile.Affine.html#sizes"><span class="hs-identifier hs-var">sizes</span></a></span><span> </span><span class="annot"><span class="annottext">AffineRankSpace
 </span><a href="#local-6989586621679055771"><span class="hs-identifier hs-var">rankSpace</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055773"><span class="hs-identifier hs-var">point</span></a></span><span>
-</span><span id="line-14"></span><span>      </span><span class="hs-special">]</span><span>
-</span><span id="line-15"></span><span>
-</span><span id="line-16"></span><span class="annot"><a href="Tile.Neighborhood.html#neighborPoints"><span class="hs-identifier hs-type">neighborPoints</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Affine.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Affine.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-17"></span><span id="neighborPoints"><span class="annot"><span class="annottext">neighborPoints :: [Int] -&gt; [Int] -&gt; [[Int]]
+</span><span id="line-25"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="annot"><a href="Tile.Neighborhood.html#neighborPoints"><span class="hs-identifier hs-type">neighborPoints</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Shape.html#Shape"><span class="hs-identifier hs-type">Shape</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Affine.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Affine.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-28"></span><span id="neighborPoints"><span class="annot"><span class="annottext">neighborPoints :: [Int] -&gt; [Int] -&gt; [[Int]]
 </span><a href="Tile.Neighborhood.html#neighborPoints"><span class="hs-identifier hs-var hs-var">neighborPoints</span></a></span></span><span> </span><span id="local-6989586621679055781"><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055781"><span class="hs-identifier hs-var">shape</span></a></span></span><span> </span><span id="local-6989586621679055782"><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055782"><span class="hs-identifier hs-var">point</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-18"></span><span>  </span><span class="annot"><span class="annottext">[[[Int]]] -&gt; [[Int]]
+</span><span id="line-29"></span><span>  </span><span class="annot"><span class="annottext">[[[Int]]] -&gt; [[Int]]
 forall (t :: * -&gt; *) a. Foldable t =&gt; t [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">concat</span></span><span>
-</span><span id="line-19"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Int -&gt; [[Int]]
+</span><span id="line-30"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Int -&gt; [[Int]]
 </span><a href="#local-6989586621679055784"><span class="hs-identifier hs-var">moves</span></a></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055785"><span class="hs-identifier hs-var">dim</span></a></span><span>
-</span><span id="line-20"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679055785"><span class="annot"><span class="annottext">Int
+</span><span id="line-31"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679055785"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055785"><span class="hs-identifier hs-var">dim</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int
 forall a. [a] -&gt; Int
@@ -49,18 +60,18 @@ forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">]</span><span>
-</span><span id="line-21"></span><span>    </span><span class="hs-special">]</span><span>
-</span><span id="line-22"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-23"></span><span>    </span><span id="local-6989586621679055784"><span class="annot"><span class="annottext">moves :: Int -&gt; [[Int]]
+</span><span id="line-32"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-34"></span><span>    </span><span id="local-6989586621679055784"><span class="annot"><span class="annottext">moves :: Int -&gt; [[Int]]
 </span><a href="#local-6989586621679055784"><span class="hs-identifier hs-var hs-var">moves</span></a></span></span><span> </span><span id="local-6989586621679055787"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055787"><span class="hs-identifier hs-var">dim</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-24"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679055788"><span class="annot"><span class="annottext">x :: Int
+</span><span id="line-35"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679055788"><span class="annot"><span class="annottext">x :: Int
 </span><a href="#local-6989586621679055788"><span class="hs-identifier hs-var hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055782"><span class="hs-identifier hs-var">point</span></a></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int -&gt; Int
 forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
 </span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055787"><span class="hs-identifier hs-var">dim</span></a></span><span>
-</span><span id="line-25"></span><span>          </span><span id="local-6989586621679055790"><span class="annot"><span class="annottext">lo :: [Int]
+</span><span id="line-36"></span><span>          </span><span id="local-6989586621679055790"><span class="annot"><span class="annottext">lo :: [Int]
 </span><a href="#local-6989586621679055790"><span class="hs-identifier hs-var hs-var">lo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; [Int] -&gt; [Int]
 forall a. Int -&gt; a -&gt; [a] -&gt; [a]
 </span><a href="Tile.Neighborhood.html#replace"><span class="hs-identifier hs-var">replace</span></a></span><span> </span><span class="annot"><span class="annottext">Int
@@ -70,7 +81,7 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055782"><span class="hs-identifier hs-var">point</span></a></span><span>
-</span><span id="line-26"></span><span>          </span><span id="local-6989586621679055792"><span class="annot"><span class="annottext">hi :: [Int]
+</span><span id="line-37"></span><span>          </span><span id="local-6989586621679055792"><span class="annot"><span class="annottext">hi :: [Int]
 </span><a href="#local-6989586621679055792"><span class="hs-identifier hs-var hs-var">hi</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; [Int] -&gt; [Int]
 forall a. Int -&gt; a -&gt; [a] -&gt; [a]
 </span><a href="Tile.Neighborhood.html#replace"><span class="hs-identifier hs-var">replace</span></a></span><span> </span><span class="annot"><span class="annottext">Int
@@ -80,15 +91,15 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055782"><span class="hs-identifier hs-var">point</span></a></span><span>
-</span><span id="line-27"></span><span>          </span><span id="local-6989586621679055794"><span class="annot"><span class="annottext">extent :: Int
+</span><span id="line-38"></span><span>          </span><span id="local-6989586621679055794"><span class="annot"><span class="annottext">extent :: Int
 </span><a href="#local-6989586621679055794"><span class="hs-identifier hs-var hs-var">extent</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055781"><span class="hs-identifier hs-var">shape</span></a></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int -&gt; Int
 forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
 </span><span class="hs-operator hs-var">!!</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055787"><span class="hs-identifier hs-var">dim</span></a></span><span>
-</span><span id="line-28"></span><span>       </span><span class="hs-keyword">in</span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">[Int]
+</span><span id="line-39"></span><span>       </span><span class="hs-keyword">in</span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055795"><span class="hs-identifier hs-var">p</span></a></span><span>
-</span><span id="line-29"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679055796"><span class="annot"><span class="annottext">Int
+</span><span id="line-40"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679055796"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055796"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679055795"><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055795"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055788"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
@@ -101,20 +112,20 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[Int]
 </span><a href="#local-6989586621679055792"><span class="hs-identifier hs-var">hi</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">,</span><span>
-</span><span id="line-30"></span><span>            </span><span class="annot"><span class="annottext">Int
+</span><span id="line-41"></span><span>            </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055796"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span class="hs-special">,</span><span>
-</span><span id="line-31"></span><span>            </span><span class="annot"><span class="annottext">Int
+</span><span id="line-42"></span><span>            </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055796"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055794"><span class="hs-identifier hs-var">extent</span></a></span><span>
-</span><span id="line-32"></span><span>          </span><span class="hs-special">]</span><span>
-</span><span id="line-33"></span><span>
-</span><span id="line-34"></span><span id="local-6989586621679055739"><span class="annot"><a href="Tile.Neighborhood.html#replace"><span class="hs-identifier hs-type">replace</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679055739"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679055739"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679055739"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span><span>
-</span><span id="line-35"></span><span id="replace"><span class="annot"><span class="annottext">replace :: forall a. Int -&gt; a -&gt; [a] -&gt; [a]
+</span><span id="line-43"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span id="local-6989586621679055739"><span class="annot"><a href="Tile.Neighborhood.html#replace"><span class="hs-identifier hs-type">replace</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679055739"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679055739"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679055739"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span><span>
+</span><span id="line-46"></span><span id="replace"><span class="annot"><span class="annottext">replace :: forall a. Int -&gt; a -&gt; [a] -&gt; [a]
 </span><a href="Tile.Neighborhood.html#replace"><span class="hs-identifier hs-var hs-var">replace</span></a></span></span><span> </span><span id="local-6989586621679055800"><span class="annot"><span class="annottext">Int
 </span><a href="#local-6989586621679055800"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679055801"><span class="annot"><span class="annottext">a
 </span><a href="#local-6989586621679055801"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679055802"><span class="annot"><span class="annottext">[a]
@@ -135,4 +146,4 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[a]
 </span><a href="#local-6989586621679055802"><span class="hs-identifier hs-var">xs</span></a></span><span>
-</span><span id="line-36"></span></pre></body></html>
+</span><span id="line-47"></span></pre></body></html>

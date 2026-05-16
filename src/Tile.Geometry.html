@@ -1,23 +1,32 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Geometry.html"><span class="hs-identifier">Tile.Geometry</span></a></span><span>
-</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier">tileRanks</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier">tilePoints</span></a></span><span class="hs-special">,</span><span>
-</span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span>
-</span><span id="line-5"></span><span class="hs-keyword">where</span><span>
-</span><span id="line-6"></span><span>
-</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Affine.html"><span class="hs-identifier">Tile.Affine</span></a></span><span>
-</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Tile.html"><span class="hs-identifier">Tile.Tile</span></a></span><span>
-</span><span id="line-9"></span><span>
-</span><span id="line-10"></span><span class="annot"><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-type">tileRanks</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span>
-</span><span id="line-11"></span><span id="tileRanks"><span class="annot"><span class="annottext">tileRanks :: Tile -&gt; [Int]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-- Module      : Tile.Geometry</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- Description : Geometric queries over tiles.</span><span>
+</span><span id="line-4"></span><span class="hs-comment">--</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Geometry queries expose the ranks and logical coordinates covered</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- by a tile.</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Geometry.html"><span class="hs-identifier">Tile.Geometry</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Tile geometry</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier">tileRanks</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier">tilePoints</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Affine.html"><span class="hs-identifier">Tile.Affine</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Tile.html"><span class="hs-identifier">Tile.Tile</span></a></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="annot"><span class="hs-comment">-- | Enumerate the ranks covered by a tile.</span></span><span>
+</span><span id="line-18"></span><span class="annot"><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-type">tileRanks</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">]</span><span>
+</span><span id="line-19"></span><span id="tileRanks"><span class="annot"><span class="annottext">tileRanks :: Tile -&gt; [Int]
 </span><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-var hs-var">tileRanks</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AffineRankSpace -&gt; [Int]
 </span><a href="Tile.Affine.html#ranks"><span class="hs-identifier hs-var">ranks</span></a></span><span> </span><span class="annot"><span class="annottext">(AffineRankSpace -&gt; [Int])
 -&gt; (Tile -&gt; AffineRankSpace) -&gt; Tile -&gt; [Int]
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Tile -&gt; AffineRankSpace
 </span><a href="Tile.Tile.html#space"><span class="hs-identifier hs-var">space</span></a></span><span>
-</span><span id="line-12"></span><span>
-</span><span id="line-13"></span><span class="annot"><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier hs-type">tilePoints</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Affine.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-14"></span><span id="tilePoints"><span class="annot"><span class="annottext">tilePoints :: AffineRankSpace -&gt; Tile -&gt; [[Int]]
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="annot"><span class="hs-comment">-- | Enumerate the tile's points in a root coordinate space.</span></span><span>
+</span><span id="line-22"></span><span class="annot"><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier hs-type">tilePoints</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tile.Affine.html#AffineRankSpace"><span class="hs-identifier hs-type">AffineRankSpace</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Tile.html#Tile"><span class="hs-identifier hs-type">Tile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tile.Affine.html#Point"><span class="hs-identifier hs-type">Point</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-23"></span><span id="tilePoints"><span class="annot"><span class="annottext">tilePoints :: AffineRankSpace -&gt; Tile -&gt; [[Int]]
 </span><a href="Tile.Geometry.html#tilePoints"><span class="hs-identifier hs-var hs-var">tilePoints</span></a></span></span><span> </span><span id="local-6989586621679055875"><span class="annot"><span class="annottext">AffineRankSpace
 </span><a href="#local-6989586621679055875"><span class="hs-identifier hs-var">rootSpace</span></a></span></span><span> </span><span id="local-6989586621679055876"><span class="annot"><span class="annottext">Tile
 </span><a href="#local-6989586621679055876"><span class="hs-identifier hs-var">tile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; [Int]) -&gt; [Int] -&gt; [[Int]]
@@ -27,4 +36,4 @@ forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><a href="#local-6989586621679055875"><span class="hs-identifier hs-var">rootSpace</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Tile -&gt; [Int]
 </span><a href="Tile.Geometry.html#tileRanks"><span class="hs-identifier hs-var">tileRanks</span></a></span><span> </span><span class="annot"><span class="annottext">Tile
 </span><a href="#local-6989586621679055876"><span class="hs-identifier hs-var">tile</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-15"></span></pre></body></html>
+</span><span id="line-24"></span></pre></body></html>
