@@ -12,9 +12,20 @@ main = do
       tiling = BlockPartitioning
       bisection = Bisection
 
-      broadcast = buildSchedule BFS tiling members shape
-      bisectionBroadcast = buildSchedule BFS bisection members shape
-      converge = reverseSchedule broadcast
+      schedule = buildSchedule BFS tiling members shape
+      bisectionSchedule = buildSchedule BFS bisection members shape
+
+      values =
+        Map.fromList
+          [ ("A", 1),
+            ("B", 2),
+            ("C", 3),
+            ("D", 4),
+            ("E", 5),
+            ("F", 6),
+            ("G", 7),
+            ("H", 8)
+          ]
 
       full = rootTile shape
       occE = Occlusion (== "E")
@@ -36,8 +47,8 @@ main = do
       col0 = expectTile "column 0" (Tile <$> fixDim (space full) 1 0)
       middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
 
-      row0Broadcast = buildScheduleFrom BFS tiling members row0
-      col0Broadcast = buildScheduleFrom BFS tiling members col0
+      row0Schedule = buildScheduleFrom BFS tiling members row0
+      col0Schedule = buildScheduleFrom BFS tiling members col0
 
   putStrLn "decomposition tree:"
   putStr (renderDecompositionTree members (decompositionTree tiling full))
@@ -52,10 +63,10 @@ main = do
   putStr (renderSendTree members (sendTree bisection full))
 
   putStrLn "\nblock-partitioned broadcast schedule:"
-  print broadcast
+  print schedule
 
   putStrLn "\nbisection broadcast schedule:"
-  print bisectionBroadcast
+  print bisectionSchedule
 
   putStrLn "\nmiddle-columns tile ranks:"
   print (tileRanks middleColumns)
@@ -70,31 +81,31 @@ main = do
   putStr (renderSendTree members (sendTree tiling middleColumns))
 
   putStrLn "\nschedule tree:"
-  putStr (renderRoutedTree (scheduleTree "A" broadcast))
+  putStr (renderRoutedTree (scheduleTree "A" schedule))
 
   putStrLn "\nrow 0 ranks:"
   print (tileRanks row0)
   putStrLn "row 0 broadcast schedule:"
-  print row0Broadcast
+  print row0Schedule
 
   putStrLn "\ncolumn 0 ranks:"
   print (tileRanks col0)
   putStrLn "column 0 broadcast schedule:"
-  print col0Broadcast
+  print col0Schedule
 
   putStrLn "\nrunning row-0 broadcast from A:"
-  runBroadcastWithTrace (putStrLn . renderTrace) row0Broadcast "A" "hello"
+  runBroadcastWithTrace (putStrLn . renderTrace) row0Schedule "A" "hello"
 
   putStrLn "\nrunning column-0 broadcast from A:"
-  runBroadcastWithTrace (putStrLn . renderTrace) col0Broadcast "A" "hello"
+  runBroadcastWithTrace (putStrLn . renderTrace) col0Schedule "A" "hello"
 
   putStrLn "\nrunning full-mesh broadcast from A:"
-  runBroadcastWithTrace (putStrLn . renderTrace) broadcast "A" "hello"
+  runBroadcastWithTrace (putStrLn . renderTrace) schedule "A" "hello"
 
   putStrLn "\nrunning full-mesh scatter from A:"
   runScatterWithTrace
     (putStrLn . renderTrace)
-    broadcast
+    schedule
     [ ("A", "payload-a"),
       ("B", "payload-b"),
       ("C", "payload-c"),
@@ -134,28 +145,13 @@ main = do
   runBroadcastWithTrace (putStrLn . renderTrace) (routedSteps repairedFull) (ingress repairedFull) "hello"
 
   putStrLn "\nrunning full-mesh reduce:"
-  runReduceWithTrace
-    (putStrLn . renderTrace)
-    converge
-    ( Map.fromList
-        [ ("A", 1),
-          ("B", 2),
-          ("C", 3),
-          ("D", 4),
-          ("E", 5),
-          ("F", 6),
-          ("G", 7),
-          ("H", 8)
-        ]
-    )
-    (+)
-    "A"
+  runReduceWithTrace (putStrLn . renderTrace) schedule values (+) "A"
 
   putStrLn "\nrunning full-mesh gather:"
   _ <-
     runGatherWithTrace
       (putStrLn . renderTrace)
-      converge
+      schedule
       ( Map.fromList
           [ ("A", "value-a"),
             ("B", "value-b"),
@@ -168,7 +164,10 @@ main = do
           ]
       )
       "A"
-  pure ()
+
+  putStrLn "\nrunning full-mesh all-reduce:"
+  result <- runAllReduceWithTrace (putStrLn . renderTrace) schedule "A" values (+)
+  print result
 
 expectTile :: String -> Maybe Tile -> Tile
 expectTile _ (Just tile) = tile

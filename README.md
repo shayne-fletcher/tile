@@ -49,7 +49,10 @@ Its root is the offset. Its members are the ranks covered by the affine view.
 
 A `Tiling` decomposes a tile.
 
-`BlockPartitioning` exposes structural children through `childNodes`. `Tile.Tree.contractAnchors` derives the hop tree by contracting anchor edges.
+`BlockPartitioning` splits on one full dimension at a time. `Bisection` halves
+the first non-singleton dimension, producing a balanced binary tree. Both
+implement `Tiling`; `Tile.Tree.contractAnchors` derives the hop tree by
+contracting anchor edges.
 
 ## Tree
 
@@ -73,6 +76,7 @@ The same schedule algebra has two readings.
 - `scatterResult`
 - `gatherResult`
 - `reduceResult`
+- `allReduceResult`
 
 `Tile.Execution.Concurrent` gives a small actor-style interpreter:
 
@@ -80,8 +84,12 @@ The same schedule algebra has two readings.
 - `runScatter`
 - `runGather`
 - `runReduce`
+- `runAllReduce`
 
-The concurrent runners return observed results. The `run*WithTrace` variants expose structured message-flow events used by the demo.
+The concurrent runners return observed results. The `run*WithTrace` variants
+(`runBroadcastWithTrace`, `runReduceWithTrace`, `runGatherWithTrace`,
+`runScatterWithTrace`, `runAllReduceWithTrace`) expose structured message-flow
+events used by the demo.
 
 ## Notes
 

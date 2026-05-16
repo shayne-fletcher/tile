@@ -5,6 +5,17 @@
 -- A schedule is a list of directed send steps. This module defines
 -- the schedule representation and the primitive functions that turn
 -- tile relationships into member-to-member communication edges.
+--
+-- [Divergence schedule]
+--   Edges run from root toward leaves. This is the form produced by
+--   'Tile.Routing.buildSchedule' and accepted by every collective in
+--   "Tile.Execution" and "Tile.Execution.Concurrent".
+--
+-- [Convergence schedule]
+--   Edges run from leaves toward root. Obtained by applying
+--   'reverseSchedule' to a divergence schedule. Execution APIs derive
+--   convergence internally where needed; callers rarely need it
+--   directly.
 module Tile.Schedule
   ( -- * Schedule representation
     Step (..),
@@ -106,11 +117,13 @@ stepForOccluded occ members parent child =
               }
     _ -> Nothing
 
--- | Reverse the direction of one step.
+-- | Reverse the direction of one step, converting a divergence edge to
+-- a convergence edge or vice versa.
 reverseStep :: Step a -> Step a
 reverseStep Step {from = p, to = c} =
   Step {from = c, to = p}
 
--- | Reverse every step in a schedule.
+-- | Convert a divergence schedule to a convergence schedule, or vice
+-- versa, by reversing every step.
 reverseSchedule :: Schedule a -> Schedule a
 reverseSchedule = map reverseStep

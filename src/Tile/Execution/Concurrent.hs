@@ -2,11 +2,21 @@
 -- Module      : Tile.Execution.Concurrent
 -- Description : Actor-style concurrent interpreter for schedules.
 --
--- These functions interpret schedules using lightweight Haskell
--- concurrency through channels and forked threads. The @run*@ forms
--- return the observed result without tracing; the @run*WithTrace@
--- forms also report structured trace events. Their correctness
--- contract is stated by the pure functions in "Tile.Execution".
+-- These functions interpret divergence schedules using lightweight
+-- Haskell concurrency through channels and forked threads. A divergence
+-- schedule has edges directed from root toward leaves; it is the form
+-- produced by 'Tile.Routing.buildSchedule'. Collectives that require
+-- leaf-to-root message flow (reduce, gather) derive the convergence
+-- schedule internally.
+--
+-- The @run*@ forms return the observed result without tracing; the
+-- @run*WithTrace@ forms also report structured 'Trace' events. Their
+-- correctness contract is stated by the pure functions in
+-- "Tile.Execution".
+--
+-- Precondition shared by all functions: the schedule must be rooted at
+-- the supplied @root@. Passing a disconnected schedule may leave worker
+-- threads waiting for messages that never arrive.
 module Tile.Execution.Concurrent
   ( Trace (..),
     runBroadcast,
@@ -17,6 +27,8 @@ module Tile.Execution.Concurrent
     runReduceWithTrace,
     runScatter,
     runScatterWithTrace,
+    runAllReduce,
+    runAllReduceWithTrace,
   )
 where
 
@@ -34,7 +46,7 @@ data Trace m msg
   | Completed m msg
   deriving (Show, Eq)
 
--- | Run a broadcast schedule without tracing.
+-- | Run a broadcast divergence schedule without tracing.
 runBroadcast ::
   (Ord m) =>
   Schedule m ->
@@ -44,7 +56,9 @@ runBroadcast ::
 runBroadcast =
   runBroadcastWithTrace (const (pure ()))
 
--- | Run a broadcast schedule, reporting each observed action.
+-- | Run a broadcast divergence schedule, reporting each observed action.
+--
+-- Precondition: the schedule is rooted at @root@.
 runBroadcastWithTrace ::
   (Ord m) =>
   (Trace m p -> IO ()) ->
@@ -88,9 +102,12 @@ incomingCounts =
     (\Step {to = c} m -> Map.insertWith (+) c 1 m)
     Map.empty
 
--- | Run a reduce schedule without tracing.
+-- | Run a reduce divergence schedule without tracing.
 --
--- Leaf values flow toward the root and are combined at each node.
+-- Takes a divergence schedule. Leaf values flow toward the root and
+-- are combined at each node in tree order, matching the fold order of
+-- the pure 'Tile.Execution.reduceResult'. The combine function need
+-- not be commutative.
 runReduce ::
   (Ord m) =>
   Schedule m ->
@@ -101,7 +118,15 @@ runReduce ::
 runReduce =
   runReduceWithTrace (const (pure ()))
 
--- | Run a reduce schedule, reporting each observed action.
+-- | Run a reduce divergence schedule, reporting each observed action.
+--
+-- Children are folded in the same order as the pure
+-- 'Tile.Execution.reduceResult': left-to-right over the divergence
+-- tree. Each directed edge gets a dedicated channel, so arrival order
+-- does not affect the result.
+--
+-- Precondition: the schedule is rooted at @root@. The value map must
+-- contain every member reachable from @root@.
 runReduceWithTrace ::
   (Ord m) =>
   (Trace m v -> IO ()) ->
@@ -111,47 +136,44 @@ runReduceWithTrace ::
   m ->
   IO v
 runReduceWithTrace trace schedule initialValues combine root = do
-  let graph = adjacencyList schedule
-      incoming = incomingCounts schedule
+  let childrenOf = adjacencyList schedule
+      parentOf = Map.fromList [(child, parent) | Step {from = parent, to = child} <- schedule]
       members =
         Set.toList $
           Set.fromList $
-            root : Map.keys graph ++ concat (Map.elems graph) ++ Map.keys initialValues
+            root : Map.keys childrenOf ++ concat (Map.elems childrenOf)
 
-  chanPairs <- forM members $ \m -> do
+  -- One dedicated channel per directed edge (child → parent).
+  edgeChans <- fmap Map.fromList $ forM schedule $ \Step {from = parent, to = child} -> do
     ch <- newChan
-    pure (m, ch)
+    pure ((child, parent), ch)
 
-  let chanMap = Map.fromList chanPairs
   result <- newEmptyMVar
 
   forM_ members $ \m -> do
-    let inbox = chanMap Map.! m
-        children = Map.findWithDefault [] m graph
-        childChans = [(c, chanMap Map.! c) | c <- children]
-        expected = Map.findWithDefault 0 m incoming
+    let myChildren = Map.findWithDefault [] m childrenOf
         localValue = initialValues Map.! m
 
     _ <- forkIO $ do
-      received <- replicateM expected (readChan inbox)
-      forM_ received $ \value ->
-        trace (Received m value)
-      let total = foldl' combine localValue received
-      if m == root
-        then do
+      childValues <- forM myChildren $ \child ->
+        readChan (edgeChans Map.! (child, m))
+      forM_ childValues $ \v -> trace (Received m v)
+      let total = foldl' combine localValue childValues
+      case Map.lookup m parentOf of
+        Nothing -> do
           trace (Completed m total)
           putMVar result total
-        else forM_ childChans $ \(childName, childInbox) -> do
-          trace (Sent m childName total)
-          writeChan childInbox total
+        Just parent -> do
+          trace (Sent m parent total)
+          writeChan (edgeChans Map.! (m, parent)) total
     pure ()
 
   takeMVar result
 
--- | Run a gather schedule without tracing.
+-- | Run a gather divergence schedule without tracing.
 --
--- Each member contributes one value; values flow toward the root as
--- lists of member-value pairs.
+-- Takes a divergence schedule. Values are collected in preorder over
+-- the divergence tree, matching the pure 'Tile.Execution.gatherResult'.
 runGather ::
   (Ord m) =>
   Schedule m ->
@@ -161,7 +183,15 @@ runGather ::
 runGather =
   runGatherWithTrace (const (pure ()))
 
--- | Run a gather schedule, reporting each observed action.
+-- | Run a gather divergence schedule, reporting each observed action.
+--
+-- Values are accumulated in preorder over the divergence tree: each
+-- node prepends its own value before appending children in tree order,
+-- matching 'Tile.Execution.gatherResult'. Each directed edge gets a
+-- dedicated channel so arrival order does not affect the result.
+--
+-- Precondition: the schedule is rooted at @root@. The value map must
+-- contain every member reachable from @root@.
 runGatherWithTrace ::
   (Ord m) =>
   (Trace m [(m, a)] -> IO ()) ->
@@ -170,44 +200,42 @@ runGatherWithTrace ::
   m ->
   IO [(m, a)]
 runGatherWithTrace trace schedule initialValues root = do
-  let graph = adjacencyList schedule
-      incoming = incomingCounts schedule
+  let childrenOf = adjacencyList schedule
+      parentOf = Map.fromList [(child, parent) | Step {from = parent, to = child} <- schedule]
       members =
         Set.toList $
           Set.fromList $
-            root : Map.keys graph ++ concat (Map.elems graph) ++ Map.keys initialValues
+            root : Map.keys childrenOf ++ concat (Map.elems childrenOf)
 
-  chanPairs <- forM members $ \m -> do
+  edgeChans <- fmap Map.fromList $ forM schedule $ \Step {from = parent, to = child} -> do
     ch <- newChan
-    pure (m, ch)
+    pure ((child, parent), ch)
 
-  let chanMap = Map.fromList chanPairs
   result <- newEmptyMVar
 
   forM_ members $ \m -> do
-    let inbox = chanMap Map.! m
-        children = Map.findWithDefault [] m graph
-        childChans = [(c, chanMap Map.! c) | c <- children]
-        expected = Map.findWithDefault 0 m incoming
+    let myChildren = Map.findWithDefault [] m childrenOf
         localValue = [(m, initialValues Map.! m)]
 
     _ <- forkIO $ do
-      received <- concat <$> replicateM expected (readChan inbox)
-      unless (null received) $
-        trace (Received m received)
-      let gathered = localValue ++ received
-      if m == root
-        then do
+      childLists <- forM myChildren $ \child ->
+        readChan (edgeChans Map.! (child, m))
+      let allReceived = concat childLists
+      unless (null allReceived) $
+        trace (Received m allReceived)
+      let gathered = localValue ++ allReceived
+      case Map.lookup m parentOf of
+        Nothing -> do
           trace (Completed m gathered)
           putMVar result gathered
-        else forM_ childChans $ \(childName, childInbox) -> do
-          trace (Sent m childName gathered)
-          writeChan childInbox gathered
+        Just parent -> do
+          trace (Sent m parent gathered)
+          writeChan (edgeChans Map.! (m, parent)) gathered
     pure ()
 
   takeMVar result
 
--- | Run a scatter schedule without tracing.
+-- | Run a scatter divergence schedule without tracing.
 --
 -- The root starts with a value for each destination. At each hop, the
 -- payload is partitioned by the routed subtree below each child.
@@ -220,7 +248,9 @@ runScatter ::
 runScatter =
   runScatterWithTrace (const (pure ()))
 
--- | Run a scatter schedule, reporting each observed action.
+-- | Run a scatter divergence schedule, reporting each observed action.
+--
+-- Precondition: the schedule is rooted at @root@.
 runScatterWithTrace ::
   (Ord m) =>
   (Trace m [(m, a)] -> IO ()) ->
@@ -280,3 +310,39 @@ runScatterWithTrace trace schedule initialValues root = do
 
   writeChan (chanMap Map.! root) (Map.toList payloadMap)
   Map.fromList <$> replicateM (Map.size reachablePayloads) (readChan resultChan)
+
+-- | Run an all-reduce divergence schedule without tracing.
+--
+-- Takes a divergence schedule. Every member ends with the value
+-- obtained by combining all member values with @combine@. Runs the
+-- reduce phase to completion before starting the broadcast phase.
+runAllReduce ::
+  (Ord m) =>
+  Schedule m ->
+  m ->
+  Map.Map m v ->
+  (v -> v -> v) ->
+  IO (Map.Map m v)
+runAllReduce =
+  runAllReduceWithTrace (const (pure ()))
+
+-- | Run an all-reduce divergence schedule, reporting each observed
+-- action.
+--
+-- Both the reduce phase and the broadcast phase emit 'Trace' events
+-- through the same @tracer@. The reduce phase completes fully before
+-- the broadcast phase begins.
+--
+-- Precondition: the schedule is rooted at @root@. The value map must
+-- contain every member reachable from @root@.
+runAllReduceWithTrace ::
+  (Ord m) =>
+  (Trace m v -> IO ()) ->
+  Schedule m ->
+  m ->
+  Map.Map m v ->
+  (v -> v -> v) ->
+  IO (Map.Map m v)
+runAllReduceWithTrace tracer schedule root values combine = do
+  combined <- runReduceWithTrace tracer schedule values combine root
+  runBroadcastWithTrace tracer schedule root combined
