@@ -2,9 +2,21 @@
 -- Module      : Tile.Affine
 -- Description : Affine rank spaces and slicing.
 --
--- An affine rank space maps logical coordinates to ranks using an
--- offset and per-dimension strides. Slicing operations preserve the
--- affine representation.
+-- An 'AffineRankSpace' maps logical coordinates to integer ranks via
+-- an offset and per-dimension strides. The type is general: any
+-- combination of offset, sizes, and strides is representable.
+--
+-- Functions divide into two classes:
+--
+-- [Unconditional]
+--   'rankOf' and 'rankOfMaybe' compute
+--   @offset + sum (zipWith (*) coord strides)@ for any strides.
+--
+-- [Row-major invariant required]
+--   'pointOf' and 'pointOfMaybe' recover coordinates by mixed-radix
+--   division and require @strides[k] = product(sizes[k+1..])@ at
+--   every level. 'rowMajor' establishes this invariant; 'select' and
+--   'fixDim' preserve it.
 module Tile.Affine
   ( -- * Affine rank spaces
     AffineRankSpace (..),
@@ -19,6 +31,7 @@ module Tile.Affine
 
     -- * Queries
     spaceExtent,
+    points,
     ranks,
 
     -- * Slicing
@@ -50,7 +63,11 @@ data AffineRankSpace = AffineRankSpace
 -- | A logical coordinate in an affine rank space.
 type Point = [Int]
 
--- | Construct the default row-major affine rank space for a shape.
+-- | Construct the row-major affine rank space for a shape.
+--
+-- Strides satisfy @strides[k] = product(sizes[k+1..])@, which is the
+-- row-major invariant required by 'pointOf' and 'pointOfMaybe'.
+-- 'select' and 'fixDim' preserve this invariant.
 rowMajor :: Shape -> AffineRankSpace
 rowMajor shape =
   AffineRankSpace
@@ -61,8 +78,9 @@ rowMajor shape =
 
 -- | Convert a coordinate to a rank.
 --
--- Throws an error if the coordinate has the wrong dimension or is out
--- of bounds. Use 'rankOfMaybe' for a total variant.
+-- Unconditional: works for any 'AffineRankSpace'. Throws an error if
+-- the coordinate has the wrong dimension or is out of bounds. Use
+-- 'rankOfMaybe' for a total variant.
 rankOf :: AffineRankSpace -> Point -> Int
 rankOf space coord =
   case rankOfMaybe space coord of
@@ -71,6 +89,8 @@ rankOf space coord =
 
 -- | Convert a coordinate to a rank, returning 'Nothing' for invalid
 -- coordinates.
+--
+-- Unconditional: works for any 'AffineRankSpace'.
 rankOfMaybe :: AffineRankSpace -> Point -> Maybe Int
 rankOfMaybe space coord
   | length coord == length (strides space) && and (zipWith inBounds coord (sizes space)) =
@@ -80,6 +100,12 @@ rankOfMaybe space coord
     inBounds coordinate size = coordinate >= 0 && coordinate < size
 
 -- | Convert a rank to a coordinate.
+--
+-- Precondition: strides must satisfy the row-major invariant
+-- (@strides[k] = sizes[k+1] * strides[k+1]@). All spaces produced by
+-- 'rowMajor', 'select', and 'fixDim' satisfy this. A hand-constructed
+-- 'AffineRankSpace' with arbitrary strides may produce wrong
+-- coordinates without error.
 --
 -- Throws an error if the rank is outside the affine rank space. Use
 -- 'pointOfMaybe' for a total variant.
@@ -91,6 +117,9 @@ pointOf space rank =
 
 -- | Convert a rank to a coordinate, returning 'Nothing' for ranks
 -- outside the affine rank space.
+--
+-- Precondition: strides must satisfy the row-major invariant
+-- (@strides[k] = sizes[k+1] * strides[k+1]@). See 'pointOf'.
 pointOfMaybe :: AffineRankSpace -> Int -> Maybe Point
 pointOfMaybe space rank
   | rank `elem` ranks space =
@@ -107,10 +136,24 @@ spaceExtent :: AffineRankSpace -> Int
 spaceExtent space =
   product (sizes space)
 
+-- | Enumerate all logical coordinates for a shape.
+--
+-- Coordinates are scanned in row-major order: the last dimension varies
+-- fastest. This is the coordinate grid used by 'ranks'.
+points :: Shape -> [Point]
+points [] = [[]]
+points (n : ns) =
+  [ i : rest
+  | i <- [0 .. n - 1],
+    rest <- points ns
+  ]
+
 -- | Select a strided interval along one dimension.
 --
 -- The selected dimension remains present with a reduced extent.
--- Returns 'Nothing' for an invalid dimension, interval, or step.
+-- Preserves the row-major stride invariant, so the result is safe to
+-- pass to 'pointOf'. Returns 'Nothing' for an invalid dimension,
+-- interval, or step.
 select :: AffineRankSpace -> Int -> Int -> Int -> Int -> Maybe AffineRankSpace
 select space dim begin end step = do
   let shp = sizes space
@@ -142,17 +185,14 @@ select space dim begin end step = do
 
 -- | Select one index along a dimension.
 --
--- The fixed dimension remains present with extent @1@.
+-- The fixed dimension remains present with extent @1@. Preserves the
+-- row-major stride invariant via 'select'.
 fixDim :: AffineRankSpace -> Int -> Int -> Maybe AffineRankSpace
 fixDim space dim i = select space dim i (i + 1) 1
 
 -- | Enumerate all ranks in logical coordinate order.
+--
+-- Unconditional: works for any 'AffineRankSpace'. Ranks are ordered
+-- by the row-major scan of the coordinate grid via 'points'.
 ranks :: AffineRankSpace -> [Int]
 ranks space = map (rankOf space) (points (sizes space))
-  where
-    points [] = [[]]
-    points (n : ns) =
-      [ i : rest
-      | i <- [0 .. n - 1],
-        rest <- points ns
-      ]

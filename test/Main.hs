@@ -62,6 +62,7 @@ theoremTests =
   testGroup
     "theorems"
     [ testProperty "T1 affine rank/point roundtrip" propAffineRoundtrip,
+      testProperty "points enumerate the shape extent" propPointsEnumerateShape,
       testProperty "T2 ranks enumerate the affine space exactly once" propRanksEnumerateSpace,
       testProperty "T3 affine slicing is closed and included in its parent" propAffineSliceIncluded,
       testProperty "T4 structural and communication children are included in their parent" propChildrenIncluded,
@@ -77,6 +78,22 @@ propAffineRoundtrip =
           [ rankOf rankSpace (pointOf rankSpace rank) === rank
           | rank <- ranks rankSpace
           ]
+
+propPointsEnumerateShape :: Property
+propPointsEnumerateShape =
+  forAll genShape $ \shape ->
+    conjoin
+      [ length (points shape) === size shape,
+        all (pointInShape shape) (points shape) === True
+      ]
+
+pointInShape :: Shape -> Point -> Bool
+pointInShape shape point =
+  length shape == length point
+    && and (zipWith inBounds point shape)
+  where
+    inBounds coordinate extent =
+      coordinate >= 0 && coordinate < extent
 
 propRanksEnumerateSpace :: Property
 propRanksEnumerateSpace =
@@ -619,7 +636,7 @@ affineTests =
         pointOfMaybe space 6 @?= Nothing,
       testCase "rowMajor 2x2x2 roundtrip points" $ do
         let space = rowMajor [2, 2, 2]
-            points =
+            expectedPoints =
               [ [0, 0, 0],
                 [0, 0, 1],
                 [0, 1, 0],
@@ -629,7 +646,7 @@ affineTests =
                 [1, 1, 0],
                 [1, 1, 1]
               ]
-        [pointOf space (rankOf space p) | p <- points] @?= points
+        [pointOf space (rankOf space p) | p <- expectedPoints] @?= expectedPoints
     ]
 
 {-
