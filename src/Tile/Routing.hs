@@ -1,5 +1,15 @@
+-- |
+-- Module      : Tile.Routing
+-- Description : Routing schedules from tile trees.
+--
+-- Routing turns a tiling-derived send tree into an ordered schedule.
+-- The traversal policy determines the order in which tree edges are
+-- emitted as communication steps.
 module Tile.Routing
-  ( Traversal (..),
+  ( -- * Traversal policies
+    Traversal (..),
+
+    -- * Schedule construction
     buildScheduleFrom,
     buildSchedule,
     buildOccludedScheduleFrom,
@@ -12,9 +22,14 @@ import Tile.Tile
 import Tile.Tiling
 import Tile.Tree
 
+-- | Tree traversal order used when emitting schedule steps.
 data Traversal = DFS | BFS
   deriving (Show, Eq)
 
+-- | Build a fault-free schedule from an explicit start tile.
+--
+-- The tiling determines the send tree. The traversal determines the
+-- order in which parent-child edges become 'Step's.
 buildScheduleFrom :: (Tiling t) => Traversal -> t -> [a] -> Tile -> Schedule a
 buildScheduleFrom traversal tiling members startTile =
   let SendTree tree = sendTree tiling startTile
@@ -22,10 +37,15 @@ buildScheduleFrom traversal tiling members startTile =
         DFS -> dfsFaultFree members tree
         BFS -> bfsFaultFree members [tree]
 
+-- | Build a fault-free schedule from a root row-major shape.
 buildSchedule :: (Tiling t) => Traversal -> t -> [a] -> Shape -> Schedule a
 buildSchedule traversal tiling members shp =
   buildScheduleFrom traversal tiling members (rootTile shp)
 
+-- | Build a schedule while avoiding occluded members.
+--
+-- Subtrees with no live representative are pruned. Surviving tile
+-- edges are routed through their live representatives.
 buildOccludedScheduleFrom ::
   (Tiling t, Eq a) =>
   Traversal ->

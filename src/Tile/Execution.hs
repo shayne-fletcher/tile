@@ -1,5 +1,12 @@
+-- |
+-- Module      : Tile.Execution
+-- Description : Concurrent execution of schedules.
+--
+-- These functions interpret schedules using lightweight concurrent
+-- Haskell channels and print the resulting message flow.
 module Tile.Execution
-  ( runBroadcast,
+  ( -- * Executors
+    runBroadcast,
     runGather,
     runReduce,
     runScatter,
@@ -13,6 +20,7 @@ import Data.Set qualified as Set
 import Tile.Schedule
 import Tile.Tree (RoutedTree (..), scheduleTree, treeIndex, treeLabels)
 
+-- | Run a broadcast schedule with the fixed message @"hello"@.
 runBroadcast :: Schedule String -> String -> IO ()
 runBroadcast schedule root = do
   let graph = adjacencyList schedule
@@ -47,6 +55,9 @@ incomingCounts =
     (\Step {to = c} m -> Map.insertWith (+) c 1 m)
     Map.empty
 
+-- | Run a reduce schedule.
+--
+-- Leaf values flow toward the root and are combined at each node.
 runReduce ::
   Schedule String ->
   [(String, Int)] ->
@@ -91,6 +102,10 @@ runReduce schedule initialValues combine root = do
 
   threadDelay 1000000
 
+-- | Run a gather schedule.
+--
+-- Each member contributes one value; values flow toward the root as
+-- lists of member-value pairs.
 runGather ::
   (Show a) =>
   Schedule String ->
@@ -135,6 +150,10 @@ runGather schedule initialValues root = do
 
   threadDelay 1000000
 
+-- | Run a scatter schedule.
+--
+-- The root starts with a value for each destination. At each hop, the
+-- payload is partitioned by the routed subtree below each child.
 runScatter ::
   (Show a) =>
   Schedule String ->

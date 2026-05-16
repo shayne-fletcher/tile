@@ -1,3 +1,10 @@
+-- |
+-- Module      : Tile
+-- Description : Affine tiling for structured communication.
+--
+-- This umbrella module re-exports the public API for affine rank
+-- spaces, tiles, tilings, tree views, schedules, routing, and
+-- execution demos.
 module Tile
   ( module Tile.Shape,
     module Tile.Tile,

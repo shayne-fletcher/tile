@@ -1,11 +1,22 @@
+-- |
+-- Module      : Tile.Neighborhood
+-- Description : Grid neighbors in affine rank spaces.
+--
+-- Neighborhood queries use the logical coordinates of an affine rank
+-- space, then map neighboring coordinates back to ranks.
 module Tile.Neighborhood
-  ( neighbors,
+  ( -- * Neighbors
+    neighbors,
   )
 where
 
 import Tile.Affine
 import Tile.Shape
 
+-- | Ranks adjacent to a rank along each logical dimension.
+--
+-- For each dimension, this returns the valid predecessor and successor
+-- ranks when they lie inside the affine rank space.
 neighbors :: AffineRankSpace -> Int -> [Int]
 neighbors rankSpace rank =
   let point = pointOf rankSpace rank
