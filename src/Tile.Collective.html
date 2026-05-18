@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- Module      : Tile.Collective</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- Description : First-class denotable collective operations.</span><span>
+</span><span id="line-6"></span><span class="hs-comment">--</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- This module lifts each collective operation into a value of type</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- 'Collective' @m a b@, where @m@ is the member type, @a@ is the</span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- element type, and @b@ is the result type.</span><span>
+</span><span id="line-10"></span><span class="hs-comment">--</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- == Input and output shapes</span><span>
+</span><span id="line-12"></span><span class="hs-comment">--</span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- +-------------+----------------------+--------------------+</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | Operation   | Input                | Output (@b@)       |</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- +=============+======================+====================+</span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | 'Broadcast' | one value (@a@)      | @Map m a@          |</span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- | 'Scatter'   | @Map m a@            | @Map m a@          |</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- | 'Gather'    | @Map m a@            | @[(m, a)]@         |</span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- | 'Reduce'    | @Map m a@, @a-&gt;a-&gt;a@ | @a@                |</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- | 'AllReduce' | @Map m a@, @a-&gt;a-&gt;a@ | @Map m a@          |</span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- +-------------+----------------------+--------------------+</span><span>
+</span><span id="line-22"></span><span class="hs-comment">--</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- == Orientation duality</span><span>
+</span><span id="line-24"></span><span class="hs-comment">--</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- 'Broadcast' and 'Reduce' use opposite orientations of the same</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- routing tree. 'Scatter' and 'Gather' do the same for</span><span>
+</span><span id="line-27"></span><span class="hs-comment">-- destination-indexed payloads.</span><span>
+</span><span id="line-28"></span><span class="hs-comment">--</span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- == Compositional law</span><span>
+</span><span id="line-30"></span><span class="hs-comment">--</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- 'AllReduce' decomposes as 'Reduce' followed by 'Broadcast':</span><span>
+</span><span id="line-32"></span><span class="hs-comment">--</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- interpret s r (AllReduce vals f)</span><span>
+</span><span id="line-35"></span><span class="hs-comment">--   == interpret s r (Broadcast (interpret s r (Reduce vals f)))</span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-37"></span><span class="hs-comment">--</span><span>
+</span><span id="line-38"></span><span class="hs-comment">-- This identity is stated as a machine-checked property (T15).</span><span>
+</span><span id="line-39"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tile.Collective.html"><span class="hs-identifier">Tile.Collective</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Collective type</span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier">Collective</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Interpreters</span></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="Tile.Collective.html#interpret"><span class="hs-identifier">interpret</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="Tile.Collective.html#runCollective"><span class="hs-identifier">runCollective</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map.Strict</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Map</span></span><span>
+</span><span id="line-50"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Execution.html"><span class="hs-identifier">Tile.Execution</span></a></span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Execution.html#allReduceResult"><span class="hs-identifier">allReduceResult</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="Tile.Execution.html#broadcastResult"><span class="hs-identifier">broadcastResult</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><a href="Tile.Execution.html#gatherResult"><span class="hs-identifier">gatherResult</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><a href="Tile.Execution.html#reduceResult"><span class="hs-identifier">reduceResult</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><a href="Tile.Execution.html#scatterResult"><span class="hs-identifier">scatterResult</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Execution.Concurrent.html"><span class="hs-identifier">Tile.Execution.Concurrent</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tile.Execution.Concurrent.html#runAllReduce"><span class="hs-identifier">runAllReduce</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><a href="Tile.Execution.Concurrent.html#runBroadcast"><span class="hs-identifier">runBroadcast</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><a href="Tile.Execution.Concurrent.html#runGather"><span class="hs-identifier">runGather</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><a href="Tile.Execution.Concurrent.html#runReduce"><span class="hs-identifier">runReduce</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><a href="Tile.Execution.Concurrent.html#runScatter"><span class="hs-identifier">runScatter</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Tile.Schedule.html"><span class="hs-identifier">Tile.Schedule</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tile.Schedule.html#Schedule"><span class="hs-identifier">Schedule</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="hs-comment">-- | A collective operation over members of type @m@, element type</span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- @a@, and result type @b@.</span><span>
+</span><span id="line-68"></span><span class="hs-comment">--</span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- Constructors embed all inputs except the schedule and root member,</span><span>
+</span><span id="line-70"></span><span class="hs-comment">-- which are supplied by 'interpret' and 'runCollective'.</span><span>
+</span><span id="line-71"></span><span class="hs-keyword">data</span><span> </span><span id="Collective"><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-var">Collective</span></a></span></span><span> </span><span id="local-6989586621679059564"><span class="annot"><a href="#local-6989586621679059564"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621679059565"><span class="annot"><a href="#local-6989586621679059565"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621679059566"><span class="annot"><a href="#local-6989586621679059566"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-72"></span><span>  </span><span class="annot"><span class="hs-comment">-- | Deliver one value to every reachable member.</span></span><span>
+</span><span id="line-73"></span><span>  </span><span id="local-6989586621679059567"><span id="local-6989586621679059568"><span id="Broadcast"><span class="annot"><a href="Tile.Collective.html#Broadcast"><span class="hs-identifier hs-var">Broadcast</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679059567"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059568"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059567"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059568"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059567"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-74"></span><span>  </span><span class="hs-comment">-- | Deliver a per-member payload from the root. The map is</span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-comment">-- destination-indexed; duplicate destinations cannot be</span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-comment">-- represented, which matches scatter's semantics.</span><span>
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621679059569"><span id="local-6989586621679059570"><span id="Scatter"><span class="annot"><a href="Tile.Collective.html#Scatter"><span class="hs-identifier hs-var">Scatter</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059569"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059570"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059569"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059570"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059569"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059570"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-comment">-- | Collect every member's value at the root as a list, in</span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-comment">-- preorder over the routing tree.</span><span>
+</span><span id="line-80"></span><span>  </span><span id="local-6989586621679059571"><span id="local-6989586621679059572"><span id="Gather"><span class="annot"><a href="Tile.Collective.html#Gather"><span class="hs-identifier hs-var">Gather</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059571"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059572"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059571"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059572"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679059571"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679059572"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span></span></span><span>
+</span><span id="line-81"></span><span>  </span><span class="hs-comment">-- | Combine all member values into one at the root. The combine</span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-comment">-- function is applied in tree order, left-to-right.</span><span>
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679059573"><span id="local-6989586621679059574"><span id="Reduce"><span class="annot"><a href="Tile.Collective.html#Reduce"><span class="hs-identifier hs-var">Reduce</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059573"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059574"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679059574"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059574"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059574"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059573"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059574"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059574"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-comment">-- | Combine all member values and deliver the result to every</span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-comment">-- member. Precondition: the value map must contain every member</span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-comment">-- reachable from the root.</span><span>
+</span><span id="line-87"></span><span>  </span><span id="local-6989586621679059575"><span id="local-6989586621679059576"><span id="AllReduce"><span class="annot"><a href="Tile.Collective.html#AllReduce"><span class="hs-identifier hs-var">AllReduce</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059575"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059576"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679059576"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059576"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059576"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059575"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059576"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><a href="#local-6989586621679059575"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059576"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-88"></span><span>
+</span><span id="line-89"></span><span class="hs-comment">-- | Interpret a collective purely, delegating to 'Tile.Execution'.</span><span>
+</span><span id="line-90"></span><span class="hs-comment">--</span><span>
+</span><span id="line-91"></span><span class="hs-comment">-- Precondition: the schedule is rooted at @root@.</span><span>
+</span><span id="line-92"></span><span id="local-6989586621679059510"><span id="local-6989586621679059512"><span id="local-6989586621679059513"><span class="annot"><a href="Tile.Collective.html#interpret"><span class="hs-identifier hs-type">interpret</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621679059510"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Schedule"><span class="hs-identifier hs-type">Schedule</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059510"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059510"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059510"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059512"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059513"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059513"><span class="hs-identifier hs-type">b</span></a></span></span></span></span><span>
+</span><span id="line-93"></span><span id="interpret"><span class="annot"><span class="annottext">interpret :: forall m a b. Ord m =&gt; Schedule m -&gt; m -&gt; Collective m a b -&gt; b
+</span><a href="Tile.Collective.html#interpret"><span class="hs-identifier hs-var hs-var">interpret</span></a></span></span><span> </span><span id="local-6989586621679059578"><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059578"><span class="hs-identifier hs-var">schedule</span></a></span></span><span> </span><span id="local-6989586621679059579"><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059579"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span id="local-6989586621679059580"><span class="annot"><span class="annottext">Collective m a b
+</span><a href="#local-6989586621679059580"><span class="hs-identifier hs-var">collective</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Collective m a b
+</span><a href="#local-6989586621679059580"><span class="hs-identifier hs-var">collective</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-94"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Broadcast"><span class="hs-identifier hs-type">Broadcast</span></a></span><span> </span><span id="local-6989586621679059583"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679059583"><span class="hs-identifier hs-var">payload</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-95"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; a -&gt; Map m a
+forall m p. Ord m =&gt; Schedule m -&gt; m -&gt; p -&gt; Map m p
+</span><a href="Tile.Execution.html#broadcastResult"><span class="hs-identifier hs-var">broadcastResult</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059578"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059579"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679059583"><span class="hs-identifier hs-var">payload</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Scatter"><span class="hs-identifier hs-type">Scatter</span></a></span><span> </span><span id="local-6989586621679059586"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059586"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-97"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; [(m, a)] -&gt; Map m a
+forall m p. Ord m =&gt; Schedule m -&gt; m -&gt; [(m, p)] -&gt; Map m p
+</span><a href="Tile.Execution.html#scatterResult"><span class="hs-identifier hs-var">scatterResult</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059578"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059579"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map m a -&gt; [(m, a)]
+forall k a. Map k a -&gt; [(k, a)]
+</span><span class="hs-identifier hs-var">Map.toList</span></span><span> </span><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059586"><span class="hs-identifier hs-var">vals</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-98"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Gather"><span class="hs-identifier hs-type">Gather</span></a></span><span> </span><span id="local-6989586621679059590"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059590"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-99"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; Map m a -&gt; [(m, a)]
+forall m v. Ord m =&gt; Schedule m -&gt; m -&gt; Map m v -&gt; [(m, v)]
+</span><a href="Tile.Execution.html#gatherResult"><span class="hs-identifier hs-var">gatherResult</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059578"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059579"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059590"><span class="hs-identifier hs-var">vals</span></a></span><span>
+</span><span id="line-100"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Reduce"><span class="hs-identifier hs-type">Reduce</span></a></span><span> </span><span id="local-6989586621679059593"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059593"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span id="local-6989586621679059594"><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679059594"><span class="hs-identifier hs-var">combine</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-101"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; Map m b -&gt; (b -&gt; b -&gt; b) -&gt; b
+forall m v.
+Ord m =&gt;
+Schedule m -&gt; m -&gt; Map m v -&gt; (v -&gt; v -&gt; v) -&gt; v
+</span><a href="Tile.Execution.html#reduceResult"><span class="hs-identifier hs-var">reduceResult</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059578"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059579"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Map m a
+Map m b
+</span><a href="#local-6989586621679059593"><span class="hs-identifier hs-var">vals</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+b -&gt; b -&gt; b
+</span><a href="#local-6989586621679059594"><span class="hs-identifier hs-var">combine</span></a></span><span>
+</span><span id="line-102"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#AllReduce"><span class="hs-identifier hs-type">AllReduce</span></a></span><span> </span><span id="local-6989586621679059597"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059597"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span id="local-6989586621679059598"><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679059598"><span class="hs-identifier hs-var">combine</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-103"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; Map m a -&gt; (a -&gt; a -&gt; a) -&gt; Map m a
+forall m v.
+Ord m =&gt;
+Schedule m -&gt; m -&gt; Map m v -&gt; (v -&gt; v -&gt; v) -&gt; Map m v
+</span><a href="Tile.Execution.html#allReduceResult"><span class="hs-identifier hs-var">allReduceResult</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059578"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059579"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059597"><span class="hs-identifier hs-var">vals</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679059598"><span class="hs-identifier hs-var">combine</span></a></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span class="hs-comment">-- | Run a collective concurrently, delegating to</span><span>
+</span><span id="line-106"></span><span class="hs-comment">-- 'Tile.Execution.Concurrent'.</span><span>
+</span><span id="line-107"></span><span class="hs-comment">--</span><span>
+</span><span id="line-108"></span><span class="hs-comment">-- Presents a uniform @(schedule, root, collective)@ argument order,</span><span>
+</span><span id="line-109"></span><span class="hs-comment">-- hiding the positional inconsistencies in the underlying @run*@</span><span>
+</span><span id="line-110"></span><span class="hs-comment">-- functions.</span><span>
+</span><span id="line-111"></span><span class="hs-comment">--</span><span>
+</span><span id="line-112"></span><span class="hs-comment">-- Precondition: the schedule is rooted at @root@.</span><span>
+</span><span id="line-113"></span><span id="local-6989586621679059531"><span id="local-6989586621679059532"><span id="local-6989586621679059533"><span class="annot"><a href="Tile.Collective.html#runCollective"><span class="hs-identifier hs-type">runCollective</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="#local-6989586621679059531"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tile.Schedule.html#Schedule"><span class="hs-identifier hs-type">Schedule</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059531"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679059531"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tile.Collective.html#Collective"><span class="hs-identifier hs-type">Collective</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059531"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059532"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679059533"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679059533"><span class="hs-identifier hs-type">b</span></a></span></span></span></span><span>
+</span><span id="line-114"></span><span id="runCollective"><span class="annot"><span class="annottext">runCollective :: forall m a b. Ord m =&gt; Schedule m -&gt; m -&gt; Collective m a b -&gt; IO b
+</span><a href="Tile.Collective.html#runCollective"><span class="hs-identifier hs-var hs-var">runCollective</span></a></span></span><span> </span><span id="local-6989586621679059600"><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059600"><span class="hs-identifier hs-var">schedule</span></a></span></span><span> </span><span id="local-6989586621679059601"><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059601"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span id="local-6989586621679059602"><span class="annot"><span class="annottext">Collective m a b
+</span><a href="#local-6989586621679059602"><span class="hs-identifier hs-var">collective</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Collective m a b
+</span><a href="#local-6989586621679059602"><span class="hs-identifier hs-var">collective</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-115"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Broadcast"><span class="hs-identifier hs-type">Broadcast</span></a></span><span> </span><span id="local-6989586621679059605"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679059605"><span class="hs-identifier hs-var">payload</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-116"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; a -&gt; IO (Map m a)
+forall m p. Ord m =&gt; Schedule m -&gt; m -&gt; p -&gt; IO (Map m p)
+</span><a href="Tile.Execution.Concurrent.html#runBroadcast"><span class="hs-identifier hs-var">runBroadcast</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059600"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059601"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679059605"><span class="hs-identifier hs-var">payload</span></a></span><span>
+</span><span id="line-117"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Scatter"><span class="hs-identifier hs-type">Scatter</span></a></span><span> </span><span id="local-6989586621679059608"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059608"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-118"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; [(m, a)] -&gt; m -&gt; IO (Map m a)
+forall m a. Ord m =&gt; Schedule m -&gt; [(m, a)] -&gt; m -&gt; IO (Map m a)
+</span><a href="Tile.Execution.Concurrent.html#runScatter"><span class="hs-identifier hs-var">runScatter</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059600"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map m a -&gt; [(m, a)]
+forall k a. Map k a -&gt; [(k, a)]
+</span><span class="hs-identifier hs-var">Map.toList</span></span><span> </span><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059608"><span class="hs-identifier hs-var">vals</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059601"><span class="hs-identifier hs-var">root</span></a></span><span>
+</span><span id="line-119"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Gather"><span class="hs-identifier hs-type">Gather</span></a></span><span> </span><span id="local-6989586621679059611"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059611"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-120"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; Map m a -&gt; m -&gt; IO [(m, a)]
+forall m a. Ord m =&gt; Schedule m -&gt; Map m a -&gt; m -&gt; IO [(m, a)]
+</span><a href="Tile.Execution.Concurrent.html#runGather"><span class="hs-identifier hs-var">runGather</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059600"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059611"><span class="hs-identifier hs-var">vals</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059601"><span class="hs-identifier hs-var">root</span></a></span><span>
+</span><span id="line-121"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#Reduce"><span class="hs-identifier hs-type">Reduce</span></a></span><span> </span><span id="local-6989586621679059614"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059614"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span id="local-6989586621679059615"><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679059615"><span class="hs-identifier hs-var">combine</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-122"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; Map m b -&gt; (b -&gt; b -&gt; b) -&gt; m -&gt; IO b
+forall m v.
+Ord m =&gt;
+Schedule m -&gt; Map m v -&gt; (v -&gt; v -&gt; v) -&gt; m -&gt; IO v
+</span><a href="Tile.Execution.Concurrent.html#runReduce"><span class="hs-identifier hs-var">runReduce</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059600"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">Map m a
+Map m b
+</span><a href="#local-6989586621679059614"><span class="hs-identifier hs-var">vals</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+b -&gt; b -&gt; b
+</span><a href="#local-6989586621679059615"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059601"><span class="hs-identifier hs-var">root</span></a></span><span>
+</span><span id="line-123"></span><span>  </span><span class="annot"><a href="Tile.Collective.html#AllReduce"><span class="hs-identifier hs-type">AllReduce</span></a></span><span> </span><span id="local-6989586621679059618"><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059618"><span class="hs-identifier hs-var">vals</span></a></span></span><span> </span><span id="local-6989586621679059619"><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679059619"><span class="hs-identifier hs-var">combine</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-124"></span><span>    </span><span class="annot"><span class="annottext">Schedule m -&gt; m -&gt; Map m a -&gt; (a -&gt; a -&gt; a) -&gt; IO (Map m a)
+forall m v.
+Ord m =&gt;
+Schedule m -&gt; m -&gt; Map m v -&gt; (v -&gt; v -&gt; v) -&gt; IO (Map m v)
+</span><a href="Tile.Execution.Concurrent.html#runAllReduce"><span class="hs-identifier hs-var">runAllReduce</span></a></span><span> </span><span class="annot"><span class="annottext">Schedule m
+</span><a href="#local-6989586621679059600"><span class="hs-identifier hs-var">schedule</span></a></span><span> </span><span class="annot"><span class="annottext">m
+</span><a href="#local-6989586621679059601"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Map m a
+</span><a href="#local-6989586621679059618"><span class="hs-identifier hs-var">vals</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679059619"><span class="hs-identifier hs-var">combine</span></a></span><span>
+</span><span id="line-125"></span></pre></body></html>
