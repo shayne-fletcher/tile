@@ -24,7 +24,8 @@ tests =
       tilingTests,
       scheduleTests,
       executionTests,
-      affineTests
+      affineTests,
+      collectiveTests
     ]
 
 layoutTests :: TestTree
@@ -325,6 +326,54 @@ testConcurrentScatterAgrees = do
       payloads = [(member, member + 1) | member <- members]
   actual <- runScatter schedule payloads (root tile)
   actual @?= scatterResult schedule (root tile) payloads
+
+collectiveTests :: TestTree
+collectiveTests =
+  testGroup
+    "collective"
+    [ testProperty "T14 interpret Broadcast delivers payload to every member" propCollectiveBroadcastUniform,
+      testProperty "T15 interpret AllReduce equals Broadcast of Reduce" propCollectiveAllReduceDecomposition,
+      testCase "runCollective Broadcast agrees with interpret" testCollectiveRunAgreesBroadcast,
+      testCase "runCollective Reduce preserves tree order" testCollectiveRunAgreesReduceNonCommutative
+    ]
+
+propCollectiveBroadcastUniform :: Property
+propCollectiveBroadcastUniform =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = buildScheduleFrom BFS BlockPartitioning members tile
+        result = interpret schedule (root tile) (Broadcast "payload")
+     in all (== "payload") (Map.elems result) === True
+
+propCollectiveAllReduceDecomposition :: Property
+propCollectiveAllReduceDecomposition =
+  forAll genShape $ \shape ->
+    let tile = rootTile shape
+        members = tileRanks tile
+        schedule = buildScheduleFrom BFS BlockPartitioning members tile
+        vals = Map.fromList [(m, m + 1) | m <- members]
+        lhs = interpret schedule (root tile) (AllReduce vals (+))
+        reduced = interpret schedule (root tile) (Reduce vals (+))
+        rhs = interpret schedule (root tile) (Broadcast reduced)
+     in lhs === rhs
+
+testCollectiveRunAgreesBroadcast :: Assertion
+testCollectiveRunAgreesBroadcast = do
+  let tile = rootTile [2, 2]
+      members = tileRanks tile
+      schedule = buildScheduleFrom BFS BlockPartitioning members tile
+  actual <- runCollective schedule (root tile) (Broadcast "hello")
+  actual @?= interpret schedule (root tile) (Broadcast "hello")
+
+testCollectiveRunAgreesReduceNonCommutative :: Assertion
+testCollectiveRunAgreesReduceNonCommutative = do
+  let tile = rootTile [2, 2]
+      members = tileRanks tile
+      schedule = buildScheduleFrom BFS BlockPartitioning members tile
+      vals = Map.fromList [(m, show m) | m <- members]
+  actual <- runCollective schedule (root tile) (Reduce vals (++))
+  actual @?= interpret schedule (root tile) (Reduce vals (++))
 
 genShape :: Gen Shape
 genShape = do

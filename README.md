@@ -91,6 +91,9 @@ The concurrent runners return observed results. The `run*WithTrace` variants
 `runScatterWithTrace`, `runAllReduceWithTrace`) expose structured message-flow
 events used by the demo.
 
+`Tile.Collective` gives these operations a typed denotation through `Collective`,
+`interpret`, and `runCollective`.
+
 ## Notes
 
 The design is explained in [Structured Multicast via Affine Tiling](article/routing-foundations.md).

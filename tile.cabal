@@ -29,6 +29,7 @@ library
 
     exposed-modules:
       Tile
+      Tile.Collective
       Tile.Shape
       Tile.Tile
       Tile.Tiling
