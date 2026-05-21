@@ -54,6 +54,12 @@ the first non-singleton dimension, producing a balanced binary tree. Both
 implement `Tiling`; `Tile.Tree.contractAnchors` derives the hop tree by
 contracting anchor edges.
 
+`BoundedFanout k` treats fan-out as a tiling policy. It keeps child tiles
+affine rectangles while ensuring the hop tree exposes at most `k` immediate
+communication children whenever `k` is at least the local geometric minimum.
+If `k` is below that rectangular minimum, the tiler uses the minimum lawful
+fan-out instead.
+
 ## Tree
 
 Communication structure is materialized as trees.
@@ -97,5 +103,7 @@ events used by the demo.
 ## Notes
 
 The design is explained in [Structured Multicast via Affine Tiling](article/routing-foundations.md).
+
+Bounded fan-out is described in [Bounded Fan-Out Tiling](article/bounded-fanout.md).
 
 The correctness contract is stated in [Cast Routing Correctness via Affine Tiling](article/routing-theorems.md).

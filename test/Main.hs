@@ -67,8 +67,10 @@ theoremTests =
       testProperty "T2 ranks enumerate the affine space exactly once" propRanksEnumerateSpace,
       testProperty "T3 affine slicing is closed and included in its parent" propAffineSliceIncluded,
       testProperty "T4 structural and communication children are included in their parent" propChildrenIncluded,
-      testProperty "T5 fault-free schedules form a spanning send tree" propFaultFreeScheduleSpansTile,
-      testProperty "T6 occluded schedules deliver exactly to live members" propOccludedScheduleCoversLiveMembers
+      testProperty "T5 bounded fanout respects effective fan-out" propBoundedFanoutChildren,
+      testProperty "T6 bounded fanout honors achievable caps" propBoundedFanoutHonorsAchievableCap,
+      testProperty "T7 fault-free schedules form a spanning send tree" propFaultFreeScheduleSpansTile,
+      testProperty "T8 occluded schedules deliver exactly to live members" propOccludedScheduleCoversLiveMembers
     ]
 
 propAffineRoundtrip :: Property
@@ -122,6 +124,8 @@ propChildrenIncluded =
     let parent = rootTile shape
         blockStructuralChildren = map tile (childNodes BlockPartitioning parent)
         blockCommunicationChildren = children BlockPartitioning parent
+        boundedStructuralChildren = map tile (childNodes (BoundedFanout 2) parent)
+        boundedCommunicationChildren = children (BoundedFanout 2) parent
         bisectionStructuralChildren = map tile (childNodes Bisection parent)
         bisectionCommunicationChildren = children Bisection parent
      in conjoin
@@ -129,11 +133,30 @@ propChildrenIncluded =
               all (ranksIncludedIn parent) blockStructuralChildren,
             counterexample "block communication child outside parent" $
               all (ranksIncludedIn parent) blockCommunicationChildren,
+            counterexample "bounded fanout structural child outside parent" $
+              all (ranksIncludedIn parent) boundedStructuralChildren,
+            counterexample "bounded fanout communication child outside parent" $
+              all (ranksIncludedIn parent) boundedCommunicationChildren,
             counterexample "bisection structural child outside parent" $
               all (ranksIncludedIn parent) bisectionStructuralChildren,
             counterexample "bisection communication child outside parent" $
               all (ranksIncludedIn parent) bisectionCommunicationChildren
           ]
+
+propBoundedFanoutChildren :: Property
+propBoundedFanoutChildren =
+  forAll genShape $ \shape ->
+    forAll (chooseInt (1, 8)) $ \k ->
+      let parent = rootTile shape
+       in length (children (BoundedFanout k) parent) <= effectiveFanout parent k
+
+propBoundedFanoutHonorsAchievableCap :: Property
+propBoundedFanoutHonorsAchievableCap =
+  forAll genShape $ \shape ->
+    forAll (chooseInt (1, 8)) $ \k ->
+      let parent = rootTile shape
+       in minimumFanout parent <= k ==>
+            length (children (BoundedFanout k) parent) <= k
 
 propFaultFreeScheduleSpansTile :: Property
 propFaultFreeScheduleSpansTile =
@@ -576,7 +599,30 @@ tilingTests =
       testCase "bisection children on 1x5 contracts the lower anchor" $
         let row = rootTile [1, 5]
          in map tileRanks (children Bisection row)
-              @?= [[2, 3, 4], [1]]
+              @?= [[2, 3, 4], [1]],
+      testCase "bounded fanout minimum is active dimension count" $ do
+        minimumFanout (rootTile [1, 8]) @?= 1
+        minimumFanout (rootTile [2, 2]) @?= 2
+        minimumFanout (rootTile [2, 2, 2]) @?= 3,
+      testCase "bounded fanout childNodes on 2x2 exposes flat frontier and root anchor" $ do
+        let full = rootTile [2, 2]
+            nodes = childNodes (BoundedFanout 2) full
+        map relation nodes
+          @?= [ Sibling (Split 0 1),
+                Sibling (Split 1 1),
+                Anchor (Split 1 0)
+              ]
+        map (tileRanks . tile) nodes
+          @?= [ [2, 3],
+                [1],
+                [0]
+              ],
+      testCase "bounded fanout children on 1x8 split into exact left-heavy intervals" $
+        let row = rootTile [1, 8]
+         in map tileRanks (children (BoundedFanout 2) row)
+              @?= [[1, 2, 3, 4], [5, 6, 7]],
+      testCase "bounded fanout below geometric minimum uses the minimum" $
+        length (children (BoundedFanout 3) (rootTile [4, 4, 4, 3])) @?= 4
     ]
 
 scheduleTests :: TestTree
@@ -657,6 +703,18 @@ scheduleTests =
                 Step "D" "E"
               ]
         assertBool "expected distinct schedules" (blockSchedule /= bisectionSchedule),
+      testCase "bounded fanout BFS schedule on 1x8 bounds root fan-out" $ do
+        let members = ["A", "B", "C", "D", "E", "F", "G", "H"]
+            boundedSchedule = buildSchedule BFS (BoundedFanout 2) members [1, 8]
+        boundedSchedule
+          @?= [ Step "A" "B",
+                Step "A" "F",
+                Step "B" "C",
+                Step "B" "E",
+                Step "F" "G",
+                Step "F" "H",
+                Step "C" "D"
+              ],
       testCase "occluded DFS schedule reroots within subtree" $ do
         let members = ["A", "B", "C", "D"]
             occ = Occlusion (== "C")

@@ -10,6 +10,9 @@ module Tile.Tiling
 
     -- * Built-in tilings
     BlockPartitioning (..),
+    BoundedFanout (..),
+    minimumFanout,
+    effectiveFanout,
     Bisection (..),
 
     -- * Decomposition nodes
@@ -112,6 +115,24 @@ data TileNode = TileNode
   }
   deriving (Show, Eq)
 
+-- | Minimum communication fan-out required by rectangular geometry.
+--
+-- This is the number of active dimensions in the tile. With affine
+-- rectangular children and a corner root, each active dimension
+-- contributes one necessary frontier region away from the root.
+minimumFanout :: Tile -> Int
+minimumFanout tile =
+  length [n | n <- sizes (space tile), n > 1]
+
+-- | Fan-out actually available to 'BoundedFanout'.
+--
+-- The requested cap is honored when geometry permits it. If the cap
+-- is below the rectangular minimum, the geometric minimum is used
+-- instead.
+effectiveFanout :: Tile -> Int -> Int
+effectiveFanout tile requested =
+  max requested (minimumFanout tile)
+
 -- | Fix one affine dimension of a tile to a single index.
 fixTileDim :: Tile -> Int -> Int -> Maybe Tile
 fixTileDim tile dim i = Tile <$> fixDim (space tile) dim i
@@ -173,6 +194,125 @@ instance Tiling Bisection where
               | Just child <- [selectTileDim tile d 0 lower]
               ]
          in siblings ++ anchors
+
+-- | Rectangular tiling with bounded communication fan-out.
+--
+-- 'BoundedFanout' computes the full local rectangular frontier of a
+-- tile. The frontier contains, for each active dimension, the ranks
+-- whose first coordinate away from the root occurs in that dimension.
+-- The remaining root point is emitted as a terminal anchor.
+--
+-- The requested cap is respected when it is geometrically feasible:
+--
+-- @
+-- minimumFanout tile <= fanout
+--   ==> length (children (BoundedFanout fanout) tile) <= fanout
+-- @
+--
+-- Unconditionally:
+--
+-- @
+-- length (children (BoundedFanout fanout) tile)
+--   <= effectiveFanout tile fanout
+-- @
+--
+-- The tiler preserves affine rectangular children; it does not
+-- introduce jagged regions. A non-positive requested fan-out
+-- produces no children.
+newtype BoundedFanout = BoundedFanout
+  { -- | Requested communication fan-out cap.
+    fanout :: Int
+  }
+  deriving (Show, Eq)
+
+instance Tiling BoundedFanout where
+  childNodes (BoundedFanout requestedFanout) baseTile
+    | requestedFanout <= 0 = []
+    | null activeDims = []
+    | otherwise = siblings ++ anchors
+    where
+      activeDims =
+        [ (d, n)
+        | (d, n) <- zip [0 ..] (sizes (space baseTile)),
+          n > 1
+        ]
+
+      groupCounts =
+        allocateGroups (effectiveFanout baseTile requestedFanout) activeDims
+
+      siblings =
+        concat
+          [ frontierChildren d groupCount
+          | ((d, _), groupCount) <- zip activeDims groupCounts
+          ]
+
+      anchors =
+        [ TileNode child (Anchor (Split d 0))
+        | -- The terminal root-point anchor belongs to every active
+          -- dimension; use the last dimension as its structural label.
+          let d = fst (last activeDims),
+          Just child <- [rootPointTile baseTile activeDims]
+        ]
+
+      frontierChildren d groupCount =
+        [ TileNode child (Sibling (Split d begin))
+        | (begin, end) <- boundedIntervals groupCount (sizes (space baseTile) !! d),
+          Just child <- [frontierTile baseTile activeDims d begin end]
+        ]
+
+allocateGroups :: Int -> [(Int, Int)] -> [Int]
+allocateGroups available activeDims =
+  go extra base capacities
+  where
+    base = replicate (length activeDims) 1
+    capacities = [n - 1 | (_, n) <- activeDims]
+    extra = max 0 (available - length activeDims)
+
+    go _ [] [] = []
+    go remaining (count : counts) (capacity : rest) =
+      let additional = min remaining (capacity - count)
+       in count + additional : go (remaining - additional) counts rest
+    go _ _ _ = error "allocateGroups: mismatched group and capacity lists"
+
+boundedIntervals :: Int -> Int -> [(Int, Int)]
+boundedIntervals groupCount extent
+  | groupCount <= 0 = []
+  | remaining <= 0 = []
+  | otherwise = go 1 groupSizes
+  where
+    remaining = extent - 1
+    groups = min groupCount remaining
+    (base, extra) = remaining `divMod` groups
+
+    groupSizes =
+      [ base + if i < extra then 1 else 0
+      | i <- [0 .. groups - 1]
+      ]
+
+    go _ [] = []
+    go begin (groupSize : rest) =
+      let end = begin + groupSize
+       in (begin, end) : go end rest
+
+frontierTile :: Tile -> [(Int, Int)] -> Int -> Int -> Int -> Maybe Tile
+frontierTile baseTile activeDims dim begin end = do
+  anchored <- anchorPrefix baseTile activeDims dim
+  selectTileDim anchored dim begin end
+
+anchorPrefix :: Tile -> [(Int, Int)] -> Int -> Maybe Tile
+anchorPrefix baseTile activeDims dim =
+  foldl
+    (\mt (d, _) -> mt >>= \tile -> fixTileDim tile d 0)
+    (Just baseTile)
+    (takeWhile ((/= dim) . fst) activeDims)
+
+rootPointTile :: Tile -> [(Int, Int)] -> Maybe Tile
+rootPointTile =
+  foldl
+    ( \mt (d, _) ->
+        mt >>= \tile -> fixTileDim tile d 0
+    )
+    . Just
 
 firstNonSingletonDim :: Tile -> Maybe Int
 firstNonSingletonDim tile =

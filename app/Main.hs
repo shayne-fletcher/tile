@@ -10,6 +10,7 @@ main = do
       shape = [2, 4]
 
       tiling = BlockPartitioning
+      bounded = BoundedFanout 2
       bisection = Bisection
 
       schedule = buildSchedule BFS tiling members shape
@@ -28,6 +29,7 @@ main = do
           ]
 
       full = rootTile shape
+      wide = rootTile [1, 8]
       occE = Occlusion (== "E")
       jaggedEnvelope = rootTile [3, 3]
       jaggedOcclusion = Occlusion (`elem` ["F", "H", "I"])
@@ -61,6 +63,15 @@ main = do
 
   putStrLn "\nbisection send tree:"
   putStr (renderSendTree members (sendTree bisection full))
+
+  putStrLn "\nwide block-partitioned send tree:"
+  putStr (renderSendTree members (sendTree tiling wide))
+
+  putStrLn "\nwide bounded-fanout-2 send tree:"
+  putStr (renderSendTree members (sendTree bounded wide))
+
+  putStrLn "\nwide bisection send tree:"
+  putStr (renderSendTree members (sendTree bisection wide))
 
   putStrLn "\nblock-partitioned broadcast schedule:"
   print schedule

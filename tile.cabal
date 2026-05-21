@@ -13,6 +13,7 @@ category:           System
 build-type:         Simple
 extra-doc-files:
     CHANGELOG.md
+    article/bounded-fanout.md
     article/routing-foundations.md
     article/routing-theorems.md
 -- extra-source-files:
