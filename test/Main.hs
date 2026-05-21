@@ -68,7 +68,9 @@ theoremTests =
       testProperty "T3 affine slicing is closed and included in its parent" propAffineSliceIncluded,
       testProperty "T4 structural and communication children are included in their parent" propChildrenIncluded,
       testProperty "T5 bounded fanout respects effective fan-out" propBoundedFanoutChildren,
+      testProperty "T5s bounded fanout respects effective fan-out on slices" propBoundedFanoutChildrenSliced,
       testProperty "T6 bounded fanout honors achievable caps" propBoundedFanoutHonorsAchievableCap,
+      testProperty "T6s bounded fanout honors achievable caps on slices" propBoundedFanoutHonorsAchievableCapSliced,
       testProperty "T7 fault-free schedules form a spanning send tree" propFaultFreeScheduleSpansTile,
       testProperty "T8 occluded schedules deliver exactly to live members" propOccludedScheduleCoversLiveMembers
     ]
@@ -157,6 +159,27 @@ propBoundedFanoutHonorsAchievableCap =
       let parent = rootTile shape
        in minimumFanout parent <= k ==>
             length (children (BoundedFanout k) parent) <= k
+
+propBoundedFanoutChildrenSliced :: Property
+propBoundedFanoutChildrenSliced =
+  forAll genAffineSlice $ \(shape, dim, begin, end, step) ->
+    forAll (chooseInt (1, 8)) $ \k ->
+      case select (rowMajor shape) dim begin end step of
+        Nothing -> property True
+        Just sliced ->
+          let parent = Tile sliced
+           in property (length (children (BoundedFanout k) parent) <= effectiveFanout parent k)
+
+propBoundedFanoutHonorsAchievableCapSliced :: Property
+propBoundedFanoutHonorsAchievableCapSliced =
+  forAll genAffineSlice $ \(shape, dim, begin, end, step) ->
+    forAll (chooseInt (1, 8)) $ \k ->
+      case select (rowMajor shape) dim begin end step of
+        Nothing -> property True
+        Just sliced ->
+          let parent = Tile sliced
+           in minimumFanout parent <= k ==>
+                length (children (BoundedFanout k) parent) <= k
 
 propFaultFreeScheduleSpansTile :: Property
 propFaultFreeScheduleSpansTile =
@@ -445,6 +468,17 @@ inclusionTests =
         map tileRanks (children BlockPartitioning middleColumns)
           @?= [[5, 6], [2]]
         mapM_ (assertRanksIncludedIn middleColumns) (children BlockPartitioning middleColumns),
+      testCase "BoundedFanout 2 over a sliced tile preserves base-rank frame" $ do
+        let full = rootTile [2, 4]
+            middleColumns = expectTile "middle columns" (Tile <$> select (space full) 1 1 3 1)
+        -- slice members: {1, 2, 5, 6}; root rank 1.
+        root middleColumns @?= 1
+        sort (tileRanks middleColumns) @?= [1, 2, 5, 6]
+        -- communication children: sibling rank 5 (covers {5, 6}) and sibling rank 2.
+        let kids = children (BoundedFanout 2) middleColumns
+        map root kids @?= [5, 2]
+        map (sort . tileRanks) kids @?= [[5, 6], [2]]
+        mapM_ (assertRanksIncludedIn middleColumns) kids,
       testCase "occluded schedule over jagged region sends only to live members" $ do
         let members = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
             occ = Occlusion (`elem` ["F", "H", "I"])
