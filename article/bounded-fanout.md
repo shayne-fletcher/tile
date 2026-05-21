@@ -1,4 +1,4 @@
-# Bounded Fan-Out Tiling
+# Bounded Fanout Tiling
 
 `BlockPartitioning` is latency-oriented. It decomposes one dimension at a time
 and gives a shallow communication tree, but the local fan-out can be large.
@@ -38,7 +38,9 @@ A
 
 `BoundedFanout k` exposes this tradeoff as a tiling parameter.
 
-Large `k` gives shallow, block-partitioning-like schedules. Small feasible `k`
+Large `k` approaches `BlockPartitioning` at the root; interior tiles continue to
+observe the cap as they recurse, so the per-hop fan-out budget is honored
+throughout the tree rather than only at the entry point. Small feasible `k`
 gives deeper, bisection-like schedules with lower local fan-out. The
 interpolation is behavioral rather than structural: `BoundedFanout` computes a
 local rectangular frontier, while `BlockPartitioning` and `Bisection` use
@@ -110,6 +112,13 @@ minimumFanout tile <= k
 The fallback is local. A high-dimensional root may require more than the
 requested cap, but interior tiles often have fewer active dimensions after
 earlier splits. At those interior tiles, the requested cap is honored again.
+
+When the requested cap exceeds the per-dimension floor, the surplus is
+distributed across active dimensions in declaration order, up to each
+dimension's capacity (`n - 1` for a dimension of size `n`). So `BoundedFanout 4`
+over a `2 x 4` tile gives one frontier piece to dimension `0` (capacity `1`,
+saturated) and two frontier pieces to dimension `1` — the dim order matters
+when the cap is between the floor and the maximum.
 
 ## Relations
 
@@ -204,6 +213,75 @@ A
 
 The root fan-out is bounded by `2`, and the depth increases accordingly.
 
+### Multi-dimensional frontier: `BoundedFanout 3` over `2 x 4`
+
+For a `2 x 4` tile:
+
+```text
+A B C D
+E F G H
+```
+
+dimension `0` has capacity `1` (size `2`), dimension `1` has capacity `3`
+(size `4`). `minimumFanout = 2`; `effectiveFanout` with `k = 3` is `3`.
+`allocateGroups` gives `[1, 2]` — one frontier piece for dim `0`, two for dim
+`1`. The root frontier:
+
+```text
+[E F G H]    dim 0, away-from-root
+[B C]        dim 1, with dim 0 anchored
+[D]          dim 1, with dim 0 anchored
+```
+
+and the send tree:
+
+```text
+A
+├─ E
+│  ├─ F
+│  ├─ G
+│  └─ H
+├─ B
+│  └─ C
+└─ D
+```
+
+Root fan-out is exactly `3`. At interior tile `E` (a `1 x 4` subtile),
+`activeDims` shrinks to one, the per-dim floor drops to one, and the cap is
+fully available — `E`'s fan-out is again `3`. At `B` (a `1 x 2` subtile)
+geometry caps fan-out at `1`.
+
+### Narrow rectangle with larger `k`: `BoundedFanout 4` over `1 x 8`
+
+To show that `BoundedFanout` isn't just a relabelled bisection, raise `k`
+above `2` on the same `1 x 8` tile. With `k = 4`, `allocateGroups` gives `[4]`,
+`boundedIntervals 4 8` yields four intervals of sizes `[2, 2, 2, 1]`, and the
+root frontier becomes:
+
+```text
+[B C]    [D E]    [F G]    [H]
+```
+
+The send tree:
+
+```text
+A
+├─ B
+│  └─ C
+├─ D
+│  └─ E
+├─ F
+│  └─ G
+└─ H
+```
+
+Compare against bisection on the same `1 x 8` (fan-out 3, depth 3) and block
+partitioning (fan-out 7, depth 1). `BoundedFanout 4` sits between them with
+fan-out `4` and depth `2` — exactly the tunable point the parameter is meant
+to expose. The intervals are sized by integer division (the first `extra =
+remaining mod groups` intervals get one more element), so distribution is
+deterministic and balanced.
+
 ## Interpretation
 
 The tradeoff now lives in the tiling algebra:
@@ -216,9 +294,29 @@ Bisection
   low-fan-out reference point
 
 BoundedFanout k
-  tunable fan-out/depth tradeoff
+  tunable fan-out/depth tradeoff, honored at every tile in the tree
 ```
 
 The schedule and executor do not need special cases. They read the hop tree
 produced by the tiler.
+
+## When to pick which
+
+- **`BlockPartitioning`** when latency dominates and per-hop fan-out is
+  unconstrained — a single hop reaches every member, and tree depth is
+  minimal.
+- **`Bisection`** as a low-fan-out reference point for benchmarking or when
+  the per-hop budget is genuinely the smallest geometrically possible.
+- **`BoundedFanout k`** when there is a known per-hop fan-out budget (network
+  fan-out cap, per-process outgoing connection limit, etc.). `k` is honored
+  at every interior tile, not just at the root.
+
+## Implementation
+
+`src/Tile/Tiling.hs`. Exports `BoundedFanout`, `minimumFanout`, and
+`effectiveFanout`; instances `Tiling BoundedFanout`. Helpers `allocateGroups`,
+`boundedIntervals`, `frontierTile`, `anchorPrefix`, and `rootPointTile` are
+internal. The same `Relation` algebra (`Anchor` / `Sibling`) is shared with
+`BlockPartitioning` and `Bisection`; `contractAnchors` requires no changes
+for the new tiler.
 
