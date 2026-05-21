@@ -320,3 +320,72 @@ internal. The same `Relation` algebra (`Anchor` / `Sibling`) is shared with
 `BlockPartitioning` and `Bisection`; `contractAnchors` requires no changes
 for the new tiler.
 
+---
+
+For BoundedFanout k > 4 on 2 x 4 the full local frontier is computed in one shot: dim 0 contributes [E F G H], dim 1 (with dim 0 anchored) contributes [B], [C], [D], and A is the terminal anchor. Then t1 recurses.
+```
+  ┌──────────────────────────────────────────────────────────┐
+  │ t0                                                       │
+  │                                                          │
+  │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐                  │
+  │  │  A   │  │  B   │  │  C   │  │  D   │                  │
+  │  │  t5  │  │  t2  │  │  t3  │  │  t4  │                  │
+  │  └──────┘  └──────┘  └──────┘  └──────┘                  │
+  │                                                          │
+  │  ┌────────────────────────────────────────────────┐      │
+  │  │ t1                                             │      │
+  │  │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐        │      │
+  │  │  │  E   │  │  F   │  │  G   │  │  H   │        │      │
+  │  │  │  t9  │  │  t6  │  │  t7  │  │  t8  │        │      │
+  │  │  └──────┘  └──────┘  └──────┘  └──────┘        │      │
+  │  └────────────────────────────────────────────────┘      │
+  └──────────────────────────────────────────────────────────┘
+
+  A (t0)
+  ├─ E (t1)
+  │  ├─ F (t6)
+  │  ├─ G (t7)
+  │  └─ H (t8)
+  ├─ B (t2)
+  ├─ C (t3)
+  └─ D (t4)
+```
+A and E are anchors — structural cover only, not communication children. The send tree root fan-out is 4: B, C, D, and E (root of t1). Then t1 fans out to 3: F, G, H.
+
+With k = 2, allocateGroups gives [1, 1] — one group per active dimension. Dim 0 gets [E F G H], dim 1 (anchored) gets [B C D] as a single slab. Then each recurses with the same cap.
+```
+  ┌──────────────────────────────────────────────────────────────┐
+  │ t0                                                           │
+  │                                                              │
+  │  ┌──────┐  ┌────────────────────────────────────────────┐    │
+  │  │  A   │  │ t2                                         │    │
+  │  │  t3  │  │  ┌──────┐  ┌──────┐  ┌──────┐              │    │
+  │  └──────┘  │  │  B   │  │  C   │  │  D   │              │    │
+  │            │  │  t9  │  │  t7  │  │  t8  │              │    │
+  │            │  └──────┘  └──────┘  └──────┘              │    │
+  │            └────────────────────────────────────────────┘    │
+  │                                                              │
+  │  ┌──────────────────────────────────────────────────────┐    │
+  │  │ t1                                                   │    │
+  │  │  ┌──────┐  ┌────────────────────────┐  ┌──────┐      │    │
+  │  │  │  E   │  │ t4                     │  │  H   │      │    │
+  │  │  │  t6  │  │  ┌──────┐  ┌──────┐    │  │  t5  │      │    │
+  │  │  └──────┘  │  │  F   │  │  G   │    │  └──────┘      │    │
+  │  │            │  │  t11 │  │  t10 │    │                │    │
+  │  │            │  └──────┘  └──────┘    │                │    │
+  │  │            └────────────────────────┘                │    │
+  │  └──────────────────────────────────────────────────────┘    │
+  └──────────────────────────────────────────────────────────────┘
+
+
+  A (t0)
+  ├─ E (t1)
+  │  ├─ F (t4)
+  │  │  └─ G (t10)
+  │  └─ H (t5)
+  └─ B (t2)
+     ├─ C (t7)
+     └─ D (t8)
+```
+
+Root fan-out is 2: E (root of t1) and B (root of t2). Each interior tile fans out at most 2. Compare with k > 4 where t2 was already flat singletons — here t2 still has depth.
